@@ -7,3 +7,6 @@ pydantic-settings
 python-dotenv
 pytest
 httpx
+PyJWT
+pwdlib[argon2]
+email-validator

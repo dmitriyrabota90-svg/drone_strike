@@ -10,29 +10,29 @@ Android emulator target for future development: `http://10.0.2.2:8000`.
 
 ## Auth
 
-- `POST /auth/register` - create account with email, password, required legal confirmations, and age confirmation.
-- `POST /auth/login` - issue access and refresh tokens.
-- `POST /auth/refresh` - rotate refresh token and issue a new access token.
-- `POST /auth/logout` - revoke current refresh token.
-- `POST /auth/delete-account` - delete account after password confirmation.
+- `POST /api/v1/auth/register` - implemented. Creates account with email, password, required legal confirmations, age 13+ confirmation, generated `DroneXXXX` display name, access token, and refresh token.
+- `POST /api/v1/auth/login` - implemented. Issues access and refresh tokens.
+- `POST /api/v1/auth/refresh` - implemented. Validates stored refresh token hash and issues a new access token.
+- `POST /api/v1/auth/logout` - implemented. Revokes current refresh token.
+- `POST /api/v1/auth/delete-account` - planned. Delete account after password confirmation.
 
 ## Profile
 
-- `GET /me` - return current user and player profile.
-- `PATCH /me/display-name` - change display name, with one free change in MVP rules.
+- `GET /api/v1/me` - implemented. Returns current user and player profile from Bearer access token.
+- `PATCH /api/v1/me/display-name` - planned. Change display name, with one free change in MVP rules.
 
 ## Progress
 
-- `GET /progress` - return mission progress and best scores.
-- `POST /progress/mission-complete` - submit completed mission result and update best score.
-- `POST /progress/sync` - sync local progress snapshot with server state.
+- `GET /api/v1/progress` - planned. Return mission progress and best scores.
+- `POST /api/v1/progress/mission-complete` - planned. Submit completed mission result and update best score.
+- `POST /api/v1/progress/sync` - planned. Sync local progress snapshot with server state.
 
 ## Leaderboard
 
-- `GET /leaderboard` - return global leaderboard by `totalScore`.
-- `GET /leaderboard/me` - return current player rank and nearby players.
+- `GET /api/v1/leaderboard` - planned. Return global leaderboard by `totalScore`.
+- `GET /api/v1/leaderboard/me` - planned. Return current player rank and nearby players.
 
 ## Legal
 
-- `GET /legal/documents` - return active legal document versions.
-- `POST /legal/accept` - save legal acceptance for terms, personal data consent, and age confirmation.
+- `GET /api/v1/legal/documents` - planned. Return active legal document versions.
+- `POST /api/v1/legal/accept` - planned. Save legal acceptance for terms, personal data consent, and age confirmation.

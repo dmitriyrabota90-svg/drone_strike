@@ -10,6 +10,12 @@ class Settings(BaseSettings):
     database_url: str = (
         "postgresql+psycopg://drone_user:drone_password@localhost:5432/drone_strike"
     )
+    jwt_secret_key: str = "dev-secret-change-me-dev-only-please"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 30
+    legal_terms_version: str = "1.0"
+    legal_personal_data_version: str = "1.0"
 
     model_config = SettingsConfigDict(
         env_file=".env",
