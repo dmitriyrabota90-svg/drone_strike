@@ -215,4 +215,19 @@ void main() {
     expect(scoring.flightAccuracyBonus, inInclusiveRange(0, 50));
     expect(tankBonus, inInclusiveRange(0, 50));
   });
+
+  test('level config keeps tutorial gaps and smooth mission scaling', () {
+    final mission1 = LevelConfig.forMission(1);
+    final mission2 = LevelConfig.forMission(2);
+    final mission3 = LevelConfig.forMission(3);
+    final mission10 = LevelConfig.forMission(10);
+
+    expect(mission1.gapMultiplier, 1.8);
+    expect(mission2.gapMultiplier, 1.6);
+    expect(mission3.gapMultiplier, 1.4);
+    expect(mission1.forwardSpeed, lessThan(mission2.forwardSpeed));
+    expect(mission2.forwardSpeed, lessThan(mission3.forwardSpeed));
+    expect(mission10.forwardSpeed, greaterThan(mission3.forwardSpeed));
+    expect(mission10.obstacleCount, inInclusiveRange(12, 15));
+  });
 }

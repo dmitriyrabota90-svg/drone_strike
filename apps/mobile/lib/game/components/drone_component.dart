@@ -14,8 +14,8 @@ class DroneComponent extends PositionComponent {
   Future<void> onLoad() async {
     await add(
       RectangleHitbox(
-        size: Vector2(GameConfig.droneWidth - 10, GameConfig.droneHeight - 8),
-        position: Vector2(5, 4),
+        size: Vector2(GameConfig.droneWidth - 14, GameConfig.droneHeight - 12),
+        position: Vector2(7, 6),
       ),
     );
   }
@@ -23,6 +23,10 @@ class DroneComponent extends PositionComponent {
   @override
   void update(double dt) {
     verticalVelocity += GameConfig.gravity * dt;
+    verticalVelocity = verticalVelocity.clamp(
+      GameConfig.maxRiseVelocity,
+      GameConfig.maxFallVelocity,
+    );
     position.y += verticalVelocity * dt;
   }
 
@@ -37,21 +41,42 @@ class DroneComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
-    final bodyPaint = Paint()..color = const Color(0xFF89D8FF);
-    final shadowPaint = Paint()..color = const Color(0xFF1C3954);
+    final armPaint = Paint()..color = const Color(0xFF5AAFD2);
+    final bodyPaint = Paint()..color = const Color(0xFF10263A);
+    final bodyLightPaint = Paint()..color = const Color(0xFF8BE2FF);
     final rotorPaint = Paint()..color = const Color(0xFFE8F7FF);
+    final rotorShadowPaint = Paint()..color = const Color(0xFF4C7890);
     final cameraPaint = Paint()..color = const Color(0xFFFFD166);
+    final redAccentPaint = Paint()..color = const Color(0xFFFF5A66);
+    final blueAccentPaint = Paint()..color = const Color(0xFF4DA3FF);
 
-    canvas.drawRect(const Rect.fromLTWH(16, 10, 26, 12), bodyPaint);
-    canvas.drawRect(const Rect.fromLTWH(12, 14, 34, 6), shadowPaint);
-    canvas.drawRect(const Rect.fromLTWH(42, 13, 8, 8), cameraPaint);
+    canvas.drawRect(const Rect.fromLTWH(11, 8, 36, 4), armPaint);
+    canvas.drawRect(const Rect.fromLTWH(11, 20, 36, 4), armPaint);
+    canvas.drawRect(const Rect.fromLTWH(15, 6, 5, 20), armPaint);
+    canvas.drawRect(const Rect.fromLTWH(37, 6, 5, 20), armPaint);
 
-    canvas.drawRect(const Rect.fromLTWH(7, 5, 11, 5), rotorPaint);
-    canvas.drawRect(const Rect.fromLTWH(7, 22, 11, 5), rotorPaint);
-    canvas.drawRect(const Rect.fromLTWH(39, 5, 11, 5), rotorPaint);
-    canvas.drawRect(const Rect.fromLTWH(39, 22, 11, 5), rotorPaint);
+    _drawRotor(canvas, const Offset(10, 5), rotorPaint, rotorShadowPaint);
+    _drawRotor(canvas, const Offset(10, 22), rotorPaint, rotorShadowPaint);
+    _drawRotor(canvas, const Offset(39, 5), rotorPaint, rotorShadowPaint);
+    _drawRotor(canvas, const Offset(39, 22), rotorPaint, rotorShadowPaint);
 
-    canvas.drawRect(const Rect.fromLTWH(13, 9, 6, 14), bodyPaint);
-    canvas.drawRect(const Rect.fromLTWH(38, 9, 6, 14), bodyPaint);
+    canvas.drawRect(const Rect.fromLTWH(18, 10, 22, 12), bodyPaint);
+    canvas.drawRect(const Rect.fromLTWH(21, 12, 16, 4), bodyLightPaint);
+    canvas.drawRect(const Rect.fromLTWH(39, 13, 9, 7), cameraPaint);
+    canvas.drawRect(const Rect.fromLTWH(20, 20, 6, 3), redAccentPaint);
+    canvas.drawRect(const Rect.fromLTWH(31, 20, 6, 3), blueAccentPaint);
+  }
+
+  void _drawRotor(
+    Canvas canvas,
+    Offset offset,
+    Paint rotorPaint,
+    Paint shadowPaint,
+  ) {
+    canvas.drawRect(Rect.fromLTWH(offset.dx, offset.dy, 9, 5), shadowPaint);
+    canvas.drawRect(
+      Rect.fromLTWH(offset.dx - 2, offset.dy + 1, 13, 3),
+      rotorPaint,
+    );
   }
 }

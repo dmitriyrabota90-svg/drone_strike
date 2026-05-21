@@ -2,10 +2,12 @@ class GameConfig {
   const GameConfig._();
 
   // Temporary physics values. They will be balanced after real device testing.
-  static const gravity = 650.0;
-  static const tapImpulse = -330.0;
-  static const droneStartXRatio = 0.23;
-  static const droneStartYRatio = 0.48;
+  static const gravity = 610.0;
+  static const tapImpulse = -345.0;
+  static const maxFallVelocity = 430.0;
+  static const maxRiseVelocity = -390.0;
+  static const droneStartXRatio = 0.22;
+  static const droneStartYRatio = 0.50;
   static const droneWidth = 56.0;
   static const droneHeight = 32.0;
   static const forwardSpeed = 140.0;

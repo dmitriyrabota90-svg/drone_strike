@@ -16,6 +16,8 @@ class LevelConfig {
   factory LevelConfig.forMission(int missionNumber) {
     final clampedMission = missionNumber.clamp(1, 10).toInt();
 
+    // Temporary balance table for the first playable prototype.
+    // These values should be tuned again after real device playtests.
     if (clampedMission == 1) {
       return const LevelConfig(
         missionNumber: 1,
@@ -23,9 +25,9 @@ class LevelConfig {
         finalZoneSeconds: 8,
         obstacleCount: 8,
         gapMultiplier: 1.8,
-        forwardSpeed: 118,
+        forwardSpeed: 112,
         obstacleWidth: 72,
-        minObstacleSpacing: GameConfig.droneWidth * 3,
+        minObstacleSpacing: GameConfig.droneWidth * 3.35,
         isTutorial: true,
       );
     }
@@ -37,23 +39,23 @@ class LevelConfig {
         finalZoneSeconds: 8,
         obstacleCount: 10,
         gapMultiplier: 1.6,
-        forwardSpeed: 130,
+        forwardSpeed: 124,
         obstacleWidth: 74,
-        minObstacleSpacing: GameConfig.droneWidth * 3,
+        minObstacleSpacing: GameConfig.droneWidth * 3.2,
         isTutorial: true,
       );
     }
 
-    final extraObstacles = ((clampedMission - 3) ~/ 3).clamp(0, 3);
+    final extraObstacles = ((clampedMission - 3) ~/ 2).clamp(0, 3);
     return LevelConfig(
       missionNumber: clampedMission,
       missionDurationSeconds: 60,
       finalZoneSeconds: 8,
       obstacleCount: 12 + extraObstacles,
       gapMultiplier: 1.4,
-      forwardSpeed: 136 + (clampedMission - 3) * 4,
+      forwardSpeed: 132 + (clampedMission - 3) * 3.5,
       obstacleWidth: 76,
-      minObstacleSpacing: GameConfig.droneWidth * 3,
+      minObstacleSpacing: GameConfig.droneWidth * 3.05,
       isTutorial: false,
     );
   }

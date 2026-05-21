@@ -22,10 +22,10 @@ class TreeComponent extends PositionComponent {
 
   Rect get collisionRect {
     return Rect.fromLTWH(
-      position.x + treeWidth * 0.12,
-      position.y + 2,
-      treeWidth * 0.76,
-      treeHeight - 2,
+      position.x + treeWidth * 0.16,
+      position.y + 4,
+      treeWidth * 0.68,
+      treeHeight - 6,
     );
   }
 
@@ -42,10 +42,11 @@ class TreeComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
-    final trunkPaint = Paint()..color = const Color(0xFF7B4A2A);
+    final trunkPaint = Paint()..color = const Color(0xFF8A5631);
     final trunkShadowPaint = Paint()..color = const Color(0xFF4A2C1C);
-    final crownPaint = Paint()..color = const Color(0xFF2D7A46);
-    final crownDarkPaint = Paint()..color = const Color(0xFF1D5935);
+    final crownPaint = Paint()..color = const Color(0xFF2F8A4D);
+    final crownDarkPaint = Paint()..color = const Color(0xFF173E2A);
+    final crownEdgePaint = Paint()..color = const Color(0xFF64B36F);
 
     final trunkWidth = treeWidth * 0.24;
     final trunkX = (treeWidth - trunkWidth) / 2;
@@ -65,8 +66,16 @@ class TreeComponent extends PositionComponent {
 
     final crownHeight = treeHeight * 0.58;
     canvas.drawRect(
+      Rect.fromLTWH(treeWidth * 0.05, 2, treeWidth * 0.90, crownHeight),
+      crownDarkPaint,
+    );
+    canvas.drawRect(
       Rect.fromLTWH(treeWidth * 0.08, 0, treeWidth * 0.84, crownHeight),
       crownPaint,
+    );
+    canvas.drawRect(
+      Rect.fromLTWH(treeWidth * 0.12, 3, treeWidth * 0.32, 5),
+      crownEdgePaint,
     );
     canvas.drawRect(
       Rect.fromLTWH(treeWidth * 0.16, crownHeight * 0.18, treeWidth * 0.68, 10),

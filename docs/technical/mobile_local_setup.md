@@ -157,3 +157,18 @@ Manual flow:
 9. Confirm result overlay shows base, accuracy, tank, and total score.
 10. If logged in, confirm Profile/Progress updates.
 11. Check Leaderboard after completion.
+
+## 13. Game Feel Manual Test
+
+1. Open Mission 1.
+2. Confirm Tap to start state.
+3. Tap once and confirm the drone jumps upward.
+4. Stop tapping and confirm the drone falls predictably.
+5. Fly through the first gaps.
+6. Crash into a tree, net, or boundary and confirm Game Over.
+7. Restart mission.
+8. Reach the final zone.
+9. Stop tapping and try to hit the tank.
+10. Confirm Mission Complete.
+11. Check pause and resume.
+12. Check no lives behavior.

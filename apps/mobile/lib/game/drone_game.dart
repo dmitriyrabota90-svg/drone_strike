@@ -158,9 +158,11 @@ class DroneGame extends FlameGame with TapCallbacks {
   }
 
   void restart() {
+    final currentLives = stateNotifier.value.lives;
     overlays.remove(pauseOverlay);
     overlays.remove(gameOverOverlay);
     overlays.remove(missionCompleteOverlay);
+    overlays.remove(noLivesOverlay);
     _progressSystem.reset();
     _scoringSystem = ScoringSystem();
     _worldOffset = 0;
@@ -169,7 +171,7 @@ class DroneGame extends FlameGame with TapCallbacks {
     _updateWorldComponents();
     stateNotifier.value = DroneGameState(
       missionNumber: levelConfig.missionNumber,
-      lives: 3,
+      lives: currentLives,
       score: 0,
       playerLevel: initialPlayerLevel,
       remainingDistanceMeters: levelConfig.missionDistanceMeters,
@@ -301,10 +303,10 @@ class DroneGame extends FlameGame with TapCallbacks {
 
   Rect get _droneRect {
     return Rect.fromLTWH(
-      _drone.position.x + 5,
-      _drone.position.y + 4,
-      _drone.size.x - 10,
-      _drone.size.y - 8,
+      _drone.position.x + 7,
+      _drone.position.y + 6,
+      _drone.size.x - 14,
+      _drone.size.y - 12,
     );
   }
 

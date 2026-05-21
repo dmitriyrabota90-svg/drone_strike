@@ -52,6 +52,11 @@ Mobile scaffold created:
 - Mission result scoring
 - Guest progress for missions 1-2
 - Tank hit mission result sync for authenticated users
+- Game feel polish pass
+- Better compact HUD
+- Improved Canvas placeholders for drone, trees, nets, and tank
+- First 10 mission balance draft
+- Collision fairness pass
 - Server-side lives recovery planned later
 - Full offline sync queue planned later
 

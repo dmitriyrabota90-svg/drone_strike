@@ -23,10 +23,10 @@ class LevelGenerator {
   }) {
     final gapHeight = GameConfig.droneHeight * config.gapMultiplier;
     final bottomY = viewportSize.y - GameConfig.bottomBoundaryHeight;
-    final usableTop = GameConfig.topBoundaryHeight + 44;
-    final usableBottom = bottomY - 92 - gapHeight;
+    final usableTop = GameConfig.topBoundaryHeight + 48;
+    final usableBottom = bottomY - 98 - gapHeight;
     final safeBottom = math.max(usableTop, usableBottom);
-    final obstacleZoneStart = viewportSize.x + 260;
+    final obstacleZoneStart = viewportSize.x + (config.isTutorial ? 330 : 285);
     final obstacleZoneEnd =
         config.obstacleZoneDistance - config.finalZoneDistance * 0.45;
     final spacing = math.max(
@@ -37,10 +37,10 @@ class LevelGenerator {
     final pairs = <ObstaclePairComponent>[];
     for (var i = 0; i < config.obstacleCount; i++) {
       final wave = math.sin((i + 1) * 1.37 + config.missionNumber * 0.43);
-      final spacingJitter = (i % 3 - 1) * 18.0;
+      final spacingJitter = (i % 3 - 1) * (config.isTutorial ? 12.0 : 18.0);
       final worldX = obstacleZoneStart + spacing * i + spacingJitter;
       final isLast = i == config.obstacleCount - 1;
-      final pairGapHeight = isLast ? gapHeight + 18 : gapHeight;
+      final pairGapHeight = isLast ? gapHeight + 22 : gapHeight;
       final gapTop = usableTop + (safeBottom - usableTop) * ((wave + 1) / 2);
       final netHeight = gapTop - GameConfig.topBoundaryHeight;
       final treeTop = gapTop + pairGapHeight;

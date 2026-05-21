@@ -21,7 +21,12 @@ class NetComponent extends PositionComponent {
   }
 
   Rect get collisionRect {
-    return Rect.fromLTWH(position.x, position.y, netWidth, netHeight);
+    return Rect.fromLTWH(
+      position.x + 2,
+      position.y,
+      netWidth - 4,
+      netHeight - 2,
+    );
   }
 
   void updateWorld({required double worldOffset}) {
@@ -31,21 +36,24 @@ class NetComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
+    final fillPaint = Paint()..color = const Color(0x22081222);
     final framePaint = Paint()
-      ..color = const Color(0xFFBFD6E8)
+      ..color = const Color(0xFFD2E8F6)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     final meshPaint = Paint()
-      ..color = const Color(0x8894B6CA)
+      ..color = const Color(0xAA94B6CA)
       ..strokeWidth = 1;
     final hazardPaint = Paint()..color = const Color(0xFFE54B5D);
 
+    canvas.drawRect(size.toRect(), fillPaint);
+    canvas.drawRect(Rect.fromLTWH(0, 0, netWidth, 4), hazardPaint);
     canvas.drawRect(size.toRect(), framePaint);
 
-    for (var x = 8.0; x < netWidth; x += 12) {
+    for (var x = 7.0; x < netWidth; x += 11) {
       canvas.drawLine(Offset(x, 0), Offset(x, netHeight), meshPaint);
     }
-    for (var y = 10.0; y < netHeight; y += 12) {
+    for (var y = 9.0; y < netHeight; y += 11) {
       canvas.drawLine(Offset(0, y), Offset(netWidth, y), meshPaint);
     }
 

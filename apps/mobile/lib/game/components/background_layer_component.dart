@@ -25,12 +25,16 @@ class BackgroundLayerComponent extends PositionComponent {
   @override
   void render(Canvas canvas) {
     canvas.drawRect(size.toRect(), Paint()..color = const Color(0xFF061426));
+    canvas.drawRect(
+      Rect.fromLTWH(0, size.y * 0.55, size.x, size.y * 0.45),
+      Paint()..color = const Color(0x66030A12),
+    );
     _drawClouds(canvas);
     _drawForest(canvas);
   }
 
   void _drawClouds(Canvas canvas) {
-    final paint = Paint()..color = const Color(0x332F78A3);
+    final paint = Paint()..color = const Color(0x262F78A3);
     for (var i = 0; i < 7; i++) {
       final baseX = (i * 140.0 - _scroll * 0.28) % (size.x + 160) - 80;
       final y = 36.0 + (i % 3) * 34;
@@ -42,8 +46,8 @@ class BackgroundLayerComponent extends PositionComponent {
 
   void _drawForest(Canvas canvas) {
     final groundY = size.y - 76;
-    final farPaint = Paint()..color = const Color(0xFF0B2233);
-    final nearPaint = Paint()..color = const Color(0xFF0E2F32);
+    final farPaint = Paint()..color = const Color(0xFF071A28);
+    final nearPaint = Paint()..color = const Color(0xFF0A2629);
 
     for (var i = 0; i < 18; i++) {
       final x = (i * 64.0 - _scroll * 0.55) % (size.x + 80) - 40;
@@ -53,7 +57,7 @@ class BackgroundLayerComponent extends PositionComponent {
 
     for (var i = 0; i < 16; i++) {
       final x = (i * 78.0 - _scroll) % (size.x + 90) - 45;
-      final height = 46.0 + math.sin(i * 1.7).abs() * 30;
+      final height = 38.0 + math.sin(i * 1.7).abs() * 24;
       _drawTree(canvas, x, size.y - 28, height, nearPaint);
     }
   }

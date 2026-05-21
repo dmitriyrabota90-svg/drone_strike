@@ -13,58 +13,100 @@ class GameHud extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return SafeArea(
-      child: Align(
-        alignment: Alignment.topCenter,
+    return SizedBox.expand(
+      child: SafeArea(
         child: ValueListenableBuilder<DroneGameState>(
           valueListenable: game.stateNotifier,
           builder: (context, state, child) {
-            return Padding(
-              padding: const EdgeInsets.all(10),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: const Color(0xCC061426),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFF29476A)),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 8,
-                  ),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      _HudChip(label: l10n.lives, value: '${state.lives}'),
-                      _HudChip(
-                        label: l10n.mission,
-                        value: '${state.missionNumber}',
-                      ),
-                      _HudChip(
-                        label: l10n.distance,
-                        value: '${state.remainingDistanceMeters.ceil()} m',
-                      ),
-                      _HudChip(label: l10n.score, value: '${state.score}'),
-                      _HudChip(
-                        label: l10n.playerLevel,
-                        value: '${state.playerLevel}',
-                      ),
-                      if (state.status == DroneMissionStatus.ready)
-                        Text(
-                          l10n.tapToStart,
-                          style: Theme.of(context).textTheme.bodySmall,
+            return Stack(
+              fit: StackFit.expand,
+              children: [
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  right: 8,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: const Color(0xD9061426),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF355E83)),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x66000000),
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
                         ),
-                      IconButton.filledTonal(
-                        tooltip: l10n.pause,
-                        onPressed: game.pauseGame,
-                        icon: const Icon(Icons.pause),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 6,
                       ),
-                    ],
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          SizedBox.square(
+                            dimension: 36,
+                            child: IconButton.filledTonal(
+                              tooltip: l10n.pause,
+                              padding: EdgeInsets.zero,
+                              onPressed: game.pauseGame,
+                              icon: const Icon(Icons.pause, size: 18),
+                            ),
+                          ),
+                          _HudChip(label: l10n.lives, value: '${state.lives}'),
+                          _HudChip(
+                            label: l10n.mission,
+                            value: '${state.missionNumber}',
+                          ),
+                          _HudChip(
+                            label: l10n.distance,
+                            value: '${state.remainingDistanceMeters.ceil()} m',
+                          ),
+                          _HudChip(label: l10n.score, value: '${state.score}'),
+                          _HudChip(
+                            label: l10n.playerLevel,
+                            value: '${state.playerLevel}',
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                if (state.status == DroneMissionStatus.ready)
+                  Center(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: const Color(0xC9061426),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFF89D8FF)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.touch_app,
+                              color: Color(0xFF89D8FF),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              l10n.tapToStart,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             );
           },
         ),
@@ -88,8 +130,14 @@ class _HudChip extends StatelessWidget {
         border: Border.all(color: const Color(0xFF31516F)),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        child: Text('$label: $value'),
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+        child: Text(
+          '$label: $value',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: const Color(0xFFE8F7FF),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }

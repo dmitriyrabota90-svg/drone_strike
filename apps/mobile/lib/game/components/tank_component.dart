@@ -25,10 +25,10 @@ class TankComponent extends PositionComponent {
 
   Rect get collisionRect {
     return Rect.fromLTWH(
-      position.x + 8,
-      position.y + 6,
-      size.x - 16,
-      size.y - 8,
+      position.x + 4,
+      position.y + 3,
+      size.x - 8,
+      size.y - 5,
     );
   }
 
@@ -46,15 +46,23 @@ class TankComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
-    final bodyPaint = Paint()..color = const Color(0xFF536B5F);
-    final bodyLightPaint = Paint()..color = const Color(0xFF78907F);
+    final bodyPaint = Paint()..color = const Color(0xFF617B6E);
+    final bodyLightPaint = Paint()..color = const Color(0xFF9EB49E);
     final trackPaint = Paint()..color = const Color(0xFF273B35);
-    final barrelPaint = Paint()..color = const Color(0xFFA3B19B);
-    final glowPaint = Paint()..color = const Color(0x2289D8FF);
+    final barrelPaint = Paint()..color = const Color(0xFFC0CDAF);
+    final glowPaint = Paint()..color = const Color(0x3389D8FF);
+    final outlinePaint = Paint()
+      ..color = const Color(0x6689D8FF)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
 
     canvas.drawOval(
-      Rect.fromLTWH(-20, tankHeight - 18, tankWidth + 42, 22),
+      Rect.fromLTWH(-28, tankHeight - 22, tankWidth + 56, 28),
       glowPaint,
+    );
+    canvas.drawOval(
+      Rect.fromLTWH(-12, tankHeight - 18, tankWidth + 24, 20),
+      outlinePaint,
     );
     canvas.drawRect(
       Rect.fromLTWH(8, tankHeight - 17, tankWidth - 16, 14),
