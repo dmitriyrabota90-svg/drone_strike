@@ -20,8 +20,27 @@ Drone Strike is a 2D horizontal side-scrolling mobile arcade game where the play
 - Shop stub
 - Achievements stub
 
+## Backend Status
+
+Backend implemented:
+
+- Health endpoints
+- Auth
+- Profile
+- Progress
+- Leaderboard
+- Account deletion
+- Legal stubs
+
+## Documentation
+
+- [Mobile API Contract](docs/technical/mobile_api_contract.md)
+- [Backend Local QA](docs/technical/backend_local_qa.md)
+- [API Draft](docs/technical/api.md)
+- [Database Draft](docs/technical/database.md)
+
 ## Commands
 
 - mobile setup: TODO
-- backend setup: TODO
+- backend setup: see [services/backend/README.md](services/backend/README.md)
 - local run: TODO
