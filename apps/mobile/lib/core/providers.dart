@@ -4,8 +4,12 @@ import '../features/auth/data/auth_api.dart';
 import '../features/auth/data/auth_repository.dart';
 import '../features/legal/data/legal_api.dart';
 import '../features/legal/data/legal_repository.dart';
+import '../features/leaderboard/data/leaderboard_api.dart';
+import '../features/leaderboard/data/leaderboard_repository.dart';
 import '../features/profile/data/profile_api.dart';
 import '../features/profile/data/profile_repository.dart';
+import '../features/progress/data/progress_api.dart';
+import '../features/progress/data/progress_repository.dart';
 import 'network/api_client.dart';
 import 'storage/secure_token_storage.dart';
 
@@ -43,4 +47,26 @@ final legalApiProvider = Provider<LegalApi>((ref) {
 
 final legalRepositoryProvider = Provider<LegalRepository>((ref) {
   return LegalRepository(ref.watch(legalApiProvider));
+});
+
+final progressApiProvider = Provider<ProgressApi>((ref) {
+  return ProgressApi(ref.watch(apiClientProvider));
+});
+
+final progressRepositoryProvider = Provider<ProgressRepository>((ref) {
+  return ProgressRepository(
+    progressApi: ref.watch(progressApiProvider),
+    authRepository: ref.watch(authRepositoryProvider),
+  );
+});
+
+final leaderboardApiProvider = Provider<LeaderboardApi>((ref) {
+  return LeaderboardApi(ref.watch(apiClientProvider));
+});
+
+final leaderboardRepositoryProvider = Provider<LeaderboardRepository>((ref) {
+  return LeaderboardRepository(
+    leaderboardApi: ref.watch(leaderboardApiProvider),
+    authRepository: ref.watch(authRepositoryProvider),
+  );
 });

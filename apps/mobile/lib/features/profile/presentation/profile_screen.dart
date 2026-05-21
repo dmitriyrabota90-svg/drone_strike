@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../auth/domain/auth_controller.dart';
+import '../../progress/domain/progress_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../domain/profile_controller.dart';
 
@@ -13,6 +14,8 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final authValue = ref.watch(authControllerProvider);
+    final progressValue = ref.watch(progressControllerProvider);
+    final progressState = progressValue.asData?.value;
 
     return Scaffold(
       appBar: AppBar(
@@ -58,11 +61,13 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                       _InfoRow(
                         label: l10n.totalScore,
-                        value: '${user.totalScore}',
+                        value:
+                            '${progressState?.totalScore ?? user.totalScore}',
                       ),
                       _InfoRow(
                         label: l10n.playerLevel,
-                        value: '${user.playerLevel}',
+                        value:
+                            '${progressState?.playerLevel ?? user.playerLevel}',
                       ),
                       _InfoRow(
                         label: l10n.premium,
@@ -81,12 +86,41 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.progress,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      _InfoRow(
+                        label: l10n.completedMissions,
+                        value: '${progressState?.completedMissionsCount ?? 0}',
+                      ),
+                      _InfoRow(
+                        label: l10n.unlockedMission,
+                        value: '${progressState?.unlockedMission ?? 1}',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: authState.isLoading
                     ? null
-                    : () => ref.read(profileControllerProvider).reloadMe(),
+                    : () async {
+                        await ref.read(profileControllerProvider).reloadMe();
+                        await ref
+                            .read(progressControllerProvider.notifier)
+                            .refreshProgress();
+                      },
                 icon: const Icon(Icons.refresh),
-                label: Text(l10n.retry),
+                label: Text(l10n.refresh),
               ),
               const SizedBox(height: 12),
               if (!user.nameChangedOnce)
@@ -191,6 +225,8 @@ class _GuestProfile extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(l10n.loginRequired),
+                const SizedBox(height: 12),
+                Text('${l10n.mission} 1-2: ${l10n.available}'),
               ],
             ),
           ),

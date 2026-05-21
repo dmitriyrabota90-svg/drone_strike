@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../auth/domain/auth_controller.dart';
+import '../../progress/domain/progress_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
 class MainMenuScreen extends ConsumerWidget {
@@ -13,6 +14,11 @@ class MainMenuScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final authState = ref.watch(authControllerProvider).asData?.value;
     final user = authState?.user;
+    final progressValue = ref.watch(progressControllerProvider);
+    final progressState = progressValue.asData?.value;
+    final showContinue = progressState?.hasCompletedAnyMission ?? false;
+    final isProgressLoading =
+        progressState?.isLoading == true || progressValue.isLoading;
 
     return Scaffold(
       body: SafeArea(
@@ -39,6 +45,25 @@ class MainMenuScreen extends ConsumerWidget {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 28),
+                if (isProgressLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: LinearProgressIndicator(),
+                  ),
+                if (showContinue)
+                  _MenuButton(
+                    label: l10n.continueGame,
+                    icon: Icons.play_circle,
+                    onPressed: () {
+                      final unlockedMission =
+                          progressState?.unlockedMission ?? 1;
+                      if (unlockedMission >= 1 && unlockedMission < 10) {
+                        context.go('/game/$unlockedMission');
+                        return;
+                      }
+                      context.go('/levels');
+                    },
+                  ),
                 if (user == null)
                   _MenuButton(
                     label: l10n.login,

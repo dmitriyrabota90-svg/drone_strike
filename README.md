@@ -42,7 +42,9 @@ Mobile scaffold created:
 - Riverpod root
 - `API_BASE_URL` support
 - Auth/profile/legal/account API integration
-- Progress and leaderboard API integration planned next
+- Progress API integration
+- Leaderboard API integration
+- Temporary mission complete simulation until Flame gameplay is implemented
 
 ## Documentation
 

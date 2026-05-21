@@ -212,6 +212,12 @@ abstract class AppLocalizations {
   /// **'Locked'**
   String get locked;
 
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
   /// No description provided for @lives.
   ///
   /// In en, this message translates to:
@@ -223,6 +229,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Score'**
   String get score;
+
+  /// No description provided for @progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get progress;
 
   /// No description provided for @playerLevel.
   ///
@@ -398,6 +410,66 @@ abstract class AppLocalizations {
   /// **'Completed missions'**
   String get completedMissions;
 
+  /// No description provided for @unlockedMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked mission'**
+  String get unlockedMission;
+
+  /// No description provided for @bestScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Best score'**
+  String get bestScore;
+
+  /// No description provided for @missionComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission complete'**
+  String get missionComplete;
+
+  /// No description provided for @simulateMissionComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate Mission Complete'**
+  String get simulateMissionComplete;
+
+  /// No description provided for @submittedScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted score'**
+  String get submittedScore;
+
+  /// No description provided for @savedBestScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved best score'**
+  String get savedBestScore;
+
+  /// No description provided for @scoreImproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Score improved'**
+  String get scoreImproved;
+
+  /// No description provided for @yourPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Your place'**
+  String get yourPlace;
+
+  /// No description provided for @rank.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank'**
+  String get rank;
+
+  /// No description provided for @totalPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Total players'**
+  String get totalPlayers;
+
   /// No description provided for @emailStatus.
   ///
   /// In en, this message translates to:
@@ -494,6 +566,12 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get retry;
 
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
   /// No description provided for @error.
   ///
   /// In en, this message translates to:
@@ -535,6 +613,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm that you are at least 13 years old.'**
   String get ageRequired;
+
+  /// No description provided for @completePreviousMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the previous mission first.'**
+  String get completePreviousMission;
+
+  /// No description provided for @loginRequiredToViewLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Login required to view leaderboard'**
+  String get loginRequiredToViewLeaderboard;
+
+  /// No description provided for @guestMissionCompletePlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest mission complete placeholder'**
+  String get guestMissionCompletePlaceholder;
+
+  /// No description provided for @flightAccuracyBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Flight accuracy bonus'**
+  String get flightAccuracyBonus;
+
+  /// No description provided for @tankHitBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Tank hit bonus'**
+  String get tankHitBonus;
+
+  /// No description provided for @missionResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission result'**
+  String get missionResult;
+
+  /// No description provided for @goToLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to levels'**
+  String get goToLevels;
 
   /// No description provided for @used.
   ///

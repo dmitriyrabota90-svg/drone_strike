@@ -66,10 +66,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get locked => 'Locked';
 
   @override
+  String get completed => 'Completed';
+
+  @override
   String get lives => 'Lives';
 
   @override
   String get score => 'Score';
+
+  @override
+  String get progress => 'Progress';
 
   @override
   String get playerLevel => 'Level';
@@ -161,6 +167,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get completedMissions => 'Completed missions';
 
   @override
+  String get unlockedMission => 'Unlocked mission';
+
+  @override
+  String get bestScore => 'Best score';
+
+  @override
+  String get missionComplete => 'Mission complete';
+
+  @override
+  String get simulateMissionComplete => 'Simulate Mission Complete';
+
+  @override
+  String get submittedScore => 'Submitted score';
+
+  @override
+  String get savedBestScore => 'Saved best score';
+
+  @override
+  String get scoreImproved => 'Score improved';
+
+  @override
+  String get yourPlace => 'Your place';
+
+  @override
+  String get rank => 'Rank';
+
+  @override
+  String get totalPlayers => 'Total players';
+
+  @override
   String get emailStatus => 'Email status';
 
   @override
@@ -209,6 +245,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get retry => 'Retry';
 
   @override
+  String get refresh => 'Refresh';
+
+  @override
   String get error => 'Error';
 
   @override
@@ -228,6 +267,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ageRequired => 'Confirm that you are at least 13 years old.';
+
+  @override
+  String get completePreviousMission => 'Complete the previous mission first.';
+
+  @override
+  String get loginRequiredToViewLeaderboard =>
+      'Login required to view leaderboard';
+
+  @override
+  String get guestMissionCompletePlaceholder =>
+      'Guest mission complete placeholder';
+
+  @override
+  String get flightAccuracyBonus => 'Flight accuracy bonus';
+
+  @override
+  String get tankHitBonus => 'Tank hit bonus';
+
+  @override
+  String get missionResult => 'Mission result';
+
+  @override
+  String get goToLevels => 'Go to levels';
 
   @override
   String get used => 'Used';

@@ -53,7 +53,16 @@ GoRouter createAppRouter() {
       ),
       GoRoute(
         path: '/game',
-        builder: (context, state) => const GamePlaceholderScreen(),
+        builder: (context, state) =>
+            const GamePlaceholderScreen(missionNumber: 1),
+      ),
+      GoRoute(
+        path: '/game/:missionNumber',
+        builder: (context, state) {
+          final missionNumber =
+              int.tryParse(state.pathParameters['missionNumber'] ?? '1') ?? 1;
+          return GamePlaceholderScreen(missionNumber: missionNumber);
+        },
       ),
     ],
   );

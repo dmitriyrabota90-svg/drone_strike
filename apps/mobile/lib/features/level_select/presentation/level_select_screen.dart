@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../auth/domain/auth_controller.dart';
+import '../../progress/domain/progress_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
-class LevelSelectScreen extends StatelessWidget {
+class LevelSelectScreen extends ConsumerWidget {
   const LevelSelectScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final authState = ref.watch(authControllerProvider).asData?.value;
+    final isAuthenticated = authState?.isAuthenticated ?? false;
+    final progressState = ref.watch(progressControllerProvider).asData?.value;
+    final progress = progressState?.progress;
 
     return Scaffold(
       appBar: AppBar(
@@ -21,35 +28,58 @@ class LevelSelectScreen extends StatelessWidget {
           maxCrossAxisExtent: 170,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: 1.15,
+          childAspectRatio: 0.95,
         ),
         itemCount: 10,
         itemBuilder: (context, index) {
           final missionNumber = index + 1;
-          final unlocked = missionNumber <= 2;
+          final unlocked = isAuthenticated
+              ? missionNumber <= (progressState?.unlockedMission ?? 1)
+              : missionNumber <= 2;
+          final missionProgress = progress?.missionByNumber(missionNumber);
+          final completed = missionProgress != null;
 
           return InkWell(
             borderRadius: BorderRadius.circular(8),
             onTap: () {
               if (unlocked) {
-                context.go('/game');
+                context.go('/game/$missionNumber');
                 return;
               }
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.registrationRequired)),
-              );
+              final message = isAuthenticated
+                  ? l10n.completePreviousMission
+                  : l10n.registrationRequired;
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(message)));
             },
             child: Card(
+              color: unlocked
+                  ? null
+                  : Theme.of(context).disabledColor.withValues(alpha: 0.12),
               child: Padding(
-                padding: const EdgeInsets.all(14),
+                padding: const EdgeInsets.all(10),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(unlocked ? Icons.play_arrow : Icons.lock, size: 34),
-                    const SizedBox(height: 10),
+                    Icon(
+                      completed
+                          ? Icons.check_circle
+                          : unlocked
+                          ? Icons.play_arrow
+                          : Icons.lock,
+                      size: 28,
+                    ),
+                    const SizedBox(height: 6),
                     Text('${l10n.mission} $missionNumber'),
-                    const SizedBox(height: 4),
-                    Text(unlocked ? l10n.splashSubtitle : l10n.locked),
+                    const SizedBox(height: 2),
+                    if (completed)
+                      Text('${l10n.bestScore}: ${missionProgress.bestScore}')
+                    else
+                      Text(
+                        unlocked ? l10n.available : l10n.locked,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                   ],
                 ),
               ),

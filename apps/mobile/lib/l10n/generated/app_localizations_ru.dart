@@ -66,10 +66,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get locked => 'Заблокировано';
 
   @override
+  String get completed => 'Пройдено';
+
+  @override
   String get lives => 'Жизни';
 
   @override
   String get score => 'Очки';
+
+  @override
+  String get progress => 'Прогресс';
 
   @override
   String get playerLevel => 'Уровень';
@@ -162,6 +168,36 @@ class AppLocalizationsRu extends AppLocalizations {
   String get completedMissions => 'Пройдено миссий';
 
   @override
+  String get unlockedMission => 'Открытая миссия';
+
+  @override
+  String get bestScore => 'Лучший счет';
+
+  @override
+  String get missionComplete => 'Миссия завершена';
+
+  @override
+  String get simulateMissionComplete => 'Симулировать завершение миссии';
+
+  @override
+  String get submittedScore => 'Отправленный счет';
+
+  @override
+  String get savedBestScore => 'Сохраненный лучший счет';
+
+  @override
+  String get scoreImproved => 'Счет улучшен';
+
+  @override
+  String get yourPlace => 'Ваше место';
+
+  @override
+  String get rank => 'Ранг';
+
+  @override
+  String get totalPlayers => 'Всего игроков';
+
+  @override
   String get emailStatus => 'Статус email';
 
   @override
@@ -210,6 +246,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get retry => 'Повторить';
 
   @override
+  String get refresh => 'Обновить';
+
+  @override
   String get error => 'Ошибка';
 
   @override
@@ -230,6 +269,29 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get ageRequired => 'Подтвердите, что вам есть 13 лет.';
+
+  @override
+  String get completePreviousMission => 'Сначала пройдите предыдущую миссию.';
+
+  @override
+  String get loginRequiredToViewLeaderboard =>
+      'Для просмотра таблицы нужен вход';
+
+  @override
+  String get guestMissionCompletePlaceholder =>
+      'Заглушка завершения гостевой миссии';
+
+  @override
+  String get flightAccuracyBonus => 'Бонус точности полета';
+
+  @override
+  String get tankHitBonus => 'Бонус попадания в танк';
+
+  @override
+  String get missionResult => 'Результат миссии';
+
+  @override
+  String get goToLevels => 'К выбору уровней';
 
   @override
   String get used => 'Использована';

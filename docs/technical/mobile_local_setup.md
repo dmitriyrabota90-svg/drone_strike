@@ -104,3 +104,17 @@ Manual flow:
 6. Logout.
 7. Login.
 8. Delete account.
+
+## 9. Mobile Progress/Leaderboard Manual Test
+
+1. Start backend.
+2. Seed leaderboard.
+3. Run mobile with `API_BASE_URL`.
+4. Register.
+5. Open Profile and confirm score 0 and level 1.
+6. Open Level Select and confirm missions 1-2 are available.
+7. Open mission 1 placeholder.
+8. Press Simulate Mission Complete.
+9. Check Profile total score and player level.
+10. Check Leaderboard.
+11. Logout and login again, then confirm progress remains.

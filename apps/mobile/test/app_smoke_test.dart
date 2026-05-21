@@ -19,6 +19,12 @@ void main() {
     expect(find.text('Leaderboard'), findsOneWidget);
   });
 
+  testWidgets('main menu hides Continue for a new guest', (tester) async {
+    await pumpDroneStrikeApp(tester);
+
+    expect(find.text('Continue'), findsNothing);
+  });
+
   testWidgets('login screen renders email and password fields', (tester) async {
     await pumpDroneStrikeApp(tester);
 
@@ -51,6 +57,43 @@ void main() {
 
     expect(find.text('Guest mode'), findsOneWidget);
     expect(find.text('Login required'), findsOneWidget);
+  });
+
+  testWidgets('level select unlocks missions 1 and 2 for guest', (
+    tester,
+  ) async {
+    await pumpDroneStrikeApp(tester);
+
+    await tester.tap(find.text('Level Select'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Mission 1'), findsOneWidget);
+    expect(find.text('Mission 2'), findsOneWidget);
+    expect(find.text('Mission 3'), findsOneWidget);
+    expect(find.text('Locked'), findsWidgets);
+  });
+
+  testWidgets('leaderboard screen requires login for guest', (tester) async {
+    await pumpDroneStrikeApp(tester);
+
+    await tester.ensureVisible(find.text('Leaderboard'));
+    await tester.tap(find.text('Leaderboard'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Login required to view leaderboard'), findsOneWidget);
+  });
+
+  testWidgets('game placeholder shows selected mission number', (tester) async {
+    await pumpDroneStrikeApp(tester);
+
+    await tester.tap(find.text('Level Select'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mission 2'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Mission 2'), findsWidgets);
+    expect(find.text('Game screen placeholder'), findsOneWidget);
+    expect(find.text('Simulate Mission Complete'), findsOneWidget);
   });
 
   testWidgets('settings screen renders sound legal and account sections', (
