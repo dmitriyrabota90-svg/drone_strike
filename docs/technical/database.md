@@ -4,72 +4,79 @@
 
 Stores account identity and auth state.
 
-- `id`
-- `email`
-- `password_hash`
-- `email_verified`
-- `created_at`
-- `updated_at`
-- `deleted_at`
+- `id` UUID primary key
+- `email` string, unique, indexed, required
+- `password_hash` string, required
+- `email_verified` boolean, default false
+- `created_at` timezone datetime, default now
+- `updated_at` timezone datetime, default now
+- `deleted_at` nullable timezone datetime
 
 ## player_profiles
 
 Stores public player profile data.
 
-- `id`
-- `user_id`
-- `display_name`
-- `display_name_changes_used`
-- `player_level`
-- `total_score`
-- `completed_missions_count`
-- `created_at`
-- `updated_at`
+- `id` UUID primary key
+- `user_id` UUID foreign key to `users.id`, unique, indexed, required
+- `display_name` string, unique, indexed, required
+- `name_changed_once` boolean, default false
+- `total_score` integer, default 0
+- `player_level` integer, default 1
+- `is_premium` boolean, default false
+- `created_at` timezone datetime, default now
+- `updated_at` timezone datetime, default now
 
 ## mission_progress
 
 Stores best mission results.
 
-- `id`
-- `user_id`
-- `mission_number`
-- `best_score`
-- `best_flight_accuracy_bonus`
-- `best_tank_hit_bonus`
-- `completed_at`
-- `updated_at`
+- `id` UUID primary key
+- `user_id` UUID foreign key to `users.id`, indexed, required
+- `mission_number` integer, required
+- `best_score` integer, default 0
+- `best_flight_accuracy_bonus` integer, default 0
+- `best_tank_hit_bonus` integer, default 0
+- `completed_at` nullable timezone datetime
+- `updated_at` timezone datetime, default now
+
+Constraints:
+
+- unique `user_id` + `mission_number`
+- `mission_number >= 1`
+- `best_score >= 0`
 
 ## legal_acceptances
 
-Stores user acceptance of legal documents and age confirmation.
+Stores user acceptance of legal documents.
 
-- `id`
-- `user_id`
-- `document_type`
-- `document_version`
-- `accepted`
-- `accepted_at`
-- `ip_address`
-- `user_agent`
+- `id` UUID primary key
+- `user_id` UUID foreign key to `users.id`, indexed, required
+- `document_type` string, required
+- `document_version` string, required
+- `accepted_at` timezone datetime, default now
+
+Constraints:
+
+- unique `user_id` + `document_type` + `document_version`
 
 ## refresh_tokens
 
 Stores refresh token sessions.
 
-- `id`
-- `user_id`
-- `token_hash`
-- `expires_at`
-- `revoked_at`
-- `created_at`
+- `id` UUID primary key
+- `user_id` UUID foreign key to `users.id`, indexed, required
+- `token_hash` string, unique, indexed, required
+- `expires_at` timezone datetime, required
+- `revoked_at` nullable timezone datetime
+- `created_at` timezone datetime, default now
 
 ## leaderboard_seed_players
 
 Stores fake MVP leaderboard entries.
 
-- `id`
-- `display_name`
-- `total_score`
-- `player_level`
-- `enabled`
-- `created_at`
+- `id` UUID primary key
+- `display_name` string, unique, indexed, required
+- `total_score` integer, default 0
+- `player_level` integer, default 1
+- `created_at` timezone datetime, default now
+- `updated_at` timezone datetime, default now
