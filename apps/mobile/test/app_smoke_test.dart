@@ -83,17 +83,18 @@ void main() {
     expect(find.text('Login required to view leaderboard'), findsOneWidget);
   });
 
-  testWidgets('game placeholder shows selected mission number', (tester) async {
+  testWidgets('mission 1 opens Flame game screen', (tester) async {
     await pumpDroneStrikeApp(tester);
 
     await tester.tap(find.text('Level Select'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Mission 2'));
-    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mission 1'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Mission 2'), findsWidgets);
-    expect(find.text('Game screen placeholder'), findsOneWidget);
-    expect(find.text('Simulate Mission Complete'), findsOneWidget);
+    expect(find.text('Mission: 1'), findsOneWidget);
+    expect(find.text('Lives: 3'), findsOneWidget);
+    expect(find.text('Tap to start'), findsOneWidget);
   });
 
   testWidgets('settings screen renders sound legal and account sections', (

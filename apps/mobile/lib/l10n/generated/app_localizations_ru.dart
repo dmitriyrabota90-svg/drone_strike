@@ -306,6 +306,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String get backToMenu => 'Вернуться в меню';
 
   @override
+  String get backToLevels => 'К выбору уровней';
+
+  @override
+  String get pause => 'Пауза';
+
+  @override
+  String get resume => 'Продолжить';
+
+  @override
+  String get restartMission => 'Начать миссию заново';
+
+  @override
+  String get missionFailed => 'Миссия провалена';
+
+  @override
+  String get droneDestroyed => 'Дрон уничтожен';
+
+  @override
+  String get tapToStart => 'Нажмите, чтобы начать';
+
+  @override
+  String get gameOver => 'Игра окончена';
+
+  @override
   String get drones => 'Дроны';
 
   @override

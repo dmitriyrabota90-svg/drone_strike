@@ -45,6 +45,9 @@ Mobile scaffold created:
 - Progress API integration
 - Leaderboard API integration
 - Temporary mission complete simulation until Flame gameplay is implemented
+- Flame game core scaffold
+- Drone gravity, tap impulse, and deadly top/bottom boundaries
+- Obstacles, tank strike, scoring sync, and lives recovery planned next
 
 ## Documentation
 

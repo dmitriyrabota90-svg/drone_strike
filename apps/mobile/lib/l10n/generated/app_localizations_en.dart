@@ -304,6 +304,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backToMenu => 'Back to menu';
 
   @override
+  String get backToLevels => 'Back to levels';
+
+  @override
+  String get pause => 'Pause';
+
+  @override
+  String get resume => 'Resume';
+
+  @override
+  String get restartMission => 'Restart mission';
+
+  @override
+  String get missionFailed => 'Mission failed';
+
+  @override
+  String get droneDestroyed => 'Drone destroyed';
+
+  @override
+  String get tapToStart => 'Tap to start';
+
+  @override
+  String get gameOver => 'Game over';
+
+  @override
   String get drones => 'Drones';
 
   @override

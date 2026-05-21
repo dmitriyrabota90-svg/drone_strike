@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/audio/audio_service.dart';
+import '../../../core/audio/audio_settings_controller.dart';
 import '../../auth/domain/auth_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
@@ -13,16 +15,15 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  bool _masterSound = true;
-  bool _music = true;
-  bool _sfx = true;
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final authState = ref.watch(authControllerProvider).asData?.value;
     final isAuthenticated = authState?.isAuthenticated ?? false;
     final isLoading = authState?.isLoading ?? false;
+    final audioSettingsValue = ref.watch(audioSettingsControllerProvider);
+    final audioSettings = audioSettingsValue.asData?.value;
+    final isAudioLoading = audioSettingsValue.isLoading;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,20 +44,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Text(l10n.sound, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           SwitchListTile(
-            value: _masterSound,
-            onChanged: (value) => setState(() => _masterSound = value),
+            value: audioSettings?.masterSoundEnabled ?? true,
+            onChanged: isAudioLoading
+                ? null
+                : (value) => _setMasterSoundEnabled(value),
             title: Text(l10n.masterSound),
             secondary: const Icon(Icons.volume_up),
           ),
           SwitchListTile(
-            value: _music,
-            onChanged: (value) => setState(() => _music = value),
+            value: audioSettings?.musicEnabled ?? true,
+            onChanged: isAudioLoading
+                ? null
+                : (value) => _setMusicEnabled(value),
             title: Text(l10n.music),
             secondary: const Icon(Icons.music_note),
           ),
           SwitchListTile(
-            value: _sfx,
-            onChanged: (value) => setState(() => _sfx = value),
+            value: audioSettings?.sfxEnabled ?? true,
+            onChanged: isAudioLoading ? null : (value) => _setSfxEnabled(value),
             title: Text(l10n.sfx),
             secondary: const Icon(Icons.surround_sound),
           ),
@@ -79,6 +84,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _setMasterSoundEnabled(bool value) async {
+    await ref
+        .read(audioSettingsControllerProvider.notifier)
+        .setMasterSoundEnabled(value);
+    final settings = ref.read(audioSettingsControllerProvider).requireValue;
+    await ref.read(audioServiceProvider).handleSettingsChanged(settings);
+  }
+
+  Future<void> _setMusicEnabled(bool value) async {
+    await ref
+        .read(audioSettingsControllerProvider.notifier)
+        .setMusicEnabled(value);
+    final settings = ref.read(audioSettingsControllerProvider).requireValue;
+    await ref.read(audioServiceProvider).handleSettingsChanged(settings);
+  }
+
+  Future<void> _setSfxEnabled(bool value) async {
+    await ref
+        .read(audioSettingsControllerProvider.notifier)
+        .setSfxEnabled(value);
+    final settings = ref.read(audioSettingsControllerProvider).requireValue;
+    await ref.read(audioServiceProvider).handleSettingsChanged(settings);
   }
 
   Future<void> _showDeleteAccountDialog(AppLocalizations l10n) async {

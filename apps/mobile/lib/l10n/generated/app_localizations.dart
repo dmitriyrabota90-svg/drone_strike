@@ -680,6 +680,54 @@ abstract class AppLocalizations {
   /// **'Back to menu'**
   String get backToMenu;
 
+  /// No description provided for @backToLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to levels'**
+  String get backToLevels;
+
+  /// No description provided for @pause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get pause;
+
+  /// No description provided for @resume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get resume;
+
+  /// No description provided for @restartMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart mission'**
+  String get restartMission;
+
+  /// No description provided for @missionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Mission failed'**
+  String get missionFailed;
+
+  /// No description provided for @droneDestroyed.
+  ///
+  /// In en, this message translates to:
+  /// **'Drone destroyed'**
+  String get droneDestroyed;
+
+  /// No description provided for @tapToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to start'**
+  String get tapToStart;
+
+  /// No description provided for @gameOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Game over'**
+  String get gameOver;
+
   /// No description provided for @drones.
   ///
   /// In en, this message translates to:

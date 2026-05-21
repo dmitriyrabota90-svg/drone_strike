@@ -118,3 +118,15 @@ Manual flow:
 9. Check Profile total score and player level.
 10. Check Leaderboard.
 11. Logout and login again, then confirm progress remains.
+
+## 10. Flame Core Manual Test
+
+1. Run app.
+2. Open Level Select.
+3. Start Mission 1.
+4. Tap screen.
+5. Drone should jump upward.
+6. Without taps drone should fall.
+7. Hitting top or bottom boundary should show Mission Failed.
+8. Pause button should open pause menu.
+9. Restart should reset drone position.
