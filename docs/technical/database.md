@@ -80,3 +80,5 @@ Stores fake MVP leaderboard entries.
 - `player_level` integer, default 1
 - `created_at` timezone datetime, default now
 - `updated_at` timezone datetime, default now
+
+This table is used only for MVP seed players. Seed entries are not real users and are not mixed into `users` or `player_profiles`.

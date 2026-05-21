@@ -35,6 +35,16 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 pytest
 ```
 
+## Leaderboard Seed
+
+```powershell
+docker compose -f docker-compose.db.yml up -d
+alembic upgrade head
+python scripts/seed_leaderboard.py
+```
+
+Seed players are only for the MVP leaderboard. Re-running the seed command is safe and will not create duplicate seed players. Real players are read from `player_profiles`.
+
 ## Android Emulator
 
 Future Android emulator API URL:

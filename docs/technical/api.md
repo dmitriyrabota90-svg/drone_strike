@@ -29,8 +29,16 @@ Android emulator target for future development: `http://10.0.2.2:8000`.
 
 ## Leaderboard
 
-- `GET /api/v1/leaderboard` - planned. Return global leaderboard by `totalScore`.
-- `GET /api/v1/leaderboard/me` - planned. Return current player rank and nearby players.
+- `GET /api/v1/leaderboard` - implemented. Returns global leaderboard entries sorted by `player_profiles.total_score`, with MVP seed players included when present.
+- `GET /api/v1/leaderboard/me` - implemented. Returns the current player's rank even if the player is outside the top leaderboard limit.
+
+Leaderboard notes:
+
+- Real players are sourced from `player_profiles` and exclude deleted users.
+- MVP seed players are sourced from `leaderboard_seed_players`.
+- Leaderboard responses do not expose email or internal user IDs.
+- Shop is planned.
+- Achievements are planned.
 
 ## Legal
 
