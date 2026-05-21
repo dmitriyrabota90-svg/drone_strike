@@ -13,6 +13,11 @@ import 'game_state.dart';
 import 'level_config.dart';
 import 'systems/level_generator.dart';
 import 'systems/mission_progress_system.dart';
+import 'systems/scoring_system.dart';
+
+typedef GameOverCallback = Future<void> Function();
+typedef MissionCompleteCallback =
+    Future<MissionResult> Function(MissionResult result);
 
 class DroneGame extends FlameGame with TapCallbacks {
   DroneGame({
@@ -37,17 +42,22 @@ class DroneGame extends FlameGame with TapCallbacks {
   static const pauseOverlay = 'pause';
   static const gameOverOverlay = 'gameOver';
   static const missionCompleteOverlay = 'missionComplete';
+  static const noLivesOverlay = 'noLives';
 
   final LevelConfig levelConfig;
   final int initialPlayerLevel;
-  final VoidCallback? onGameOver;
-  final VoidCallback? onMissionComplete;
+  final GameOverCallback? onGameOver;
+  final MissionCompleteCallback? onMissionComplete;
   final VoidCallback? onPause;
   final VoidCallback? onRestart;
   final ValueNotifier<DroneGameState> stateNotifier;
+  final ValueNotifier<MissionResult?> missionResultNotifier = ValueNotifier(
+    null,
+  );
 
   late final DroneComponent _drone;
   late MissionProgressSystem _progressSystem;
+  late ScoringSystem _scoringSystem;
   late List<ObstaclePairComponent> _obstaclePairs;
   late TankComponent _tank;
   double _worldOffset = 0;
@@ -59,6 +69,7 @@ class DroneGame extends FlameGame with TapCallbacks {
     _progressSystem = MissionProgressSystem(
       missionDistanceMeters: levelConfig.missionDistanceMeters,
     );
+    _scoringSystem = ScoringSystem();
     await add(BackgroundLayerComponent(forwardSpeed: levelConfig.forwardSpeed));
     _drone = DroneComponent()..position = _startPosition();
     final generatedLevel = const LevelGenerator().generate(
@@ -102,8 +113,15 @@ class DroneGame extends FlameGame with TapCallbacks {
     _syncState(
       remainingDistanceMeters: _progressSystem.remainingDistanceMeters,
     );
+    _recordFlightAccuracy();
     _checkBoundaryDeath();
+    if (stateNotifier.value.status != DroneMissionStatus.running) {
+      return;
+    }
     _checkObstacleDeath();
+    if (stateNotifier.value.status != DroneMissionStatus.running) {
+      return;
+    }
     _checkTankOutcome();
   }
 
@@ -144,7 +162,9 @@ class DroneGame extends FlameGame with TapCallbacks {
     overlays.remove(gameOverOverlay);
     overlays.remove(missionCompleteOverlay);
     _progressSystem.reset();
+    _scoringSystem = ScoringSystem();
     _worldOffset = 0;
+    missionResultNotifier.value = null;
     _drone.resetTo(_startPosition());
     _updateWorldComponents();
     stateNotifier.value = DroneGameState(
@@ -172,6 +192,15 @@ class DroneGame extends FlameGame with TapCallbacks {
     if (stateNotifier.value.status == DroneMissionStatus.completed) {
       return;
     }
+    final localResult = _scoringSystem.buildMissionResult(
+      missionNumber: levelConfig.missionNumber,
+      tankHitBonus: _scoringSystem.calculateTankHitBonus(
+        droneCenter: _droneRect.center,
+        tankRect: _tank.collisionRect,
+      ),
+      isGuest: true,
+    );
+    missionResultNotifier.value = localResult;
     _syncState(
       status: DroneMissionStatus.completed,
       remainingDistanceMeters: 0,
@@ -179,7 +208,18 @@ class DroneGame extends FlameGame with TapCallbacks {
     overlays.remove(pauseOverlay);
     overlays.remove(gameOverOverlay);
     overlays.add(missionCompleteOverlay);
-    onMissionComplete?.call();
+    final sync = onMissionComplete;
+    if (sync == null) {
+      return;
+    }
+    sync(localResult)
+        .then((syncedResult) {
+          missionResultNotifier.value = syncedResult;
+        })
+        .catchError((Object error, StackTrace stackTrace) {
+          debugPrint('Mission result sync failed: $error');
+          debugPrint('$stackTrace');
+        });
   }
 
   Vector2 _startPosition() {
@@ -219,6 +259,39 @@ class DroneGame extends FlameGame with TapCallbacks {
     }
   }
 
+  void updateLives(int currentLives) {
+    _syncState(lives: currentLives);
+  }
+
+  void showNoLivesOverlay() {
+    overlays.remove(gameOverOverlay);
+    overlays.remove(pauseOverlay);
+    overlays.add(noLivesOverlay);
+  }
+
+  void _recordFlightAccuracy() {
+    ObstaclePairComponent? nearestPair;
+    var nearestDistance = double.infinity;
+
+    for (final pair in _obstaclePairs) {
+      final distance = (pair.screenCenterX - _droneRect.center.dx).abs();
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestPair = pair;
+      }
+    }
+
+    if (nearestPair == null || nearestDistance > 150) {
+      return;
+    }
+
+    _scoringSystem.recordAccuracySample(
+      droneCenterY: _droneRect.center.dy,
+      gapCenterY: nearestPair.gapCenterY,
+      gapHeight: nearestPair.gapHeight,
+    );
+  }
+
   void _updateWorldComponents() {
     for (final pair in _obstaclePairs) {
       pair.updateWorld(worldOffset: _worldOffset, viewportHeight: size.y);
@@ -236,10 +309,12 @@ class DroneGame extends FlameGame with TapCallbacks {
   }
 
   void _syncState({
+    int? lives,
     double? remainingDistanceMeters,
     DroneMissionStatus? status,
   }) {
     stateNotifier.value = stateNotifier.value.copyWith(
+      lives: lives,
       remainingDistanceMeters: remainingDistanceMeters,
       status: status,
     );
@@ -248,6 +323,7 @@ class DroneGame extends FlameGame with TapCallbacks {
   @override
   void onRemove() {
     stateNotifier.dispose();
+    missionResultNotifier.dispose();
     super.onRemove();
   }
 }

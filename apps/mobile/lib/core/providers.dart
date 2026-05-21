@@ -8,6 +8,7 @@ import '../features/leaderboard/data/leaderboard_api.dart';
 import '../features/leaderboard/data/leaderboard_repository.dart';
 import '../features/profile/data/profile_api.dart';
 import '../features/profile/data/profile_repository.dart';
+import '../features/progress/data/guest_progress_repository.dart';
 import '../features/progress/data/progress_api.dart';
 import '../features/progress/data/progress_repository.dart';
 import 'network/api_client.dart';
@@ -58,6 +59,12 @@ final progressRepositoryProvider = Provider<ProgressRepository>((ref) {
     progressApi: ref.watch(progressApiProvider),
     authRepository: ref.watch(authRepositoryProvider),
   );
+});
+
+final guestProgressRepositoryProvider = Provider<GuestProgressRepository>((
+  ref,
+) {
+  return GuestProgressRepository();
 });
 
 final leaderboardApiProvider = Provider<LeaderboardApi>((ref) {

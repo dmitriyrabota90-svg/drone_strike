@@ -114,7 +114,7 @@ Manual flow:
 5. Open Profile and confirm score 0 and level 1.
 6. Open Level Select and confirm missions 1-2 are available.
 7. Open mission 1.
-8. Complete the mission after scoring sync is implemented.
+8. Complete the mission by reaching the final zone and hitting the tank.
 9. Check Profile total score and player level.
 10. Check Leaderboard.
 11. Logout and login again, then confirm progress remains.
@@ -143,3 +143,17 @@ Manual flow:
 8. Stop tapping to descend.
 9. Hit tank to confirm Mission Complete.
 10. Restart should reset obstacles and drone.
+
+## 12. Scoring/Lives Manual Test
+
+1. Start mission 1.
+2. Crash into boundary/tree/net.
+3. Confirm life decreases.
+4. Restart if lives remain.
+5. Lose all lives.
+6. Confirm No Lives overlay appears.
+7. Wait or reopen later to check recovery.
+8. Complete mission by hitting tank.
+9. Confirm result overlay shows base, accuracy, tank, and total score.
+10. If logged in, confirm Profile/Progress updates.
+11. Check Leaderboard after completion.

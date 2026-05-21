@@ -44,4 +44,8 @@ class ObstaclePairComponent extends Component {
   }
 
   bool get isOffscreenLeft => tree.position.x + width < -80;
+
+  double get screenCenterX => tree.position.x + width / 2;
+
+  double get gapCenterY => net.position.y + netHeight + gapHeight / 2;
 }

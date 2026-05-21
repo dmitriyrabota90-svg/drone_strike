@@ -458,6 +458,48 @@ abstract class AppLocalizations {
   /// **'Total'**
   String get total;
 
+  /// No description provided for @backendSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to profile'**
+  String get backendSubmitted;
+
+  /// No description provided for @guestResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest result'**
+  String get guestResult;
+
+  /// No description provided for @registrationRequiredAfterMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Register to continue to mission 3.'**
+  String get registrationRequiredAfterMission;
+
+  /// No description provided for @noLives.
+  ///
+  /// In en, this message translates to:
+  /// **'No lives'**
+  String get noLives;
+
+  /// No description provided for @nextLifeIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Next life in'**
+  String get nextLifeIn;
+
+  /// No description provided for @remainingLives.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining lives'**
+  String get remainingLives;
+
+  /// No description provided for @aboutFiveMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'about 5 minutes'**
+  String get aboutFiveMinutes;
+
   /// No description provided for @finalZone.
   ///
   /// In en, this message translates to:
@@ -499,6 +541,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Score improved'**
   String get scoreImproved;
+
+  /// No description provided for @scoreNotImproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Score not improved'**
+  String get scoreNotImproved;
 
   /// No description provided for @yourPlace.
   ///

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../lives/domain/lives_controller.dart';
 import '../../auth/domain/auth_controller.dart';
 import '../../progress/domain/progress_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
@@ -16,6 +17,7 @@ class LevelSelectScreen extends ConsumerWidget {
     final isAuthenticated = authState?.isAuthenticated ?? false;
     final progressState = ref.watch(progressControllerProvider).asData?.value;
     final progress = progressState?.progress;
+    final livesState = ref.watch(livesControllerProvider).asData?.value;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,6 +45,11 @@ class LevelSelectScreen extends ConsumerWidget {
             borderRadius: BorderRadius.circular(8),
             onTap: () {
               if (unlocked) {
+                if (livesState?.hasLives == false) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(l10n.noLives)));
+                }
                 context.go('/game/$missionNumber');
                 return;
               }

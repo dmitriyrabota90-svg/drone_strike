@@ -21,42 +21,48 @@ class GameOverOverlay extends StatelessWidget {
           child: Card(
             child: Padding(
               padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    l10n.droneDestroyed,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(l10n.missionFailed, textAlign: TextAlign.center),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${l10n.lives}: ${game.stateNotifier.value.lives}',
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 18),
-                  // TODO: Wire real life loss after lives recovery is implemented.
-                  ElevatedButton.icon(
-                    onPressed: game.restart,
-                    icon: const Icon(Icons.replay),
-                    label: Text(l10n.restartMission),
-                  ),
-                  const SizedBox(height: 10),
-                  OutlinedButton.icon(
-                    onPressed: () => context.go('/levels'),
-                    icon: const Icon(Icons.grid_view),
-                    label: Text(l10n.backToLevels),
-                  ),
-                  const SizedBox(height: 10),
-                  OutlinedButton.icon(
-                    onPressed: () => context.go('/menu'),
-                    icon: const Icon(Icons.home),
-                    label: Text(l10n.mainMenu),
-                  ),
-                ],
+              child: ValueListenableBuilder(
+                valueListenable: game.stateNotifier,
+                builder: (context, state, child) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        l10n.droneDestroyed,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(l10n.missionFailed, textAlign: TextAlign.center),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${l10n.remainingLives}: ${state.lives}',
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 18),
+                      if (state.lives > 0) ...[
+                        ElevatedButton.icon(
+                          onPressed: game.restart,
+                          icon: const Icon(Icons.replay),
+                          label: Text(l10n.restartMission),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
+                      OutlinedButton.icon(
+                        onPressed: () => context.go('/levels'),
+                        icon: const Icon(Icons.grid_view),
+                        label: Text(l10n.backToLevels),
+                      ),
+                      const SizedBox(height: 10),
+                      OutlinedButton.icon(
+                        onPressed: () => context.go('/menu'),
+                        icon: const Icon(Icons.home),
+                        label: Text(l10n.mainMenu),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),

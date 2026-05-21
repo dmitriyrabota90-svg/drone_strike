@@ -192,6 +192,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String get total => 'Итого';
 
   @override
+  String get backendSubmitted => 'Сохранено в профиле';
+
+  @override
+  String get guestResult => 'Гостевой результат';
+
+  @override
+  String get registrationRequiredAfterMission =>
+      'Зарегистрируйтесь, чтобы продолжить к миссии 3.';
+
+  @override
+  String get noLives => 'Нет жизней';
+
+  @override
+  String get nextLifeIn => 'Следующая жизнь через';
+
+  @override
+  String get remainingLives => 'Осталось жизней';
+
+  @override
+  String get aboutFiveMinutes => 'около 5 минут';
+
+  @override
   String get finalZone => 'Финальная зона';
 
   @override
@@ -211,6 +233,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get scoreImproved => 'Счет улучшен';
+
+  @override
+  String get scoreNotImproved => 'Счет не улучшен';
 
   @override
   String get yourPlace => 'Ваше место';

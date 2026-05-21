@@ -48,7 +48,12 @@ Mobile scaffold created:
 - Drone gravity, tap impulse, and deadly top/bottom boundaries
 - Obstacle pairs with ceiling nets and bottom trees
 - Final tank target and mission complete overlay
-- Scoring sync and lives recovery planned next
+- Local lives system
+- Mission result scoring
+- Guest progress for missions 1-2
+- Tank hit mission result sync for authenticated users
+- Server-side lives recovery planned later
+- Full offline sync queue planned later
 
 ## Documentation
 

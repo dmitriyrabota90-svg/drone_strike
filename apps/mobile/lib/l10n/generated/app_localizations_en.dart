@@ -191,6 +191,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get total => 'Total';
 
   @override
+  String get backendSubmitted => 'Saved to profile';
+
+  @override
+  String get guestResult => 'Guest result';
+
+  @override
+  String get registrationRequiredAfterMission =>
+      'Register to continue to mission 3.';
+
+  @override
+  String get noLives => 'No lives';
+
+  @override
+  String get nextLifeIn => 'Next life in';
+
+  @override
+  String get remainingLives => 'Remaining lives';
+
+  @override
+  String get aboutFiveMinutes => 'about 5 minutes';
+
+  @override
   String get finalZone => 'Final zone';
 
   @override
@@ -210,6 +232,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scoreImproved => 'Score improved';
+
+  @override
+  String get scoreNotImproved => 'Score not improved';
 
   @override
   String get yourPlace => 'Your place';

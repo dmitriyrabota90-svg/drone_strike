@@ -1,11 +1,33 @@
 import 'package:drone_strike/app/drone_strike_app.dart';
+import 'package:drone_strike/game/drone_game.dart';
+import 'package:drone_strike/game/level_config.dart';
+import 'package:drone_strike/game/overlays/game_over_overlay.dart';
+import 'package:drone_strike/game/overlays/mission_complete_overlay.dart';
+import 'package:drone_strike/game/overlays/no_lives_overlay.dart';
+import 'package:drone_strike/game/systems/scoring_system.dart';
+import 'package:drone_strike/l10n/generated/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> pumpDroneStrikeApp(WidgetTester tester) async {
+  SharedPreferences.setMockInitialValues({});
   await tester.pumpWidget(const ProviderScope(child: DroneStrikeApp()));
   await tester.pump(const Duration(seconds: 1));
+  await tester.pumpAndSettle();
+}
+
+Future<void> pumpOverlay(WidgetTester tester, Widget child) async {
+  await tester.pumpWidget(
+    ProviderScope(
+      child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(body: child),
+      ),
+    ),
+  );
   await tester.pumpAndSettle();
 }
 
@@ -125,5 +147,72 @@ void main() {
     expect(find.text('Sound'), findsOneWidget);
     expect(find.text('Legal Documents'), findsOneWidget);
     expect(find.text('Account'), findsOneWidget);
+  });
+
+  testWidgets('mission complete overlay renders fake mission result', (
+    tester,
+  ) async {
+    final game = DroneGame(
+      levelConfig: LevelConfig.forMission(1),
+      initialPlayerLevel: 1,
+    );
+    game.missionResultNotifier.value = const MissionResult(
+      missionNumber: 1,
+      baseScore: 100,
+      flightAccuracyBonus: 25,
+      tankHitBonus: 30,
+      totalScore: 155,
+      isGuest: true,
+      backendSubmitted: false,
+    );
+
+    await pumpOverlay(tester, MissionCompleteOverlay(game: game));
+
+    expect(find.text('Mission complete'), findsOneWidget);
+    expect(find.text('Guest result'), findsOneWidget);
+    expect(find.text('Total score'), findsWidgets);
+  });
+
+  testWidgets('game over overlay shows remaining lives', (tester) async {
+    final game = DroneGame(
+      levelConfig: LevelConfig.forMission(1),
+      initialPlayerLevel: 1,
+    );
+    game.updateLives(2);
+
+    await pumpOverlay(tester, GameOverOverlay(game: game));
+
+    expect(find.text('Mission failed'), findsOneWidget);
+    expect(find.text('Remaining lives: 2'), findsOneWidget);
+  });
+
+  testWidgets('no lives overlay renders', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'lives.current_lives': 0,
+      'lives.next_life_at': DateTime.now()
+          .add(const Duration(minutes: 5))
+          .toIso8601String(),
+    });
+
+    await pumpOverlay(tester, const NoLivesOverlay());
+
+    expect(find.text('No lives'), findsOneWidget);
+    expect(find.textContaining('Next life in'), findsOneWidget);
+  });
+
+  test('scoring clamps bonuses to expected ranges', () {
+    final scoring = ScoringSystem();
+    scoring.recordAccuracySample(
+      droneCenterY: 100,
+      gapCenterY: 100,
+      gapHeight: 56,
+    );
+    final tankBonus = scoring.calculateTankHitBonus(
+      droneCenter: const Offset(50, 50),
+      tankRect: const Rect.fromLTWH(0, 0, 100, 100),
+    );
+
+    expect(scoring.flightAccuracyBonus, inInclusiveRange(0, 50));
+    expect(tankBonus, inInclusiveRange(0, 50));
   });
 }
