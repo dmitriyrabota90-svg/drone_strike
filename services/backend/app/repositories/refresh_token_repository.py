@@ -32,3 +32,13 @@ def revoke_refresh_token(db: Session, refresh_token_model: RefreshToken) -> Refr
     db.add(refresh_token_model)
     db.flush()
     return refresh_token_model
+
+
+def delete_refresh_tokens_by_user_id(db: Session, user_id: UUID) -> int:
+    refresh_tokens = list(
+        db.scalars(select(RefreshToken).where(RefreshToken.user_id == user_id))
+    )
+    for refresh_token in refresh_tokens:
+        db.delete(refresh_token)
+    db.flush()
+    return len(refresh_tokens)

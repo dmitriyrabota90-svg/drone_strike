@@ -41,6 +41,10 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 
+class DeleteAccountRequest(BaseModel):
+    password: str = Field(min_length=8)
+
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str

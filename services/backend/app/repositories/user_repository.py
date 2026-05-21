@@ -19,3 +19,8 @@ def create_user(db: Session, email: str, password_hash: str) -> User:
     db.add(user)
     db.flush()
     return user
+
+
+def delete_user(db: Session, user: User) -> None:
+    db.delete(user)
+    db.flush()

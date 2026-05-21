@@ -14,12 +14,12 @@ Android emulator target for future development: `http://10.0.2.2:8000`.
 - `POST /api/v1/auth/login` - implemented. Issues access and refresh tokens.
 - `POST /api/v1/auth/refresh` - implemented. Validates stored refresh token hash and issues a new access token.
 - `POST /api/v1/auth/logout` - implemented. Revokes current refresh token.
-- `POST /api/v1/auth/delete-account` - planned. Delete account after password confirmation.
+- `POST /api/v1/auth/delete-account` - implemented. Deletes server-side user data after password confirmation.
 
 ## Profile
 
 - `GET /api/v1/me` - implemented. Returns current user and player profile from Bearer access token.
-- `PATCH /api/v1/me/display-name` - planned. Change display name, with one free change in MVP rules.
+- `PATCH /api/v1/me/display-name` - implemented. Change display name once for free.
 
 ## Progress
 
@@ -42,5 +42,11 @@ Leaderboard notes:
 
 ## Legal
 
-- `GET /api/v1/legal/documents` - planned. Return active legal document versions.
-- `POST /api/v1/legal/accept` - planned. Save legal acceptance for terms, personal data consent, and age confirmation.
+- `GET /api/v1/legal/documents` - implemented. Returns MVP placeholder legal documents.
+- `POST /api/v1/legal/accept` - implemented. Saves legal document acceptance idempotently.
+
+Legal notes:
+
+- Legal documents are placeholders in MVP.
+- Full legal texts are planned later.
+- Account deletion requires password confirmation and hard-deletes server-side user data.

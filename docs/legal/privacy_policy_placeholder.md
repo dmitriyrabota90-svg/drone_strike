@@ -1,6 +1,6 @@
 # Privacy Policy Placeholder
 
-This document is a placeholder for the future full privacy policy.
+This document is a temporary placeholder for the future full privacy policy.
 
 Full legal text will be added later before public release.
 

@@ -21,9 +21,10 @@ from app.core.security import (
 from app.models import User
 from app.repositories import legal_repository
 from app.repositories import profile_repository
+from app.repositories import progress_repository
 from app.repositories import refresh_token_repository
 from app.repositories import user_repository
-from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse
+from app.schemas.auth import DeleteAccountRequest, LoginRequest, RegisterRequest, TokenResponse
 
 
 def generate_unique_display_name(db: Session) -> str:
@@ -136,6 +137,21 @@ def logout_user(db: Session, refresh_token: str) -> None:
     if refresh_token_model and refresh_token_model.revoked_at is None:
         refresh_token_repository.revoke_refresh_token(db, refresh_token_model)
         db.commit()
+
+
+def delete_account(db: Session, user: User, request: DeleteAccountRequest) -> None:
+    if not verify_password(request.password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid password",
+        )
+
+    refresh_token_repository.delete_refresh_tokens_by_user_id(db, user.id)
+    legal_repository.delete_legal_acceptances_by_user_id(db, user.id)
+    progress_repository.delete_progress_by_user_id(db, user.id)
+    profile_repository.delete_profile_by_user_id(db, user.id)
+    user_repository.delete_user(db, user)
+    db.commit()
 
 
 def get_user_from_access_token(db: Session, token: str) -> User:

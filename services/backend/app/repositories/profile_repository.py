@@ -21,3 +21,12 @@ def create_profile(db: Session, user_id: UUID, display_name: str) -> PlayerProfi
     db.add(profile)
     db.flush()
     return profile
+
+
+def delete_profile_by_user_id(db: Session, user_id: UUID) -> int:
+    profile = get_profile_by_user_id(db, user_id)
+    if not profile:
+        return 0
+    db.delete(profile)
+    db.flush()
+    return 1

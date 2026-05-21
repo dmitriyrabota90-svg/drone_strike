@@ -75,3 +75,11 @@ def calculate_total_score(db: Session, user_id: UUID) -> int:
         )
         or 0
     )
+
+
+def delete_progress_by_user_id(db: Session, user_id: UUID) -> int:
+    progress_items = get_progress_by_user_id(db, user_id)
+    for progress_item in progress_items:
+        db.delete(progress_item)
+    db.flush()
+    return len(progress_items)

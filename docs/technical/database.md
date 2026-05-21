@@ -55,6 +55,8 @@ Stores user acceptance of legal documents.
 - `document_version` string, required
 - `accepted_at` timezone datetime, default now
 
+This table stores accepted legal document versions. Registration creates required MVP acceptances for terms of use and personal data consent; privacy policy can be accepted separately through the legal API.
+
 Constraints:
 
 - unique `user_id` + `document_type` + `document_version`
@@ -82,3 +84,7 @@ Stores fake MVP leaderboard entries.
 - `updated_at` timezone datetime, default now
 
 This table is used only for MVP seed players. Seed entries are not real users and are not mixed into `users` or `player_profiles`.
+
+## Account deletion
+
+Hard account deletion removes user-related rows from `refresh_tokens`, `legal_acceptances`, `mission_progress`, `player_profiles`, and `users`. MVP leaderboard seed players are not affected.

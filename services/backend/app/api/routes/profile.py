@@ -1,13 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_current_user
 from app.core.database import get_db
 from app.models import User
-from app.repositories.profile_repository import get_profile_by_user_id
-from app.schemas.profile import MeResponse
+from app.schemas.profile import DisplayNameUpdateRequest, MeResponse
+from app.services.profile_service import get_me_response, update_display_name
 
 
 router = APIRouter(tags=["profile"])
@@ -18,20 +18,13 @@ def read_me(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
 ) -> MeResponse:
-    profile = get_profile_by_user_id(db, current_user.id)
-    if not profile:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found",
-        )
+    return get_me_response(db, current_user)
 
-    return MeResponse(
-        id=current_user.id,
-        email=current_user.email,
-        email_verified=current_user.email_verified,
-        display_name=profile.display_name,
-        name_changed_once=profile.name_changed_once,
-        total_score=profile.total_score,
-        player_level=profile.player_level,
-        is_premium=profile.is_premium,
-    )
+
+@router.patch("/me/display-name", response_model=MeResponse)
+def patch_display_name(
+    request: DisplayNameUpdateRequest,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> MeResponse:
+    return update_display_name(db, current_user, request)
