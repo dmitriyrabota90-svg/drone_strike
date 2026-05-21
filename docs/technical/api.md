@@ -23,8 +23,8 @@ Android emulator target for future development: `http://10.0.2.2:8000`.
 
 ## Progress
 
-- `GET /api/v1/progress` - planned. Return mission progress and best scores.
-- `POST /api/v1/progress/mission-complete` - planned. Submit completed mission result and update best score.
+- `GET /api/v1/progress` - implemented. Return total score, player level, completed missions count, unlocked mission, and best mission scores.
+- `POST /api/v1/progress/mission-complete` - implemented. Submit completed mission result, save only the best score per mission, recalculate total score and player level.
 - `POST /api/v1/progress/sync` - planned. Sync local progress snapshot with server state.
 
 ## Leaderboard
