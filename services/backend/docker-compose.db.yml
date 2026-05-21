@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: drone_strike_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: drone_strike
+      POSTGRES_USER: drone_user
+      POSTGRES_PASSWORD: drone_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - drone_strike_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  drone_strike_postgres_data:
