@@ -177,6 +177,30 @@ class AppLocalizationsRu extends AppLocalizations {
   String get missionComplete => 'Миссия завершена';
 
   @override
+  String get nextMission => 'Следующая миссия';
+
+  @override
+  String get baseScore => 'База';
+
+  @override
+  String get flightAccuracy => 'Точность полета';
+
+  @override
+  String get tankHit => 'Попадание в танк';
+
+  @override
+  String get total => 'Итого';
+
+  @override
+  String get finalZone => 'Финальная зона';
+
+  @override
+  String get target => 'Цель';
+
+  @override
+  String get restart => 'Заново';
+
+  @override
   String get simulateMissionComplete => 'Симулировать завершение миссии';
 
   @override

@@ -176,6 +176,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get missionComplete => 'Mission complete';
 
   @override
+  String get nextMission => 'Next mission';
+
+  @override
+  String get baseScore => 'Base';
+
+  @override
+  String get flightAccuracy => 'Flight accuracy';
+
+  @override
+  String get tankHit => 'Tank hit';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get finalZone => 'Final zone';
+
+  @override
+  String get target => 'Target';
+
+  @override
+  String get restart => 'Restart';
+
+  @override
   String get simulateMissionComplete => 'Simulate Mission Complete';
 
   @override

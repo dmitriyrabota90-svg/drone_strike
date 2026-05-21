@@ -113,8 +113,8 @@ Manual flow:
 4. Register.
 5. Open Profile and confirm score 0 and level 1.
 6. Open Level Select and confirm missions 1-2 are available.
-7. Open mission 1 placeholder.
-8. Press Simulate Mission Complete.
+7. Open mission 1.
+8. Complete the mission after scoring sync is implemented.
 9. Check Profile total score and player level.
 10. Check Leaderboard.
 11. Logout and login again, then confirm progress remains.
@@ -130,3 +130,16 @@ Manual flow:
 7. Hitting top or bottom boundary should show Mission Failed.
 8. Pause button should open pause menu.
 9. Restart should reset drone position.
+
+## 11. Obstacle/Tank Manual Test
+
+1. Start app.
+2. Open Level Select.
+3. Start Mission 1.
+4. Tap to keep drone in gap.
+5. Hit top/bottom boundary to confirm Mission Failed.
+6. Hit tree/net to confirm Mission Failed.
+7. Reach final zone.
+8. Stop tapping to descend.
+9. Hit tank to confirm Mission Complete.
+10. Restart should reset obstacles and drone.

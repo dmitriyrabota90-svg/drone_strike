@@ -1,7 +1,7 @@
 import 'package:drone_strike/app/drone_strike_app.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/widgets.dart';
 
 Future<void> pumpDroneStrikeApp(WidgetTester tester) async {
   await tester.pumpWidget(const ProviderScope(child: DroneStrikeApp()));
@@ -95,6 +95,21 @@ void main() {
     expect(find.text('Mission: 1'), findsOneWidget);
     expect(find.text('Lives: 3'), findsOneWidget);
     expect(find.text('Tap to start'), findsOneWidget);
+  });
+
+  testWidgets('pause button opens pause overlay', (tester) async {
+    await pumpDroneStrikeApp(tester);
+
+    await tester.tap(find.text('Level Select'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mission 1'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.byIcon(Icons.pause));
+    await tester.pump();
+
+    expect(find.text('Pause'), findsOneWidget);
+    expect(find.text('Restart mission'), findsOneWidget);
   });
 
   testWidgets('settings screen renders sound legal and account sections', (

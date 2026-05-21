@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import '../game_config.dart';
 
 class BackgroundLayerComponent extends PositionComponent {
+  BackgroundLayerComponent({this.forwardSpeed = GameConfig.forwardSpeed});
+
+  final double forwardSpeed;
   double _scroll = 0;
 
   @override
@@ -16,7 +19,7 @@ class BackgroundLayerComponent extends PositionComponent {
 
   @override
   void update(double dt) {
-    _scroll = (_scroll + GameConfig.forwardSpeed * dt) % 360;
+    _scroll = (_scroll + forwardSpeed * dt) % 360;
   }
 
   @override

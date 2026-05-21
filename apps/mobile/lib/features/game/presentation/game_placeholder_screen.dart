@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/audio/audio_service.dart';
 import '../../../game/drone_game.dart';
+import '../../../game/level_config.dart';
 import '../../../game/overlays/game_hud.dart';
 import '../../../game/overlays/game_over_overlay.dart';
+import '../../../game/overlays/mission_complete_overlay.dart';
 import '../../../game/overlays/pause_overlay.dart';
 import '../../auth/domain/auth_controller.dart';
 import '../../progress/domain/progress_controller.dart';
@@ -28,10 +30,12 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
   void initState() {
     super.initState();
     _audioService = ref.read(audioServiceProvider);
+    final levelConfig = LevelConfig.forMission(widget.missionNumber);
     _game = DroneGame(
-      missionNumber: widget.missionNumber,
+      levelConfig: levelConfig,
       initialPlayerLevel: _readInitialPlayerLevel(),
       onGameOver: _handleGameOver,
+      onMissionComplete: _handleMissionComplete,
       onRestart: _playMissionMusic,
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -59,6 +63,8 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
         DroneGame.pauseOverlay: (context, game) => PauseOverlay(game: game),
         DroneGame.gameOverOverlay: (context, game) =>
             GameOverOverlay(game: game),
+        DroneGame.missionCompleteOverlay: (context, game) =>
+            MissionCompleteOverlay(game: game),
       },
     );
   }
@@ -85,5 +91,10 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
   void _handleGameOver() {
     _audioService.stopMusic();
     _audioService.playDefeat();
+  }
+
+  void _handleMissionComplete() {
+    _audioService.stopMusic();
+    _audioService.playVictory();
   }
 }

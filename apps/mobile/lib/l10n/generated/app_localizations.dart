@@ -428,6 +428,54 @@ abstract class AppLocalizations {
   /// **'Mission complete'**
   String get missionComplete;
 
+  /// No description provided for @nextMission.
+  ///
+  /// In en, this message translates to:
+  /// **'Next mission'**
+  String get nextMission;
+
+  /// No description provided for @baseScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Base'**
+  String get baseScore;
+
+  /// No description provided for @flightAccuracy.
+  ///
+  /// In en, this message translates to:
+  /// **'Flight accuracy'**
+  String get flightAccuracy;
+
+  /// No description provided for @tankHit.
+  ///
+  /// In en, this message translates to:
+  /// **'Tank hit'**
+  String get tankHit;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @finalZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Final zone'**
+  String get finalZone;
+
+  /// No description provided for @target.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get target;
+
+  /// No description provided for @restart.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get restart;
+
   /// No description provided for @simulateMissionComplete.
   ///
   /// In en, this message translates to:
