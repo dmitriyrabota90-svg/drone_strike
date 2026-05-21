@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../auth/domain/auth_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _masterSound = true;
   bool _music = true;
   bool _sfx = true;
@@ -18,6 +20,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final authState = ref.watch(authControllerProvider).asData?.value;
+    final isAuthenticated = authState?.isAuthenticated ?? false;
+    final isLoading = authState?.isLoading ?? false;
 
     return Scaffold(
       appBar: AppBar(
@@ -35,6 +40,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           const SizedBox(height: 12),
+          Text(l10n.sound, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
           SwitchListTile(
             value: _masterSound,
             onChanged: (value) => setState(() => _masterSound = value),
@@ -60,15 +67,69 @@ class _SettingsScreenState extends State<SettingsScreen> {
             label: Text(l10n.legalDocuments),
           ),
           const SizedBox(height: 12),
+          Text(l10n.account, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
           OutlinedButton.icon(
-            onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.deleteAccountPlaceholder)),
-            ),
+            onPressed: isAuthenticated && !isLoading
+                ? () => _showDeleteAccountDialog(l10n)
+                : null,
             icon: const Icon(Icons.delete_outline),
             label: Text(l10n.deleteAccount),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _showDeleteAccountDialog(AppLocalizations l10n) async {
+    final passwordController = TextEditingController();
+    final password = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.deleteAccount),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l10n.deleteAccountWarning),
+              const SizedBox(height: 16),
+              TextField(
+                controller: passwordController,
+                obscureText: true,
+                decoration: InputDecoration(labelText: l10n.password),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.back),
+            ),
+            ElevatedButton(
+              onPressed: () =>
+                  Navigator.of(context).pop(passwordController.text),
+              child: Text(l10n.confirmDelete),
+            ),
+          ],
+        );
+      },
+    );
+    passwordController.dispose();
+
+    if (password == null || password.isEmpty) {
+      return;
+    }
+
+    await ref.read(authControllerProvider.notifier).deleteAccount(password);
+    final authState = ref.read(authControllerProvider).asData?.value;
+    if (!mounted || authState?.isAuthenticated == true) {
+      return;
+    }
+
+    // TODO: Clear local game progress after local saves are implemented.
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.deleteAccountSuccess)));
+    context.go('/menu');
   }
 }

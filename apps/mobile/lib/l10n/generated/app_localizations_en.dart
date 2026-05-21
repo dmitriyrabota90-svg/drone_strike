@@ -108,6 +108,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get password => 'Password';
 
   @override
+  String get confirmPassword => 'Confirm password';
+
+  @override
   String get termsAccepted => 'I accept the terms of use';
 
   @override
@@ -117,10 +120,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String get age13 => 'I am at least 13 years old';
 
   @override
-  String get apiIntegrationComingNext => 'API integration coming next';
+  String get loginSuccess => 'Login successful';
 
   @override
-  String get registrationRequired => 'Registration required';
+  String get registerSuccess => 'Registration successful';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get logoutSuccess => 'Logged out';
+
+  @override
+  String get deleteAccountWarning =>
+      'All server data and local tokens will be deleted.';
+
+  @override
+  String get deleteAccountSuccess => 'Account deleted';
+
+  @override
+  String get confirmDelete => 'Confirm delete';
+
+  @override
+  String get changeDisplayName => 'Change display name';
+
+  @override
+  String get displayName => 'Display name';
+
+  @override
+  String get invalidDisplayName =>
+      'Use 3-20 Latin letters, digits, or underscore.';
+
+  @override
+  String get nameChangedOnce => 'Free name change';
+
+  @override
+  String get totalScore => 'Total score';
 
   @override
   String get completedMissions => 'Completed missions';
@@ -129,7 +164,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emailStatus => 'Email status';
 
   @override
+  String get emailVerified => 'Email verified';
+
+  @override
+  String get emailNotVerified => 'Email not verified';
+
+  @override
   String get notVerified => 'Not verified';
+
+  @override
+  String get premium => 'Premium';
+
+  @override
+  String get regularAccount => 'Regular account';
+
+  @override
+  String get account => 'Account';
+
+  @override
+  String get guestMode => 'Guest mode';
+
+  @override
+  String get loginRequired => 'Login required';
+
+  @override
+  String get registrationRequired => 'Registration required';
+
+  @override
+  String get accept => 'Accept';
+
+  @override
+  String get accepted => 'Accepted';
+
+  @override
+  String get operator => 'Operator';
+
+  @override
+  String get version => 'Version';
+
+  @override
+  String get loading => 'Loading';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get invalidEmailOrPassword => 'Enter email and password.';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match.';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 8 characters.';
+
+  @override
+  String get acceptTermsRequired => 'Accept the terms of use.';
+
+  @override
+  String get acceptPersonalDataRequired => 'Accept personal data consent.';
+
+  @override
+  String get ageRequired => 'Confirm that you are at least 13 years old.';
+
+  @override
+  String get used => 'Used';
+
+  @override
+  String get available => 'Available';
 
   @override
   String get distance => 'Distance';
@@ -138,16 +242,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backToMenu => 'Back to menu';
 
   @override
-  String get premium => 'Premium';
-
-  @override
   String get drones => 'Drones';
 
   @override
   String get flightTrails => 'Flight Trails';
-
-  @override
-  String get operator => 'Operator';
 
   @override
   String get deleteAccountPlaceholder =>

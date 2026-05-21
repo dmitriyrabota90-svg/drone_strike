@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../auth/domain/auth_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
 
-class MainMenuScreen extends StatelessWidget {
+class MainMenuScreen extends ConsumerWidget {
   const MainMenuScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
+    final authState = ref.watch(authControllerProvider).asData?.value;
+    final user = authState?.user;
 
     return Scaffold(
       body: SafeArea(
@@ -30,11 +34,17 @@ class MainMenuScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  l10n.mainMenu,
+                  user?.displayName ?? l10n.guestMode,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 28),
+                if (user == null)
+                  _MenuButton(
+                    label: l10n.login,
+                    icon: Icons.login,
+                    onPressed: () => context.go('/login'),
+                  ),
                 _MenuButton(
                   label: l10n.levelSelect,
                   icon: Icons.grid_view,

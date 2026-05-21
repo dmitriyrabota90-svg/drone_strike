@@ -108,6 +108,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get password => 'Пароль';
 
   @override
+  String get confirmPassword => 'Подтвердите пароль';
+
+  @override
   String get termsAccepted => 'Я принимаю пользовательское соглашение';
 
   @override
@@ -118,10 +121,42 @@ class AppLocalizationsRu extends AppLocalizations {
   String get age13 => 'Мне есть 13 лет';
 
   @override
-  String get apiIntegrationComingNext => 'Интеграция API будет следующим шагом';
+  String get loginSuccess => 'Вход выполнен';
 
   @override
-  String get registrationRequired => 'Требуется регистрация';
+  String get registerSuccess => 'Регистрация выполнена';
+
+  @override
+  String get logout => 'Выйти';
+
+  @override
+  String get logoutSuccess => 'Вы вышли из аккаунта';
+
+  @override
+  String get deleteAccountWarning =>
+      'Все серверные данные и локальные токены будут удалены.';
+
+  @override
+  String get deleteAccountSuccess => 'Аккаунт удален';
+
+  @override
+  String get confirmDelete => 'Подтвердить удаление';
+
+  @override
+  String get changeDisplayName => 'Сменить имя';
+
+  @override
+  String get displayName => 'Имя игрока';
+
+  @override
+  String get invalidDisplayName =>
+      'Используйте 3-20 латинских букв, цифр или underscore.';
+
+  @override
+  String get nameChangedOnce => 'Бесплатная смена имени';
+
+  @override
+  String get totalScore => 'Общий счет';
 
   @override
   String get completedMissions => 'Пройдено миссий';
@@ -130,7 +165,77 @@ class AppLocalizationsRu extends AppLocalizations {
   String get emailStatus => 'Статус email';
 
   @override
+  String get emailVerified => 'Email подтвержден';
+
+  @override
+  String get emailNotVerified => 'Email не подтвержден';
+
+  @override
   String get notVerified => 'Не подтвержден';
+
+  @override
+  String get premium => 'Премиум';
+
+  @override
+  String get regularAccount => 'Обычный аккаунт';
+
+  @override
+  String get account => 'Аккаунт';
+
+  @override
+  String get guestMode => 'Гостевой режим';
+
+  @override
+  String get loginRequired => 'Требуется вход';
+
+  @override
+  String get registrationRequired => 'Требуется регистрация';
+
+  @override
+  String get accept => 'Принять';
+
+  @override
+  String get accepted => 'Принято';
+
+  @override
+  String get operator => 'Оператор';
+
+  @override
+  String get version => 'Версия';
+
+  @override
+  String get loading => 'Загрузка';
+
+  @override
+  String get retry => 'Повторить';
+
+  @override
+  String get error => 'Ошибка';
+
+  @override
+  String get invalidEmailOrPassword => 'Введите email и пароль.';
+
+  @override
+  String get passwordsDoNotMatch => 'Пароли не совпадают.';
+
+  @override
+  String get passwordTooShort => 'Пароль должен быть не короче 8 символов.';
+
+  @override
+  String get acceptTermsRequired => 'Примите пользовательское соглашение.';
+
+  @override
+  String get acceptPersonalDataRequired =>
+      'Примите согласие на обработку данных.';
+
+  @override
+  String get ageRequired => 'Подтвердите, что вам есть 13 лет.';
+
+  @override
+  String get used => 'Использована';
+
+  @override
+  String get available => 'Доступна';
 
   @override
   String get distance => 'Дистанция';
@@ -139,16 +244,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get backToMenu => 'Вернуться в меню';
 
   @override
-  String get premium => 'Премиум';
-
-  @override
   String get drones => 'Дроны';
 
   @override
   String get flightTrails => 'Следы полета';
-
-  @override
-  String get operator => 'Оператор';
 
   @override
   String get deleteAccountPlaceholder =>

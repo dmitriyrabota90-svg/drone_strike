@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../l10n/generated/app_localizations.dart';
+import '../domain/auth_controller.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  String? _validationError;
 
   @override
   void dispose() {
@@ -24,6 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final authState = ref.watch(authControllerProvider).asData?.value;
+    final isLoading = authState?.isLoading ?? false;
+    final errorMessage = _validationError ?? authState?.errorMessage;
 
     return Scaffold(
       appBar: AppBar(
@@ -48,12 +54,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: true,
                 decoration: InputDecoration(labelText: l10n.password),
               ),
+              if (errorMessage != null) ...[
+                const SizedBox(height: 16),
+                Text(
+                  errorMessage,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ],
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n.apiIntegrationComingNext)),
-                ),
-                child: Text(l10n.login),
+                onPressed: isLoading ? null : () => _submit(l10n),
+                child: isLoading
+                    ? const SizedBox.square(
+                        dimension: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(l10n.login),
               ),
               const SizedBox(height: 12),
               OutlinedButton(
@@ -65,5 +81,30 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _submit(AppLocalizations l10n) async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() => _validationError = l10n.invalidEmailOrPassword);
+      return;
+    }
+
+    setState(() => _validationError = null);
+    await ref
+        .read(authControllerProvider.notifier)
+        .login(email: email, password: password);
+
+    final state = ref.read(authControllerProvider).asData?.value;
+    if (!mounted || state?.isAuthenticated != true) {
+      return;
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.loginSuccess)));
+    context.go('/profile');
   }
 }

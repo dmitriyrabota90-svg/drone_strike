@@ -296,6 +296,12 @@ abstract class AppLocalizations {
   /// **'Password'**
   String get password;
 
+  /// No description provided for @confirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm password'**
+  String get confirmPassword;
+
   /// No description provided for @termsAccepted.
   ///
   /// In en, this message translates to:
@@ -314,17 +320,77 @@ abstract class AppLocalizations {
   /// **'I am at least 13 years old'**
   String get age13;
 
-  /// No description provided for @apiIntegrationComingNext.
+  /// No description provided for @loginSuccess.
   ///
   /// In en, this message translates to:
-  /// **'API integration coming next'**
-  String get apiIntegrationComingNext;
+  /// **'Login successful'**
+  String get loginSuccess;
 
-  /// No description provided for @registrationRequired.
+  /// No description provided for @registerSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Registration required'**
-  String get registrationRequired;
+  /// **'Registration successful'**
+  String get registerSuccess;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
+
+  /// No description provided for @logoutSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Logged out'**
+  String get logoutSuccess;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'All server data and local tokens will be deleted.'**
+  String get deleteAccountWarning;
+
+  /// No description provided for @deleteAccountSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted'**
+  String get deleteAccountSuccess;
+
+  /// No description provided for @confirmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm delete'**
+  String get confirmDelete;
+
+  /// No description provided for @changeDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Change display name'**
+  String get changeDisplayName;
+
+  /// No description provided for @displayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get displayName;
+
+  /// No description provided for @invalidDisplayName.
+  ///
+  /// In en, this message translates to:
+  /// **'Use 3-20 Latin letters, digits, or underscore.'**
+  String get invalidDisplayName;
+
+  /// No description provided for @nameChangedOnce.
+  ///
+  /// In en, this message translates to:
+  /// **'Free name change'**
+  String get nameChangedOnce;
+
+  /// No description provided for @totalScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Total score'**
+  String get totalScore;
 
   /// No description provided for @completedMissions.
   ///
@@ -338,11 +404,149 @@ abstract class AppLocalizations {
   /// **'Email status'**
   String get emailStatus;
 
+  /// No description provided for @emailVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Email verified'**
+  String get emailVerified;
+
+  /// No description provided for @emailNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Email not verified'**
+  String get emailNotVerified;
+
   /// No description provided for @notVerified.
   ///
   /// In en, this message translates to:
   /// **'Not verified'**
   String get notVerified;
+
+  /// No description provided for @premium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get premium;
+
+  /// No description provided for @regularAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular account'**
+  String get regularAccount;
+
+  /// No description provided for @account.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get account;
+
+  /// No description provided for @guestMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest mode'**
+  String get guestMode;
+
+  /// No description provided for @loginRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Login required'**
+  String get loginRequired;
+
+  /// No description provided for @registrationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration required'**
+  String get registrationRequired;
+
+  /// No description provided for @accept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get accept;
+
+  /// No description provided for @accepted.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted'**
+  String get accepted;
+
+  /// No description provided for @operator.
+  ///
+  /// In en, this message translates to:
+  /// **'Operator'**
+  String get operator;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading'**
+  String get loading;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
+  /// No description provided for @invalidEmailOrPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter email and password.'**
+  String get invalidEmailOrPassword;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters.'**
+  String get passwordTooShort;
+
+  /// No description provided for @acceptTermsRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept the terms of use.'**
+  String get acceptTermsRequired;
+
+  /// No description provided for @acceptPersonalDataRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept personal data consent.'**
+  String get acceptPersonalDataRequired;
+
+  /// No description provided for @ageRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm that you are at least 13 years old.'**
+  String get ageRequired;
+
+  /// No description provided for @used.
+  ///
+  /// In en, this message translates to:
+  /// **'Used'**
+  String get used;
+
+  /// No description provided for @available.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get available;
 
   /// No description provided for @distance.
   ///
@@ -356,12 +560,6 @@ abstract class AppLocalizations {
   /// **'Back to menu'**
   String get backToMenu;
 
-  /// No description provided for @premium.
-  ///
-  /// In en, this message translates to:
-  /// **'Premium'**
-  String get premium;
-
   /// No description provided for @drones.
   ///
   /// In en, this message translates to:
@@ -373,12 +571,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Flight Trails'**
   String get flightTrails;
-
-  /// No description provided for @operator.
-  ///
-  /// In en, this message translates to:
-  /// **'Operator'**
-  String get operator;
 
   /// No description provided for @deleteAccountPlaceholder.
   ///

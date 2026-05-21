@@ -13,7 +13,7 @@ class DroneStrikeApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Drone Strike',
       debugShowCheckedModeBanner: false,
-      routerConfig: appRouter,
+      routerConfig: createAppRouter(),
       theme: AppTheme.darkTheme,
       localizationsDelegates: const [
         AppLocalizations.delegate,

@@ -41,7 +41,8 @@ Mobile scaffold created:
 - `go_router` navigation
 - Riverpod root
 - `API_BASE_URL` support
-- Backend integration planned next
+- Auth/profile/legal/account API integration
+- Progress and leaderboard API integration planned next
 
 ## Documentation
 

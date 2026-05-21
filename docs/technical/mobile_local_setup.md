@@ -73,3 +73,34 @@ For Windows desktop or Chrome testing, the default local API URL is:
 ```text
 http://localhost:8000
 ```
+
+## 8. Manual Mobile-Backend Test
+
+Start backend:
+
+```powershell
+cd /d "C:\Mobile Game Drone Strike\services\backend"
+.venv\Scripts\activate
+docker compose -f docker-compose.db.yml up -d
+alembic upgrade head
+python scripts/seed_leaderboard.py
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Start Android emulator, then run mobile:
+
+```powershell
+cd /d "C:\Mobile Game Drone Strike\apps\mobile"
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000
+```
+
+Manual flow:
+
+1. Register.
+2. Confirm that profile loads.
+3. Change display name.
+4. Open legal documents.
+5. Accept privacy policy.
+6. Logout.
+7. Login.
+8. Delete account.
