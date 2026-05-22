@@ -65,6 +65,7 @@ class LevelGenerator {
           netHeight: netHeight,
           gapHeight: pairGapHeight,
           width: config.obstacleWidth,
+          variantSeed: config.missionNumber * 31 + i,
         ),
       );
     }

@@ -10,15 +10,18 @@ class ObstaclePairComponent extends Component {
     required this.netHeight,
     required this.gapHeight,
     required this.width,
+    this.variantSeed = 0,
   }) : tree = TreeComponent(
          worldX: worldX,
          treeHeight: treeHeight,
          treeWidth: width,
+         variantSeed: variantSeed,
        ),
        net = NetComponent(
          worldX: worldX,
          netHeight: netHeight,
          netWidth: width,
+         variantSeed: variantSeed,
        );
 
   final double worldX;
@@ -26,6 +29,7 @@ class ObstaclePairComponent extends Component {
   final double netHeight;
   final double gapHeight;
   final double width;
+  final int variantSeed;
   final TreeComponent tree;
   final NetComponent net;
 

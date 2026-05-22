@@ -64,6 +64,11 @@ flutter:
     - assets/images/branding/
     - assets/images/backgrounds/
     - assets/images/references/
+    - assets/images/game/backgrounds/
+    - assets/images/game/drone/
+    - assets/images/game/obstacles/trees/
+    - assets/images/game/obstacles/nets/
+    - assets/images/game/targets/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

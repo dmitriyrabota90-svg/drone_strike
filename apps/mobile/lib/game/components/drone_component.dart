@@ -1,17 +1,30 @@
+import 'dart:async';
+import 'dart:math' as math;
+import 'dart:ui' as ui;
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/assets/app_assets.dart';
 import '../game_config.dart';
+import '../game_image_cache.dart';
 
 class DroneComponent extends PositionComponent {
   DroneComponent()
     : super(size: Vector2(GameConfig.droneWidth, GameConfig.droneHeight));
 
   double verticalVelocity = 0;
+  ui.Image? _sprite;
 
   @override
   Future<void> onLoad() async {
+    await super.onLoad();
+    unawaited(
+      GameImageCache.load(AppAssets.gameDroneFpvMain).then((image) {
+        _sprite = image;
+      }),
+    );
     await add(
       RectangleHitbox(
         size: Vector2(GameConfig.droneWidth - 16, GameConfig.droneHeight - 14),
@@ -45,6 +58,17 @@ class DroneComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
+    final sprite = _sprite;
+    if (sprite != null) {
+      canvas.drawImageRect(
+        sprite,
+        Rect.fromLTWH(0, 0, sprite.width.toDouble(), sprite.height.toDouble()),
+        _containRect(sprite, Rect.fromLTWH(0, 0, size.x, size.y)),
+        Paint()..filterQuality = FilterQuality.medium,
+      );
+      return;
+    }
+
     final armPaint = Paint()..color = const Color(0xFF5AAFD2);
     final bodyPaint = Paint()..color = const Color(0xFF10263A);
     final bodyLightPaint = Paint()..color = const Color(0xFF8BE2FF);
@@ -81,6 +105,21 @@ class DroneComponent extends PositionComponent {
     canvas.drawRect(
       Rect.fromLTWH(offset.dx - 2, offset.dy + 1, 13, 3),
       rotorPaint,
+    );
+  }
+
+  Rect _containRect(ui.Image image, Rect bounds) {
+    final scale = math.min(
+      bounds.width / image.width,
+      bounds.height / image.height,
+    );
+    final width = image.width * scale;
+    final height = image.height * scale;
+    return Rect.fromLTWH(
+      bounds.left + (bounds.width - width) / 2,
+      bounds.top + (bounds.height - height) / 2,
+      width,
+      height,
     );
   }
 }

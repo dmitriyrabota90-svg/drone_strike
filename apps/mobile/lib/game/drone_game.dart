@@ -1,15 +1,18 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
 
+import '../core/assets/app_assets.dart';
 import 'components/background_layer_component.dart';
 import 'components/boundary_component.dart';
 import 'components/drone_component.dart';
 import 'components/obstacle_pair_component.dart';
 import 'components/tank_component.dart';
 import 'game_config.dart';
+import 'game_image_cache.dart';
 import 'game_state.dart';
 import 'level_config.dart';
 import 'systems/level_generator.dart';
@@ -65,6 +68,7 @@ class DroneGame extends FlameGame with TapCallbacks {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    unawaited(GameImageCache.precache(AppAssets.gameImageAssets));
 
     _progressSystem = MissionProgressSystem(
       missionDistanceMeters: levelConfig.missionDistanceMeters,

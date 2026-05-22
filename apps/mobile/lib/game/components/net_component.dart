@@ -1,22 +1,38 @@
+import 'dart:async';
+import 'dart:math' as math;
+import 'dart:ui' as ui;
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/assets/app_assets.dart';
 import '../game_config.dart';
+import '../game_image_cache.dart';
 
 class NetComponent extends PositionComponent {
+  static const _segmentOverlap = 2.5;
+  static const _topMountOverlap = 3.0;
+
   NetComponent({
     required this.worldX,
     required this.netHeight,
     required this.netWidth,
+    this.variantSeed = 0,
   });
 
   double worldX;
   double netHeight;
   double netWidth;
+  final int variantSeed;
+  ui.Image? _topMount;
+  ui.Image? _middle;
+  ui.Image? _bottom;
 
   @override
   Future<void> onLoad() async {
+    await super.onLoad();
+    unawaited(_loadSprites());
     await add(RectangleHitbox());
   }
 
@@ -36,6 +52,10 @@ class NetComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
+    if (_renderSpriteNet(canvas)) {
+      return;
+    }
+
     final fillPaint = Paint()..color = const Color(0x22081222);
     final framePaint = Paint()
       ..color = const Color(0xFFD2E8F6)
@@ -60,5 +80,98 @@ class NetComponent extends PositionComponent {
     for (var y = 6.0; y < netHeight; y += 28) {
       canvas.drawRect(Rect.fromLTWH(netWidth - 8, y, 5, 5), hazardPaint);
     }
+  }
+
+  String get _topMountAsset {
+    return variantSeed.isEven
+        ? AppAssets.netTopMount01
+        : AppAssets.netTopMount02;
+  }
+
+  String get _middleAsset {
+    return variantSeed.isEven ? AppAssets.netMiddle01 : AppAssets.netMiddle02;
+  }
+
+  String get _bottomAsset {
+    return variantSeed.isEven ? AppAssets.netBottom01 : AppAssets.netBottom02;
+  }
+
+  Future<void> _loadSprites() async {
+    _topMount = await GameImageCache.load(_topMountAsset);
+    _middle = await GameImageCache.load(_middleAsset);
+    _bottom = await GameImageCache.load(_bottomAsset);
+  }
+
+  bool _renderSpriteNet(Canvas canvas) {
+    final topMount = _topMount;
+    final middle = _middle;
+    final bottom = _bottom;
+    if (topMount == null || middle == null || bottom == null) {
+      return false;
+    }
+
+    final paint = Paint()..filterQuality = FilterQuality.medium;
+    final topHeight = math.min(
+      netHeight * 0.28,
+      _scaledHeight(topMount, netWidth),
+    );
+    final bottomHeight = math.min(
+      netHeight * 0.26,
+      _scaledHeight(bottom, netWidth),
+    );
+    final middleHeight = math.max(
+      10.0,
+      math.min(netWidth * 0.42, _scaledHeight(middle, netWidth)),
+    );
+
+    _drawImage(
+      canvas,
+      topMount,
+      Rect.fromLTWH(0, 0, netWidth, topHeight + _topMountOverlap),
+      paint,
+    );
+
+    final middleTop = topHeight;
+    final middleBottom = math.max(middleTop, netHeight - bottomHeight);
+    var y = math.max(0.0, middleTop - _segmentOverlap);
+    while (y < middleBottom) {
+      final segmentHeight = math.min(
+        middleHeight,
+        middleBottom - y + _segmentOverlap,
+      );
+      _drawImage(
+        canvas,
+        middle,
+        Rect.fromLTWH(0, y, netWidth, segmentHeight),
+        paint,
+      );
+      y += segmentHeight - _segmentOverlap;
+    }
+
+    _drawImage(
+      canvas,
+      bottom,
+      Rect.fromLTWH(
+        0,
+        netHeight - bottomHeight - _segmentOverlap,
+        netWidth,
+        bottomHeight + _segmentOverlap,
+      ),
+      paint,
+    );
+    return true;
+  }
+
+  double _scaledHeight(ui.Image image, double width) {
+    return width * image.height / image.width;
+  }
+
+  void _drawImage(Canvas canvas, ui.Image image, Rect dst, Paint paint) {
+    canvas.drawImageRect(
+      image,
+      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+      dst,
+      paint,
+    );
   }
 }
