@@ -75,6 +75,8 @@
   "savedBestScore": "Сохраненный лучший счет",
   "scoreImproved": "Счет улучшен",
   "scoreNotImproved": "Счет не улучшен",
+  "yesLabel": "Да",
+  "noLabel": "Нет",
   "yourPlace": "Ваше место",
   "rank": "Ранг",
   "totalPlayers": "Всего игроков",

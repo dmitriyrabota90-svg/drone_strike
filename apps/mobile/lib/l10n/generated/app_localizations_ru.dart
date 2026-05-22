@@ -238,6 +238,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get scoreNotImproved => 'Счет не улучшен';
 
   @override
+  String get yesLabel => 'Да';
+
+  @override
+  String get noLabel => 'Нет';
+
+  @override
   String get yourPlace => 'Ваше место';
 
   @override

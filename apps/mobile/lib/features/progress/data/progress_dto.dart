@@ -38,7 +38,7 @@ class ProgressResponseDto {
     : totalScore = 0,
       playerLevel = 1,
       completedMissionsCount = 0,
-      unlockedMission = 1,
+      unlockedMission = 2,
       missions = const [];
 
   final int totalScore;

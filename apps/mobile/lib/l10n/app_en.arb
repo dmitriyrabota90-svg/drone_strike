@@ -75,6 +75,8 @@
   "savedBestScore": "Saved best score",
   "scoreImproved": "Score improved",
   "scoreNotImproved": "Score not improved",
+  "yesLabel": "Yes",
+  "noLabel": "No",
   "yourPlace": "Your place",
   "rank": "Rank",
   "totalPlayers": "Total players",

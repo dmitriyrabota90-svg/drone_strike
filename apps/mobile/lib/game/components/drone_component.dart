@@ -34,6 +34,10 @@ class DroneComponent extends PositionComponent {
     verticalVelocity = GameConfig.tapImpulse;
   }
 
+  void startBoost() {
+    verticalVelocity = GameConfig.startTapImpulse;
+  }
+
   void resetTo(Vector2 startPosition) {
     position = startPosition;
     verticalVelocity = 0;

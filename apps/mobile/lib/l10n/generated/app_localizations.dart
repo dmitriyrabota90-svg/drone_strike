@@ -548,6 +548,18 @@ abstract class AppLocalizations {
   /// **'Score not improved'**
   String get scoreNotImproved;
 
+  /// No description provided for @yesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yesLabel;
+
+  /// No description provided for @noLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get noLabel;
+
   /// No description provided for @yourPlace.
   ///
   /// In en, this message translates to:

@@ -237,6 +237,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scoreNotImproved => 'Score not improved';
 
   @override
+  String get yesLabel => 'Yes';
+
+  @override
+  String get noLabel => 'No';
+
+  @override
   String get yourPlace => 'Your place';
 
   @override

@@ -33,12 +33,11 @@ class GuestProgressRepository {
       );
     }
 
-    final unlockedMission = completed.contains(1) ? 2 : 1;
     return ProgressResponseDto(
       totalScore: totalScore,
       playerLevel: 1,
       completedMissionsCount: completed.length,
-      unlockedMission: unlockedMission,
+      unlockedMission: 2,
       missions: missions,
     );
   }

@@ -2,35 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../l10n/generated/app_localizations.dart';
-import '../drone_game.dart';
 import '../systems/scoring_system.dart';
 
 class MissionCompleteOverlay extends StatelessWidget {
-  const MissionCompleteOverlay({required this.game, super.key});
+  const MissionCompleteOverlay({required this.result, super.key});
 
-  final DroneGame game;
+  final MissionResult? result;
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: const Color(0xCC061426),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 380),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: ValueListenableBuilder<MissionResult?>(
-                valueListenable: game.missionResultNotifier,
-                builder: (context, result, child) {
-                  if (result == null) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  return _MissionCompleteContent(game: game, result: result);
-                },
+    return SafeArea(
+      child: ColoredBox(
+        color: const Color(0xCC061426),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: 520,
+                  maxHeight: constraints.maxHeight - 16,
+                ),
+                child: Card(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(14),
+                    child: result == null
+                        ? const SizedBox(
+                            height: 140,
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                        : _MissionCompleteContent(result: result!),
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -38,9 +43,8 @@ class MissionCompleteOverlay extends StatelessWidget {
 }
 
 class _MissionCompleteContent extends StatelessWidget {
-  const _MissionCompleteContent({required this.game, required this.result});
+  const _MissionCompleteContent({required this.result});
 
-  final DroneGame game;
   final MissionResult result;
 
   @override
@@ -58,13 +62,13 @@ class _MissionCompleteContent extends StatelessWidget {
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         Text(
           result.backendSubmitted ? l10n.backendSubmitted : l10n.guestResult,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodySmall,
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         _ScoreRow(label: l10n.baseScore, value: '${result.baseScore}'),
         _ScoreRow(
           label: l10n.flightAccuracy,
@@ -82,7 +86,7 @@ class _MissionCompleteContent extends StatelessWidget {
             label: result.scoreImproved == true
                 ? l10n.scoreImproved
                 : l10n.scoreNotImproved,
-            value: result.scoreImproved == true ? 'yes' : 'no',
+            value: result.scoreImproved == true ? l10n.yesLabel : l10n.noLabel,
           ),
         if (result.totalPlayerScore != null)
           _ScoreRow(
@@ -91,36 +95,43 @@ class _MissionCompleteContent extends StatelessWidget {
           ),
         if (result.playerLevel != null)
           _ScoreRow(label: l10n.playerLevel, value: '${result.playerLevel}'),
-        const SizedBox(height: 18),
-        ElevatedButton.icon(
-          onPressed: () {
-            if (missionNumber >= 10) {
-              context.go('/levels');
-              return;
-            }
-            if (result.isGuest && nextMission >= 3) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.registrationRequiredAfterMission)),
-              );
-              context.go('/register');
-              return;
-            }
-            context.go('/game/$nextMission');
-          },
-          icon: const Icon(Icons.arrow_forward),
-          label: Text(l10n.nextMission),
-        ),
-        const SizedBox(height: 10),
-        OutlinedButton.icon(
-          onPressed: () => context.go('/levels'),
-          icon: const Icon(Icons.grid_view),
-          label: Text(l10n.levelSelect),
-        ),
-        const SizedBox(height: 10),
-        OutlinedButton.icon(
-          onPressed: () => context.go('/menu'),
-          icon: const Icon(Icons.home),
-          label: Text(l10n.mainMenu),
+        const SizedBox(height: 12),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () {
+                if (missionNumber >= 10) {
+                  context.go('/levels');
+                  return;
+                }
+                if (result.isGuest && nextMission >= 3) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n.registrationRequiredAfterMission),
+                    ),
+                  );
+                  context.go('/register');
+                  return;
+                }
+                context.go('/game/$nextMission');
+              },
+              icon: const Icon(Icons.arrow_forward),
+              label: Text(l10n.nextMission),
+            ),
+            OutlinedButton.icon(
+              onPressed: () => context.go('/levels'),
+              icon: const Icon(Icons.grid_view),
+              label: Text(l10n.levelSelect),
+            ),
+            OutlinedButton.icon(
+              onPressed: () => context.go('/menu'),
+              icon: const Icon(Icons.home),
+              label: Text(l10n.mainMenu),
+            ),
+          ],
         ),
       ],
     );
@@ -136,10 +147,14 @@ class _ScoreRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
+      padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Text(label), Text(value)],
+        children: [
+          Expanded(child: Text(label, overflow: TextOverflow.ellipsis)),
+          const SizedBox(width: 12),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.w800)),
+        ],
       ),
     );
   }

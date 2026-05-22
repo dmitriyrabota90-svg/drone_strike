@@ -108,6 +108,26 @@ void main() {
     expect(find.text('Locked'), findsWidgets);
   });
 
+  testWidgets('guest can open mission 2 but mission 3 stays locked', (
+    tester,
+  ) async {
+    await pumpDroneStrikeApp(tester);
+
+    await tester.tap(find.text('Level Select'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mission 3'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Registration required'), findsOneWidget);
+    expect(find.text('Mission: 3'), findsNothing);
+
+    await tester.tap(find.text('Mission 2'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Mission: 2'), findsOneWidget);
+  });
+
   testWidgets('leaderboard screen requires login for guest', (tester) async {
     await pumpDroneStrikeApp(tester);
 
@@ -182,11 +202,14 @@ void main() {
   testWidgets('mission complete overlay renders fake mission result', (
     tester,
   ) async {
-    final game = DroneGame(
-      levelConfig: LevelConfig.forMission(1),
-      initialPlayerLevel: 1,
-    );
-    game.missionResultNotifier.value = const MissionResult(
+    tester.view.physicalSize = const Size(800, 450);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    const result = MissionResult(
       missionNumber: 1,
       baseScore: 100,
       flightAccuracyBonus: 25,
@@ -196,11 +219,12 @@ void main() {
       backendSubmitted: false,
     );
 
-    await pumpOverlay(tester, MissionCompleteOverlay(game: game));
+    await pumpOverlay(tester, const MissionCompleteOverlay(result: result));
 
     expect(find.text('Mission complete'), findsOneWidget);
     expect(find.text('Guest result'), findsOneWidget);
     expect(find.text('Total score'), findsWidgets);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('game over overlay shows remaining lives', (tester) async {

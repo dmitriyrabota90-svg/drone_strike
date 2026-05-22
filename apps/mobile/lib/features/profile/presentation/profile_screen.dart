@@ -203,6 +203,9 @@ class ProfileScreen extends ConsumerWidget {
       return;
     }
 
+    if (!context.mounted) {
+      return;
+    }
     await ref.read(profileControllerProvider).updateDisplayName(value);
   }
 }

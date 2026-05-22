@@ -19,7 +19,10 @@ class BackgroundLayerComponent extends PositionComponent {
 
   @override
   void update(double dt) {
-    _scroll = (_scroll + forwardSpeed * dt) % 360;
+    _scroll += forwardSpeed * dt;
+    if (_scroll > 100000) {
+      _scroll = 0;
+    }
   }
 
   @override

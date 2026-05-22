@@ -9,6 +9,7 @@ import 'components/boundary_component.dart';
 import 'components/drone_component.dart';
 import 'components/obstacle_pair_component.dart';
 import 'components/tank_component.dart';
+import 'game_config.dart';
 import 'game_state.dart';
 import 'level_config.dart';
 import 'systems/level_generator.dart';
@@ -51,9 +52,6 @@ class DroneGame extends FlameGame with TapCallbacks {
   final VoidCallback? onPause;
   final VoidCallback? onRestart;
   final ValueNotifier<DroneGameState> stateNotifier;
-  final ValueNotifier<MissionResult?> missionResultNotifier = ValueNotifier(
-    null,
-  );
 
   late final DroneComponent _drone;
   late MissionProgressSystem _progressSystem;
@@ -61,6 +59,8 @@ class DroneGame extends FlameGame with TapCallbacks {
   late List<ObstaclePairComponent> _obstaclePairs;
   late TankComponent _tank;
   double _worldOffset = 0;
+  double _startGraceRemaining = 0;
+  bool _isDisposed = false;
 
   @override
   Future<void> onLoad() async {
@@ -107,6 +107,12 @@ class DroneGame extends FlameGame with TapCallbacks {
     }
 
     super.update(dt);
+    if (_startGraceRemaining > 0) {
+      _startGraceRemaining = (_startGraceRemaining - dt).clamp(
+        0.0,
+        double.infinity,
+      );
+    }
     _progressSystem.update(dt, levelConfig.forwardSpeed);
     _worldOffset = _progressSystem.currentDistanceMeters;
     _updateWorldComponents();
@@ -131,10 +137,14 @@ class DroneGame extends FlameGame with TapCallbacks {
   }
 
   void handleFieldTap() {
+    if (_isDisposed) {
+      return;
+    }
     final status = stateNotifier.value.status;
     if (status == DroneMissionStatus.ready) {
       _syncState(status: DroneMissionStatus.running);
-      _drone.boost();
+      _startGraceRemaining = GameConfig.startGraceSeconds;
+      _drone.startBoost();
       return;
     }
     if (status == DroneMissionStatus.running) {
@@ -143,6 +153,9 @@ class DroneGame extends FlameGame with TapCallbacks {
   }
 
   void pauseGame() {
+    if (_isDisposed) {
+      return;
+    }
     final status = stateNotifier.value.status;
     if (status == DroneMissionStatus.gameOver ||
         status == DroneMissionStatus.paused) {
@@ -154,6 +167,9 @@ class DroneGame extends FlameGame with TapCallbacks {
   }
 
   void resumeGame() {
+    if (_isDisposed) {
+      return;
+    }
     if (stateNotifier.value.status != DroneMissionStatus.paused) {
       return;
     }
@@ -162,6 +178,9 @@ class DroneGame extends FlameGame with TapCallbacks {
   }
 
   void restart() {
+    if (_isDisposed) {
+      return;
+    }
     final currentLives = stateNotifier.value.lives;
     overlays.remove(pauseOverlay);
     overlays.remove(gameOverOverlay);
@@ -170,7 +189,7 @@ class DroneGame extends FlameGame with TapCallbacks {
     _progressSystem.reset();
     _scoringSystem = ScoringSystem();
     _worldOffset = 0;
-    missionResultNotifier.value = null;
+    _startGraceRemaining = 0;
     _drone.resetTo(_startPosition());
     _updateWorldComponents();
     stateNotifier.value = DroneGameState(
@@ -185,6 +204,9 @@ class DroneGame extends FlameGame with TapCallbacks {
   }
 
   void triggerGameOver({String? reason}) {
+    if (_isDisposed) {
+      return;
+    }
     if (stateNotifier.value.status == DroneMissionStatus.gameOver) {
       return;
     }
@@ -195,6 +217,9 @@ class DroneGame extends FlameGame with TapCallbacks {
   }
 
   void triggerMissionComplete() {
+    if (_isDisposed) {
+      return;
+    }
     if (stateNotifier.value.status == DroneMissionStatus.completed) {
       return;
     }
@@ -206,7 +231,6 @@ class DroneGame extends FlameGame with TapCallbacks {
       ),
       isGuest: true,
     );
-    missionResultNotifier.value = localResult;
     _syncState(
       status: DroneMissionStatus.completed,
       remainingDistanceMeters: 0,
@@ -218,14 +242,11 @@ class DroneGame extends FlameGame with TapCallbacks {
     if (sync == null) {
       return;
     }
-    sync(localResult)
-        .then((syncedResult) {
-          missionResultNotifier.value = syncedResult;
-        })
-        .catchError((Object error, StackTrace stackTrace) {
-          debugPrint('Mission result sync failed: $error');
-          debugPrint('$stackTrace');
-        });
+    sync(localResult).catchError((Object error, StackTrace stackTrace) {
+      debugPrint('Mission result sync failed: $error');
+      debugPrint('$stackTrace');
+      return localResult;
+    });
   }
 
   Vector2 _startPosition() {
@@ -236,6 +257,9 @@ class DroneGame extends FlameGame with TapCallbacks {
   }
 
   void _checkBoundaryDeath() {
+    if (_startGraceRemaining > 0) {
+      return;
+    }
     if (_drone.position.y <= levelConfig.topBoundaryHeight ||
         _drone.position.y + _drone.size.y >=
             size.y - levelConfig.bottomBoundaryHeight) {
@@ -266,10 +290,16 @@ class DroneGame extends FlameGame with TapCallbacks {
   }
 
   void updateLives(int currentLives) {
+    if (_isDisposed) {
+      return;
+    }
     _syncState(lives: currentLives);
   }
 
   void showNoLivesOverlay() {
+    if (_isDisposed) {
+      return;
+    }
     overlays.remove(gameOverOverlay);
     overlays.remove(pauseOverlay);
     overlays.add(noLivesOverlay);
@@ -319,6 +349,9 @@ class DroneGame extends FlameGame with TapCallbacks {
     double? remainingDistanceMeters,
     DroneMissionStatus? status,
   }) {
+    if (_isDisposed) {
+      return;
+    }
     stateNotifier.value = stateNotifier.value.copyWith(
       lives: lives,
       remainingDistanceMeters: remainingDistanceMeters,
@@ -328,8 +361,8 @@ class DroneGame extends FlameGame with TapCallbacks {
 
   @override
   void onRemove() {
+    _isDisposed = true;
     stateNotifier.dispose();
-    missionResultNotifier.dispose();
     super.onRemove();
   }
 }

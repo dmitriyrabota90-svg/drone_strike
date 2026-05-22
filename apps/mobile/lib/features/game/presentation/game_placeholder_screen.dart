@@ -31,12 +31,25 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
   late final AudioService _audioService;
   bool _orientationReady = false;
   bool _startCheckScheduled = false;
+  MissionResult? _missionResult;
 
   @override
   void initState() {
     super.initState();
     _audioService = ref.read(audioServiceProvider);
     _enterLandscape();
+  }
+
+  @override
+  void didUpdateWidget(covariant GamePlaceholderScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.missionNumber == widget.missionNumber) {
+      return;
+    }
+    _audioService.stopMusic();
+    _game = null;
+    _missionResult = null;
+    _startCheckScheduled = false;
   }
 
   @override
@@ -95,7 +108,7 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
                     DroneGame.gameOverOverlay: (context, game) =>
                         GameOverOverlay(game: game),
                     DroneGame.missionCompleteOverlay: (context, game) =>
-                        MissionCompleteOverlay(game: game),
+                        MissionCompleteOverlay(result: _missionResult),
                     DroneGame.noLivesOverlay: (context, game) =>
                         const NoLivesOverlay(),
                   },
@@ -123,6 +136,7 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
     }
 
     final levelConfig = LevelConfig.forMission(widget.missionNumber);
+    _missionResult = null;
     final created = DroneGame(
       levelConfig: levelConfig,
       initialPlayerLevel: _readInitialPlayerLevel(),
@@ -172,6 +186,9 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
       return;
     }
     final lives = await ref.read(livesControllerProvider.future);
+    if (!mounted || game != _game) {
+      return;
+    }
     game.updateLives(lives.currentLives);
     if (!lives.hasLives) {
       game.showNoLivesOverlay();
@@ -183,8 +200,11 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
   Future<void> _handleGameOver() async {
     _audioService.stopMusic();
     _audioService.playDefeat();
-    final lives = await ref.read(livesControllerProvider.notifier).spendLife();
     final game = _game;
+    final lives = await ref.read(livesControllerProvider.notifier).spendLife();
+    if (!mounted || game != _game) {
+      return;
+    }
     game?.updateLives(lives.currentLives);
     if (!lives.hasLives) {
       game?.showNoLivesOverlay();
@@ -192,6 +212,12 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
   }
 
   Future<MissionResult> _handleMissionComplete(MissionResult result) async {
+    if (!mounted) {
+      return result;
+    }
+    setState(() {
+      _missionResult = result;
+    });
     _audioService.stopMusic();
     _audioService.playVictory();
     final authState = ref.read(authControllerProvider).asData?.value;
@@ -205,10 +231,20 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
             flightAccuracyBonus: result.flightAccuracyBonus,
             tankHitBonus: result.tankHitBonus,
           );
-      if (response == null) {
+      if (!mounted) {
         return result.copyWith(isGuest: false, backendSubmitted: false);
       }
-      return result.copyWith(
+      if (response == null) {
+        final failedResult = result.copyWith(
+          isGuest: false,
+          backendSubmitted: false,
+        );
+        setState(() {
+          _missionResult = failedResult;
+        });
+        return failedResult;
+      }
+      final syncedResult = result.copyWith(
         isGuest: false,
         backendSubmitted: true,
         scoreImproved: response.scoreImproved,
@@ -216,6 +252,10 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
         totalPlayerScore: response.totalScore,
         playerLevel: response.playerLevel,
       );
+      setState(() {
+        _missionResult = syncedResult;
+      });
+      return syncedResult;
     }
 
     if (result.missionNumber <= 2) {
@@ -227,7 +267,16 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
             flightAccuracyBonus: result.flightAccuracyBonus,
             tankHitBonus: result.tankHitBonus,
           );
+      if (!mounted) {
+        return result;
+      }
     }
-    return result.copyWith(isGuest: true, backendSubmitted: false);
+    final guestResult = result.copyWith(isGuest: true, backendSubmitted: false);
+    if (mounted) {
+      setState(() {
+        _missionResult = guestResult;
+      });
+    }
+    return guestResult;
   }
 }

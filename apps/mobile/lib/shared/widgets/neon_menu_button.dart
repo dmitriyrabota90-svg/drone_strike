@@ -76,43 +76,41 @@ class NeonMenuButton extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (icon != null) ...[
-                          Icon(
-                            icon,
-                            color: enabled ? accent : foreground,
-                            size: 21,
-                          ),
-                          const SizedBox(width: 10),
-                        ],
-                        Flexible(
-                          child: Text(
-                            text,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.labelLarge
-                                ?.copyWith(
-                                  color: foreground,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0,
-                                  shadows: enabled
-                                      ? [
-                                          Shadow(
-                                            color: accent.withValues(
-                                              alpha: 0.55,
-                                            ),
-                                            blurRadius: 8,
-                                          ),
-                                        ]
-                                      : null,
-                                ),
-                          ),
+                  if (icon != null)
+                    Positioned(
+                      left: 18,
+                      top: 0,
+                      bottom: 0,
+                      child: Icon(
+                        icon,
+                        color: enabled ? accent : foreground,
+                        size: 20,
+                      ),
+                    ),
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 48),
+                      child: Text(
+                        text,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: foreground,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.7,
+                          height: 1.0,
+                          shadows: enabled
+                              ? [
+                                  Shadow(
+                                    color: accent.withValues(alpha: 0.62),
+                                    blurRadius: 8,
+                                  ),
+                                ]
+                              : null,
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ],
