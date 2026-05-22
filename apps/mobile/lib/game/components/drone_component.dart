@@ -14,8 +14,8 @@ class DroneComponent extends PositionComponent {
   Future<void> onLoad() async {
     await add(
       RectangleHitbox(
-        size: Vector2(GameConfig.droneWidth - 14, GameConfig.droneHeight - 12),
-        position: Vector2(7, 6),
+        size: Vector2(GameConfig.droneWidth - 16, GameConfig.droneHeight - 14),
+        position: Vector2(8, 7),
       ),
     );
   }
@@ -24,8 +24,8 @@ class DroneComponent extends PositionComponent {
   void update(double dt) {
     verticalVelocity += GameConfig.gravity * dt;
     verticalVelocity = verticalVelocity.clamp(
-      GameConfig.maxRiseVelocity,
-      GameConfig.maxFallVelocity,
+      GameConfig.maxRiseSpeed,
+      GameConfig.maxFallSpeed,
     );
     position.y += verticalVelocity * dt;
   }

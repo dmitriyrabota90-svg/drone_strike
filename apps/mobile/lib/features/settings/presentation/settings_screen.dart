@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/audio/audio_service.dart';
 import '../../../core/audio/audio_settings_controller.dart';
+import '../../../core/localization/app_locale_controller.dart';
 import '../../auth/domain/auth_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../../shared/widgets/glass_panel.dart';
@@ -27,6 +28,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final audioSettingsValue = ref.watch(audioSettingsControllerProvider);
     final audioSettings = audioSettingsValue.asData?.value;
     final isAudioLoading = audioSettingsValue.isLoading;
+    final localeValue = ref.watch(appLocaleControllerProvider);
+    final selectedLanguageCode =
+        localeValue.asData?.value?.languageCode ??
+        Localizations.localeOf(context).languageCode;
+    final normalizedLanguageCode = selectedLanguageCode == 'ru' ? 'ru' : 'en';
 
     return Scaffold(
       appBar: AppBar(
@@ -38,11 +44,37 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           padding: const EdgeInsets.all(16),
           children: [
             GlassPanel(
-              padding: EdgeInsets.zero,
-              child: ListTile(
-                leading: const Icon(Icons.language),
-                title: Text(l10n.language),
-                subtitle: const Text('RU / EN'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.language),
+                      const SizedBox(width: 10),
+                      Text(
+                        l10n.language,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SegmentedButton<String>(
+                    segments: [
+                      ButtonSegment(
+                        value: 'ru',
+                        label: Text(l10n.russianLanguage),
+                      ),
+                      ButtonSegment(
+                        value: 'en',
+                        label: Text(l10n.englishLanguage),
+                      ),
+                    ],
+                    selected: {normalizedLanguageCode},
+                    onSelectionChanged: localeValue.isLoading
+                        ? null
+                        : (selection) => _setLanguage(selection.first),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 12),
@@ -140,6 +172,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         .setSfxEnabled(value);
     final settings = ref.read(audioSettingsControllerProvider).requireValue;
     await ref.read(audioServiceProvider).handleSettingsChanged(settings);
+  }
+
+  Future<void> _setLanguage(String languageCode) async {
+    await ref
+        .read(appLocaleControllerProvider.notifier)
+        .setLocale(Locale(languageCode));
   }
 
   Future<void> _showDeleteAccountDialog(AppLocalizations l10n) async {

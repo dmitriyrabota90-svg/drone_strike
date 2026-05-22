@@ -1,12 +1,16 @@
 import 'package:drone_strike/app/drone_strike_app.dart';
 import 'package:drone_strike/core/assets/app_assets.dart';
+import 'package:drone_strike/core/localization/app_locale_controller.dart';
 import 'package:drone_strike/game/drone_game.dart';
+import 'package:drone_strike/game/game_config.dart';
 import 'package:drone_strike/game/level_config.dart';
 import 'package:drone_strike/game/overlays/game_over_overlay.dart';
 import 'package:drone_strike/game/overlays/mission_complete_overlay.dart';
 import 'package:drone_strike/game/overlays/no_lives_overlay.dart';
+import 'package:drone_strike/game/systems/level_generator.dart';
 import 'package:drone_strike/game/systems/scoring_system.dart';
 import 'package:drone_strike/l10n/generated/app_localizations.dart';
+import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -195,6 +199,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Sound'), findsOneWidget);
+    expect(find.text('Language'), findsOneWidget);
+    expect(find.text('English'), findsOneWidget);
+    expect(find.text('Russian'), findsOneWidget);
     expect(find.text('Legal Documents'), findsOneWidget);
     expect(find.text('Account'), findsOneWidget);
   });
@@ -270,18 +277,78 @@ void main() {
     expect(tankBonus, inInclusiveRange(0, 50));
   });
 
-  test('level config keeps tutorial gaps and smooth mission scaling', () {
+  test('game physics uses glide-friendly velocity limits', () {
+    expect(GameConfig.gravity, 460.0);
+    expect(GameConfig.tapImpulse, -235.0);
+    expect(GameConfig.startTapImpulse, -135.0);
+    expect(GameConfig.maxRiseSpeed, -285.0);
+    expect(GameConfig.maxFallSpeed, 390.0);
+  });
+
+  test('locale controller persists ru and en selections', () async {
+    SharedPreferences.setMockInitialValues({});
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    expect(await container.read(appLocaleControllerProvider.future), isNull);
+
+    await container
+        .read(appLocaleControllerProvider.notifier)
+        .setLocale(const Locale('ru'));
+    expect(
+      container.read(appLocaleControllerProvider).requireValue?.languageCode,
+      'ru',
+    );
+
+    var preferences = await SharedPreferences.getInstance();
+    expect(preferences.getString('settings.locale'), 'ru');
+
+    await container
+        .read(appLocaleControllerProvider.notifier)
+        .setLocale(const Locale('en'));
+    expect(
+      container.read(appLocaleControllerProvider).requireValue?.languageCode,
+      'en',
+    );
+
+    preferences = await SharedPreferences.getInstance();
+    expect(preferences.getString('settings.locale'), 'en');
+  });
+
+  test('level config keeps introductory gaps and smooth mission scaling', () {
     final mission1 = LevelConfig.forMission(1);
     final mission2 = LevelConfig.forMission(2);
     final mission3 = LevelConfig.forMission(3);
     final mission10 = LevelConfig.forMission(10);
 
-    expect(mission1.gapMultiplier, 1.8);
-    expect(mission2.gapMultiplier, 1.6);
-    expect(mission3.gapMultiplier, 1.4);
+    expect(mission1.gapMultiplier, 2.8);
+    expect(mission2.gapMultiplier, 2.6);
+    expect(mission3.gapMultiplier, 2.4);
+    expect(mission10.gapMultiplier, greaterThanOrEqualTo(2.0));
+    expect(mission1.finalZoneSeconds, 2.75);
+    expect(mission10.finalZoneSeconds, 2.75);
     expect(mission1.forwardSpeed, lessThan(mission2.forwardSpeed));
     expect(mission2.forwardSpeed, lessThan(mission3.forwardSpeed));
     expect(mission10.forwardSpeed, greaterThan(mission3.forwardSpeed));
-    expect(mission10.obstacleCount, inInclusiveRange(12, 15));
+    expect(mission1.minObstacleSpacing, GameConfig.droneWidth * 4.1);
+    expect(mission3.minObstacleSpacing, GameConfig.droneWidth * 4.0);
+    expect(mission10.obstacleCount, 15);
+  });
+
+  test('level generator clamps generated gaps to MVP minimum', () {
+    final generator = LevelGenerator();
+    for (var mission = 1; mission <= 10; mission++) {
+      final level = generator.generate(
+        config: LevelConfig.forMission(mission),
+        viewportSize: Vector2(800, 450),
+      );
+
+      for (final pair in level.obstaclePairs) {
+        expect(
+          pair.gapHeight,
+          greaterThanOrEqualTo(GameConfig.droneHeight * 2),
+        );
+      }
+    }
   });
 }

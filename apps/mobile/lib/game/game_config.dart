@@ -1,13 +1,14 @@
 class GameConfig {
   const GameConfig._();
 
-  // Temporary physics values. They will be balanced after real device testing.
-  static const gravity = 610.0;
-  static const tapImpulse = -345.0;
-  static const startTapImpulse = -175.0;
+  // Temporary physics values tuned after early manual tests.
+  // The goal is FPV-glide correction rather than hard Flappy-style snapping.
+  static const gravity = 460.0;
+  static const tapImpulse = -235.0;
+  static const startTapImpulse = -135.0;
   static const startGraceSeconds = 0.45;
-  static const maxFallVelocity = 430.0;
-  static const maxRiseVelocity = -390.0;
+  static const maxFallSpeed = 390.0;
+  static const maxRiseSpeed = -285.0;
   static const droneStartXRatio = 0.22;
   static const droneStartYRatio = 0.50;
   static const droneWidth = 56.0;

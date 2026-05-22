@@ -25,6 +25,8 @@
   "progress": "Progress",
   "playerLevel": "Level",
   "language": "Language",
+  "englishLanguage": "English",
+  "russianLanguage": "Russian",
   "sound": "Sound",
   "music": "Music",
   "sfx": "SFX",

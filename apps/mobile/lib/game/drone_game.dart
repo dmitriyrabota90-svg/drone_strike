@@ -337,10 +337,10 @@ class DroneGame extends FlameGame with TapCallbacks {
 
   Rect get _droneRect {
     return Rect.fromLTWH(
-      _drone.position.x + 7,
-      _drone.position.y + 6,
-      _drone.size.x - 14,
-      _drone.size.y - 12,
+      _drone.position.x + 8,
+      _drone.position.y + 7,
+      _drone.size.x - 16,
+      _drone.size.y - 14,
     );
   }
 

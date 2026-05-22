@@ -21,25 +21,37 @@ class LevelGenerator {
     required LevelConfig config,
     required Vector2 viewportSize,
   }) {
-    final gapHeight = GameConfig.droneHeight * config.gapMultiplier;
+    final minimumGapHeight = GameConfig.droneHeight * 2.0;
+    final gapHeight = math.max(
+      GameConfig.droneHeight * config.gapMultiplier,
+      minimumGapHeight,
+    );
     final bottomY = viewportSize.y - GameConfig.bottomBoundaryHeight;
     final usableTop = GameConfig.topBoundaryHeight + 48;
     final usableBottom = bottomY - 98 - gapHeight;
     final safeBottom = math.max(usableTop, usableBottom);
     final obstacleZoneStart = viewportSize.x + (config.isTutorial ? 330 : 285);
-    final obstacleZoneEnd =
-        config.obstacleZoneDistance - config.finalZoneDistance * 0.45;
+    final tankWorldX =
+        config.obstacleZoneDistance + config.finalZoneDistance * 0.78;
+    final lastObstacleWorldX =
+        tankWorldX - config.forwardSpeed * config.finalZoneSeconds;
+    final spacingDivisor = math.max(1, config.obstacleCount - 1);
     final spacing = math.max(
       config.minObstacleSpacing,
-      (obstacleZoneEnd - obstacleZoneStart) / config.obstacleCount,
+      (lastObstacleWorldX - obstacleZoneStart) / spacingDivisor,
     );
 
     final pairs = <ObstaclePairComponent>[];
     for (var i = 0; i < config.obstacleCount; i++) {
       final wave = math.sin((i + 1) * 1.37 + config.missionNumber * 0.43);
       final spacingJitter = (i % 3 - 1) * (config.isTutorial ? 12.0 : 18.0);
-      final worldX = obstacleZoneStart + spacing * i + spacingJitter;
       final isLast = i == config.obstacleCount - 1;
+      final worldX = isLast
+          ? lastObstacleWorldX
+          : math.min(
+              obstacleZoneStart + spacing * i + spacingJitter,
+              lastObstacleWorldX - config.minObstacleSpacing,
+            );
       final pairGapHeight = isLast ? gapHeight + 22 : gapHeight;
       final gapTop = usableTop + (safeBottom - usableTop) * ((wave + 1) / 2);
       final netHeight = gapTop - GameConfig.topBoundaryHeight;
@@ -56,9 +68,6 @@ class LevelGenerator {
         ),
       );
     }
-
-    final tankWorldX =
-        config.obstacleZoneDistance + config.finalZoneDistance * 0.62;
 
     return GeneratedLevel(
       obstaclePairs: pairs,

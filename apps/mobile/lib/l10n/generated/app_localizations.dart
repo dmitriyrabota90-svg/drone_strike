@@ -248,6 +248,18 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get language;
 
+  /// No description provided for @englishLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get englishLanguage;
+
+  /// No description provided for @russianLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Russian'**
+  String get russianLanguage;
+
   /// No description provided for @sound.
   ///
   /// In en, this message translates to:
