@@ -124,5 +124,9 @@
   "drones": "Дроны",
   "flightTrails": "Следы полета",
   "deleteAccountPlaceholder": "Удаление аккаунта будет подключено к API позже",
+  "exitGameTitle": "Выйти из игры?",
+  "exitGameMessage": "Приложение будет закрыто.",
+  "cancel": "Отмена",
+  "exitConfirm": "Выйти",
   "exitUnavailable": "Выход не реализован на этой платформе"
 }

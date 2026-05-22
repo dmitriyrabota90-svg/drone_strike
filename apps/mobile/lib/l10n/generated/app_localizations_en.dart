@@ -387,5 +387,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Account deletion will be connected to the API later';
 
   @override
+  String get exitGameTitle => 'Exit game?';
+
+  @override
+  String get exitGameMessage => 'The app will be closed.';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get exitConfirm => 'Exit';
+
+  @override
   String get exitUnavailable => 'Exit is not implemented on this platform';
 }

@@ -389,5 +389,17 @@ class AppLocalizationsRu extends AppLocalizations {
       'Удаление аккаунта будет подключено к API позже';
 
   @override
+  String get exitGameTitle => 'Выйти из игры?';
+
+  @override
+  String get exitGameMessage => 'Приложение будет закрыто.';
+
+  @override
+  String get cancel => 'Отмена';
+
+  @override
+  String get exitConfirm => 'Выйти';
+
+  @override
   String get exitUnavailable => 'Выход не реализован на этой платформе';
 }

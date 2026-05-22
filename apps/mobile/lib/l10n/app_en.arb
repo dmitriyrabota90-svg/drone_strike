@@ -124,5 +124,9 @@
   "drones": "Drones",
   "flightTrails": "Flight Trails",
   "deleteAccountPlaceholder": "Account deletion will be connected to the API later",
+  "exitGameTitle": "Exit game?",
+  "exitGameMessage": "The app will be closed.",
+  "cancel": "Cancel",
+  "exitConfirm": "Exit",
   "exitUnavailable": "Exit is not implemented on this platform"
 }

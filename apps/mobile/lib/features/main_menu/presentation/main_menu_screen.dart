@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/audio/audio_service.dart';
@@ -112,6 +113,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
                 _MenuButton(
                   label: l10n.levelSelect,
                   icon: Icons.grid_view,
+                  variant: NeonMenuButtonVariant.primary,
                   onPressed: () => context.go('/levels'),
                 ),
                 _MenuButton(
@@ -142,7 +144,8 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
                 _MenuButton(
                   label: l10n.exit,
                   icon: Icons.logout,
-                  onPressed: null,
+                  variant: NeonMenuButtonVariant.danger,
+                  onPressed: () => _showExitDialog(context, l10n),
                 ),
               ],
             ),
@@ -151,6 +154,35 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
       ),
     );
   }
+
+  Future<void> _showExitDialog(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
+    final shouldExit = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.exitGameTitle),
+          content: Text(l10n.exitGameMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l10n.exitConfirm),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldExit == true) {
+      SystemNavigator.pop();
+    }
+  }
 }
 
 class _MenuButton extends StatelessWidget {
@@ -158,17 +190,24 @@ class _MenuButton extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.onPressed,
+    this.variant = NeonMenuButtonVariant.secondary,
   });
 
   final String label;
   final IconData icon;
   final VoidCallback? onPressed;
+  final NeonMenuButtonVariant variant;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: NeonMenuButton(text: label, icon: icon, onPressed: onPressed),
+      child: NeonMenuButton(
+        text: label,
+        icon: icon,
+        onPressed: onPressed,
+        variant: variant,
+      ),
     );
   }
 }

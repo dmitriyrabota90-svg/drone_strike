@@ -842,6 +842,30 @@ abstract class AppLocalizations {
   /// **'Account deletion will be connected to the API later'**
   String get deleteAccountPlaceholder;
 
+  /// No description provided for @exitGameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit game?'**
+  String get exitGameTitle;
+
+  /// No description provided for @exitGameMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The app will be closed.'**
+  String get exitGameMessage;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @exitConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit'**
+  String get exitConfirm;
+
   /// No description provided for @exitUnavailable.
   ///
   /// In en, this message translates to:
