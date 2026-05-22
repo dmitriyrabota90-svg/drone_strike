@@ -288,7 +288,7 @@ class DroneGame extends FlameGame with TapCallbacks {
       triggerMissionComplete();
       return;
     }
-    if (_tank.missedDroneFailSafe) {
+    if (_tank.hasPassedFailLine(droneRect)) {
       triggerGameOver(reason: 'missed_tank');
     }
   }
@@ -341,10 +341,10 @@ class DroneGame extends FlameGame with TapCallbacks {
 
   Rect get _droneRect {
     return Rect.fromLTWH(
-      _drone.position.x + 8,
-      _drone.position.y + 7,
-      _drone.size.x - 16,
-      _drone.size.y - 14,
+      _drone.position.x + GameConfig.droneHitboxInsetX,
+      _drone.position.y + GameConfig.droneHitboxInsetY,
+      _drone.size.x - GameConfig.droneHitboxInsetX * 2,
+      _drone.size.y - GameConfig.droneHitboxInsetY * 2,
     );
   }
 

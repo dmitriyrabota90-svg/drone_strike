@@ -14,8 +14,10 @@ class TankComponent extends PositionComponent {
   TankComponent({required this.worldX})
     : super(size: Vector2(tankWidth, tankHeight));
 
-  static const tankWidth = 118.0;
-  static const tankHeight = 46.0;
+  static const _visualScale = 4.0;
+  static const tankWidth = 118.0 * _visualScale;
+  static const tankHeight = 46.0 * _visualScale;
+  static const _victoryCircleDiameter = tankHeight * 0.9;
 
   double worldX;
   ui.Image? _sprite;
@@ -30,18 +32,19 @@ class TankComponent extends PositionComponent {
     );
     await add(
       RectangleHitbox(
-        size: Vector2(tankWidth - 14, tankHeight - 8),
-        position: Vector2(7, 6),
+        size: Vector2(_localVictoryRect.width, _localVictoryRect.height),
+        position: Vector2(_localVictoryRect.left, _localVictoryRect.top),
       ),
     );
   }
 
   Rect get collisionRect {
+    final localRect = _localVictoryRect;
     return Rect.fromLTWH(
-      position.x + 4,
-      position.y + 3,
-      size.x - 8,
-      size.y - 5,
+      position.x + localRect.left,
+      position.y + localRect.top,
+      localRect.width,
+      localRect.height,
     );
   }
 
@@ -55,7 +58,9 @@ class TankComponent extends PositionComponent {
     );
   }
 
-  bool get missedDroneFailSafe => position.x + size.x < -120;
+  bool hasPassedFailLine(Rect droneRect) {
+    return collisionRect.right < droneRect.left - GameConfig.droneWidth * 0.10;
+  }
 
   @override
   void render(Canvas canvas) {
@@ -66,15 +71,10 @@ class TankComponent extends PositionComponent {
         ..color = const Color(0x6689D8FF)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
+      final victoryRect = _localVictoryRect;
 
-      canvas.drawOval(
-        Rect.fromLTWH(-28, tankHeight - 22, tankWidth + 56, 28),
-        glowPaint,
-      );
-      canvas.drawOval(
-        Rect.fromLTWH(-12, tankHeight - 18, tankWidth + 24, 20),
-        outlinePaint,
-      );
+      canvas.drawOval(victoryRect, glowPaint);
+      canvas.drawOval(victoryRect.deflate(2), outlinePaint);
       canvas.drawImageRect(
         sprite,
         Rect.fromLTWH(0, 0, sprite.width.toDouble(), sprite.height.toDouble()),
@@ -93,15 +93,10 @@ class TankComponent extends PositionComponent {
       ..color = const Color(0x6689D8FF)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
+    final victoryRect = _localVictoryRect;
 
-    canvas.drawOval(
-      Rect.fromLTWH(-28, tankHeight - 22, tankWidth + 56, 28),
-      glowPaint,
-    );
-    canvas.drawOval(
-      Rect.fromLTWH(-12, tankHeight - 18, tankWidth + 24, 20),
-      outlinePaint,
-    );
+    canvas.drawOval(victoryRect, glowPaint);
+    canvas.drawOval(victoryRect.deflate(2), outlinePaint);
     canvas.drawRect(
       Rect.fromLTWH(8, tankHeight - 17, tankWidth - 16, 14),
       trackPaint,
@@ -133,6 +128,15 @@ class TankComponent extends PositionComponent {
       bounds.bottom - height,
       width,
       height,
+    );
+  }
+
+  Rect get _localVictoryRect {
+    return Rect.fromLTWH(
+      (tankWidth - _victoryCircleDiameter) / 2,
+      (tankHeight - _victoryCircleDiameter) / 2,
+      _victoryCircleDiameter,
+      _victoryCircleDiameter,
     );
   }
 }

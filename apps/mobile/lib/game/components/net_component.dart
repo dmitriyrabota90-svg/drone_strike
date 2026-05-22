@@ -13,6 +13,7 @@ import '../game_image_cache.dart';
 class NetComponent extends PositionComponent {
   static const _segmentOverlap = 2.5;
   static const _topMountOverlap = 3.0;
+  static const _minSegmentHeight = 18.0;
 
   NetComponent({
     required this.worldX,
@@ -111,18 +112,9 @@ class NetComponent extends PositionComponent {
     }
 
     final paint = Paint()..filterQuality = FilterQuality.medium;
-    final topHeight = math.min(
-      netHeight * 0.28,
-      _scaledHeight(topMount, netWidth),
-    );
-    final bottomHeight = math.min(
-      netHeight * 0.26,
-      _scaledHeight(bottom, netWidth),
-    );
-    final middleHeight = math.max(
-      10.0,
-      math.min(netWidth * 0.42, _scaledHeight(middle, netWidth)),
-    );
+    final topHeight = math.min(netHeight * 0.26, netWidth * 0.44);
+    final bottomHeight = math.min(netHeight * 0.22, netWidth * 0.40);
+    final middleHeight = math.max(_minSegmentHeight, netWidth * 0.48);
 
     _drawImage(
       canvas,
@@ -162,16 +154,21 @@ class NetComponent extends PositionComponent {
     return true;
   }
 
-  double _scaledHeight(ui.Image image, double width) {
-    return width * image.height / image.width;
+  void _drawImage(Canvas canvas, ui.Image image, Rect dst, Paint paint) {
+    final src = _coverSourceRect(image, dst);
+    canvas.drawImageRect(image, src, dst, paint);
   }
 
-  void _drawImage(Canvas canvas, ui.Image image, Rect dst, Paint paint) {
-    canvas.drawImageRect(
-      image,
-      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-      dst,
-      paint,
-    );
+  Rect _coverSourceRect(ui.Image image, Rect dst) {
+    final sourceWidth = image.width.toDouble();
+    final sourceHeight = image.height.toDouble();
+    final sourceAspect = sourceWidth / sourceHeight;
+    final dstAspect = dst.width / dst.height;
+    if (dstAspect > sourceAspect) {
+      final height = sourceWidth / dstAspect;
+      return Rect.fromLTWH(0, (sourceHeight - height) / 2, sourceWidth, height);
+    }
+    final width = sourceHeight * dstAspect;
+    return Rect.fromLTWH((sourceWidth - width) / 2, 0, width, sourceHeight);
   }
 }

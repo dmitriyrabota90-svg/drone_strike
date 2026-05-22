@@ -36,6 +36,12 @@ Future<void> pumpOverlay(WidgetTester tester, Widget child) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> pumpGameScreenReady(WidgetTester tester) async {
+  for (var i = 0; i < 5; i += 1) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+}
+
 void main() {
   testWidgets('splash renders logo and subtitle', (tester) async {
     SharedPreferences.setMockInitialValues({});
@@ -126,8 +132,7 @@ void main() {
     expect(find.text('Mission: 3'), findsNothing);
 
     await tester.tap(find.text('Mission 2'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    await pumpGameScreenReady(tester);
 
     expect(find.text('Mission: 2'), findsOneWidget);
   });
@@ -148,8 +153,7 @@ void main() {
     await tester.tap(find.text('Level Select'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Mission 1'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    await pumpGameScreenReady(tester);
 
     expect(find.text('Mission: 1'), findsOneWidget);
     expect(find.text('Lives: 3'), findsOneWidget);
@@ -162,8 +166,7 @@ void main() {
     await tester.tap(find.text('Level Select'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Mission 1'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    await pumpGameScreenReady(tester);
 
     expect(find.text('Tap to start'), findsOneWidget);
 
@@ -179,8 +182,7 @@ void main() {
     await tester.tap(find.text('Level Select'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Mission 1'));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    await pumpGameScreenReady(tester);
     await tester.tap(find.byIcon(Icons.pause));
     await tester.pump();
 
@@ -283,6 +285,8 @@ void main() {
     expect(GameConfig.startTapImpulse, -135.0);
     expect(GameConfig.maxRiseSpeed, -285.0);
     expect(GameConfig.maxFallSpeed, 390.0);
+    expect(GameConfig.droneWidth, 84.0);
+    expect(GameConfig.droneHeight, 48.0);
   });
 
   test('locale controller persists ru and en selections', () async {
@@ -319,20 +323,38 @@ void main() {
     final mission1 = LevelConfig.forMission(1);
     final mission2 = LevelConfig.forMission(2);
     final mission3 = LevelConfig.forMission(3);
+    final mission7 = LevelConfig.forMission(7);
     final mission10 = LevelConfig.forMission(10);
+    final mission13 = LevelConfig.forMission(13);
 
-    expect(mission1.gapMultiplier, 2.8);
-    expect(mission2.gapMultiplier, 2.6);
-    expect(mission3.gapMultiplier, 2.4);
-    expect(mission10.gapMultiplier, greaterThanOrEqualTo(2.0));
+    expect(mission1.minGapMultiplier, 3.8);
+    expect(mission1.maxGapMultiplier, 6.2);
+    expect(mission2.minGapMultiplier, 3.5);
+    expect(mission2.maxGapMultiplier, 5.8);
+    expect(mission3.minGapMultiplier, 3.2);
+    expect(mission3.maxGapMultiplier, 5.4);
+    expect(mission7.minGapMultiplier, 2.4);
+    expect(mission7.maxGapMultiplier, 3.9);
+    expect(mission10.minGapMultiplier, 2.3);
+    expect(mission10.maxGapMultiplier, 3.6);
+    expect(mission13.minGapMultiplier, 2.3);
+    expect(mission13.maxGapMultiplier, 3.6);
     expect(mission1.finalZoneSeconds, 2.75);
     expect(mission10.finalZoneSeconds, 2.75);
     expect(mission1.forwardSpeed, lessThan(mission2.forwardSpeed));
     expect(mission2.forwardSpeed, lessThan(mission3.forwardSpeed));
     expect(mission10.forwardSpeed, greaterThan(mission3.forwardSpeed));
-    expect(mission1.minObstacleSpacing, GameConfig.droneWidth * 4.1);
-    expect(mission3.minObstacleSpacing, GameConfig.droneWidth * 4.0);
-    expect(mission10.obstacleCount, 15);
+    expect(mission1.minObstacleSpacing, 320.0);
+    expect(mission1.maxObstacleSpacing, 520.0);
+    expect(mission3.minObstacleSpacing, 280.0);
+    expect(mission3.maxObstacleSpacing, 470.0);
+    expect(mission7.minObstacleSpacing, 220.0);
+    expect(mission7.maxObstacleSpacing, 390.0);
+    expect(mission1.obstacleCount, 8);
+    expect(mission3.obstacleCount, 12);
+    expect(mission7.obstacleCount, 20);
+    expect(mission10.obstacleCount, 22);
+    expect(mission13.obstacleCount, 22);
   });
 
   test('level generator clamps generated gaps to MVP minimum', () {
@@ -343,12 +365,61 @@ void main() {
         viewportSize: Vector2(800, 450),
       );
 
+      if (mission == 1) {
+        expect(level.obstaclePairs, hasLength(8));
+      }
+      if (mission == 3) {
+        expect(level.obstaclePairs, hasLength(12));
+      }
+      if (mission == 7) {
+        expect(level.obstaclePairs, hasLength(20));
+      }
+
       for (final pair in level.obstaclePairs) {
         expect(
           pair.gapHeight,
-          greaterThanOrEqualTo(GameConfig.droneHeight * 2),
+          greaterThanOrEqualTo(GameConfig.droneHeight * 2.3),
         );
       }
+
+      final roundedGaps = level.obstaclePairs
+          .map((pair) => pair.gapHeight.round())
+          .toSet();
+      final roundedTrees = level.obstaclePairs
+          .map((pair) => pair.treeHeight.round())
+          .toSet();
+      final roundedNets = level.obstaclePairs
+          .map((pair) => pair.netHeight.round())
+          .toSet();
+      final roundedSpacings = level.obstaclePairs
+          .skip(1)
+          .map((pair) => pair.spacingFromPrevious.round())
+          .toSet();
+      expect(roundedGaps.length, greaterThan(1));
+      expect(roundedTrees.length, greaterThan(1));
+      expect(roundedNets.length, greaterThan(1));
+      expect(roundedSpacings.length, greaterThan(1));
     }
+
+    final mission1Level = generator.generate(
+      config: LevelConfig.forMission(1),
+      viewportSize: Vector2(800, 450),
+    );
+    final mission7Level = generator.generate(
+      config: LevelConfig.forMission(7),
+      viewportSize: Vector2(800, 450),
+    );
+    expect(
+      _averageSpacing(mission7Level),
+      lessThan(_averageSpacing(mission1Level)),
+    );
   });
+}
+
+double _averageSpacing(GeneratedLevel level) {
+  final spacings = level.obstaclePairs
+      .skip(1)
+      .map((pair) => pair.spacingFromPrevious)
+      .toList();
+  return spacings.reduce((value, element) => value + element) / spacings.length;
 }

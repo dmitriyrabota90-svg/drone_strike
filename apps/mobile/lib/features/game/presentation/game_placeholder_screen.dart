@@ -30,6 +30,8 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
   DroneGame? _game;
   late final AudioService _audioService;
   bool _orientationReady = false;
+  bool _gameLayoutReady = false;
+  bool _gameLayoutCheckScheduled = false;
   bool _startCheckScheduled = false;
   MissionResult? _missionResult;
 
@@ -50,6 +52,8 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
     _game = null;
     _missionResult = null;
     _startCheckScheduled = false;
+    _gameLayoutReady = false;
+    _gameLayoutCheckScheduled = false;
   }
 
   @override
@@ -77,9 +81,19 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
       backgroundColor: const Color(0xFF061426),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final hasValidSize =
-              constraints.maxWidth > 0 && constraints.maxHeight > 0;
-          if (!_orientationReady || !hasValidSize) {
+          final gameSize = _resolveGameSize(constraints);
+          final hasValidGameSize = _hasValidGameSize(gameSize);
+          if (!_orientationReady || !hasValidGameSize) {
+            return const SizedBox.expand(
+              child: ColoredBox(
+                color: Color(0xFF061426),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            );
+          }
+
+          if (!_gameLayoutReady) {
+            _scheduleGameLayoutCheck();
             return const SizedBox.expand(
               child: ColoredBox(
                 color: Color(0xFF061426),
@@ -94,8 +108,9 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
           return ColoredBox(
             color: const Color(0xFF061426),
             child: Center(
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
+              child: SizedBox(
+                width: gameSize.width,
+                height: gameSize.height,
                 child: GameWidget<DroneGame>(
                   key: ValueKey('drone-game-${widget.missionNumber}'),
                   game: game,
@@ -126,7 +141,56 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    _orientationReady = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _orientationReady = true;
+          _gameLayoutReady = false;
+          _gameLayoutCheckScheduled = false;
+        });
+      });
+    });
+  }
+
+  Size _resolveGameSize(BoxConstraints constraints) {
+    final maxWidth = constraints.maxWidth.isFinite ? constraints.maxWidth : 0.0;
+    final maxHeight = constraints.maxHeight.isFinite
+        ? constraints.maxHeight
+        : 0.0;
+    if (maxWidth <= 0 || maxHeight <= 0) {
+      return Size.zero;
+    }
+
+    const targetAspectRatio = 16 / 9;
+    final widthFromHeight = maxHeight * targetAspectRatio;
+    if (widthFromHeight <= maxWidth) {
+      return Size(widthFromHeight, maxHeight);
+    }
+    return Size(maxWidth, maxWidth / targetAspectRatio);
+  }
+
+  bool _hasValidGameSize(Size size) => size.width > 0 && size.height > 0;
+
+  void _scheduleGameLayoutCheck() {
+    if (_gameLayoutCheckScheduled) {
+      return;
+    }
+    _gameLayoutCheckScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _gameLayoutReady = true;
+        _gameLayoutCheckScheduled = false;
+      });
+    });
   }
 
   DroneGame _ensureGame() {

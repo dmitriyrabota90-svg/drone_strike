@@ -7,14 +7,17 @@ class LevelConfig {
     required this.finalZoneSeconds,
     required this.obstacleCount,
     required this.gapMultiplier,
+    required this.minGapMultiplier,
+    required this.maxGapMultiplier,
     required this.forwardSpeed,
     required this.obstacleWidth,
     required this.minObstacleSpacing,
+    required this.maxObstacleSpacing,
     required this.isTutorial,
   });
 
   factory LevelConfig.forMission(int missionNumber) {
-    final clampedMission = missionNumber.clamp(1, 10).toInt();
+    final clampedMission = missionNumber < 1 ? 1 : missionNumber;
     final balance = _MissionBalance.forMission(clampedMission);
 
     return LevelConfig(
@@ -22,10 +25,13 @@ class LevelConfig {
       missionDurationSeconds: 60,
       finalZoneSeconds: 2.75,
       obstacleCount: balance.obstacleCount,
-      gapMultiplier: balance.gapMultiplier,
+      gapMultiplier: balance.maxGapMultiplier,
+      minGapMultiplier: balance.minGapMultiplier,
+      maxGapMultiplier: balance.maxGapMultiplier,
       forwardSpeed: balance.forwardSpeed,
       obstacleWidth: balance.obstacleWidth,
-      minObstacleSpacing: GameConfig.droneWidth * balance.spacingMultiplier,
+      minObstacleSpacing: balance.minObstacleSpacing,
+      maxObstacleSpacing: balance.maxObstacleSpacing,
       isTutorial: clampedMission <= 2,
     );
   }
@@ -35,9 +41,12 @@ class LevelConfig {
   final double finalZoneSeconds;
   final int obstacleCount;
   final double gapMultiplier;
+  final double minGapMultiplier;
+  final double maxGapMultiplier;
   final double forwardSpeed;
   final double obstacleWidth;
   final double minObstacleSpacing;
+  final double maxObstacleSpacing;
   final bool isTutorial;
 
   double get finalZoneDistance => forwardSpeed * finalZoneSeconds;
@@ -59,91 +68,98 @@ class LevelConfig {
 
 class _MissionBalance {
   const _MissionBalance({
-    required this.gapMultiplier,
+    required this.minGapMultiplier,
+    required this.maxGapMultiplier,
     required this.forwardSpeed,
     required this.obstacleCount,
-    required this.spacingMultiplier,
+    required this.minObstacleSpacing,
+    required this.maxObstacleSpacing,
     required this.obstacleWidth,
   });
 
-  final double gapMultiplier;
+  final double minGapMultiplier;
+  final double maxGapMultiplier;
   final double forwardSpeed;
   final int obstacleCount;
-  final double spacingMultiplier;
+  final double minObstacleSpacing;
+  final double maxObstacleSpacing;
   final double obstacleWidth;
 
   static _MissionBalance forMission(int missionNumber) {
-    // First 10 missions are deliberately introductory for a 100+ mission plan.
-    // Gap 1.4 is reserved as a TODO for later level 30+ difficulty, not MVP.
+    // Focused gameplay tuning: obstacle count and spacing ranges are explicit
+    // so later missions become visibly denser without relying on old long-zone
+    // distribution. Gap 2.3 is the MVP floor.
     return switch (missionNumber) {
       1 => const _MissionBalance(
-        gapMultiplier: 2.8,
+        minGapMultiplier: 3.8,
+        maxGapMultiplier: 6.2,
         forwardSpeed: 110.0,
-        obstacleCount: 7,
-        spacingMultiplier: 4.1,
+        obstacleCount: 8,
+        minObstacleSpacing: 320.0,
+        maxObstacleSpacing: 520.0,
         obstacleWidth: 70.0,
       ),
       2 => const _MissionBalance(
-        gapMultiplier: 2.6,
+        minGapMultiplier: 3.5,
+        maxGapMultiplier: 5.8,
         forwardSpeed: 120.0,
-        obstacleCount: 9,
-        spacingMultiplier: 4.0,
+        obstacleCount: 10,
+        minObstacleSpacing: 300.0,
+        maxObstacleSpacing: 500.0,
         obstacleWidth: 72.0,
       ),
       3 => const _MissionBalance(
-        gapMultiplier: 2.4,
+        minGapMultiplier: 3.2,
+        maxGapMultiplier: 5.4,
         forwardSpeed: 130.0,
-        obstacleCount: 10,
-        spacingMultiplier: 4.0,
+        obstacleCount: 12,
+        minObstacleSpacing: 280.0,
+        maxObstacleSpacing: 470.0,
         obstacleWidth: 74.0,
       ),
       4 => const _MissionBalance(
-        gapMultiplier: 2.3,
+        minGapMultiplier: 3.0,
+        maxGapMultiplier: 5.0,
         forwardSpeed: 140.0,
-        obstacleCount: 11,
-        spacingMultiplier: 3.85,
+        obstacleCount: 14,
+        minObstacleSpacing: 260.0,
+        maxObstacleSpacing: 450.0,
         obstacleWidth: 74.0,
       ),
       5 => const _MissionBalance(
-        gapMultiplier: 2.2,
+        minGapMultiplier: 2.8,
+        maxGapMultiplier: 4.6,
         forwardSpeed: 150.0,
-        obstacleCount: 11,
-        spacingMultiplier: 3.75,
+        obstacleCount: 16,
+        minObstacleSpacing: 240.0,
+        maxObstacleSpacing: 430.0,
         obstacleWidth: 76.0,
       ),
       6 => const _MissionBalance(
-        gapMultiplier: 2.15,
+        minGapMultiplier: 2.6,
+        maxGapMultiplier: 4.2,
         forwardSpeed: 158.0,
-        obstacleCount: 12,
-        spacingMultiplier: 3.65,
+        obstacleCount: 18,
+        minObstacleSpacing: 230.0,
+        maxObstacleSpacing: 410.0,
         obstacleWidth: 76.0,
       ),
       7 => const _MissionBalance(
-        gapMultiplier: 2.1,
+        minGapMultiplier: 2.4,
+        maxGapMultiplier: 3.9,
         forwardSpeed: 166.0,
-        obstacleCount: 12,
-        spacingMultiplier: 3.6,
+        obstacleCount: 20,
+        minObstacleSpacing: 220.0,
+        maxObstacleSpacing: 390.0,
         obstacleWidth: 76.0,
       ),
-      8 => const _MissionBalance(
-        gapMultiplier: 2.05,
-        forwardSpeed: 174.0,
-        obstacleCount: 13,
-        spacingMultiplier: 3.55,
-        obstacleWidth: 78.0,
-      ),
-      9 => const _MissionBalance(
-        gapMultiplier: 2.0,
-        forwardSpeed: 182.0,
-        obstacleCount: 14,
-        spacingMultiplier: 3.5,
-        obstacleWidth: 78.0,
-      ),
       _ => const _MissionBalance(
-        gapMultiplier: 2.0,
-        forwardSpeed: 188.0,
-        obstacleCount: 15,
-        spacingMultiplier: 3.5,
+        minGapMultiplier: 2.3,
+        maxGapMultiplier: 3.6,
+        forwardSpeed: 174.0,
+        obstacleCount: 22,
+        minObstacleSpacing: 210.0,
+        maxObstacleSpacing: 370.0,
         obstacleWidth: 78.0,
       ),
     };

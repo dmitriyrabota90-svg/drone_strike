@@ -11,8 +11,10 @@ class GameConfig {
   static const maxRiseSpeed = -285.0;
   static const droneStartXRatio = 0.22;
   static const droneStartYRatio = 0.50;
-  static const droneWidth = 56.0;
-  static const droneHeight = 32.0;
+  static const droneWidth = 84.0;
+  static const droneHeight = 48.0;
+  static const droneHitboxInsetX = 12.0;
+  static const droneHitboxInsetY = 10.5;
   static const forwardSpeed = 140.0;
   static const topBoundaryHeight = 8.0;
   static const bottomBoundaryHeight = 8.0;

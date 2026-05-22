@@ -11,8 +11,10 @@ import '../game_config.dart';
 import '../game_image_cache.dart';
 
 class TreeComponent extends PositionComponent {
-  static const _segmentOverlap = 2.5;
-  static const _crownOverlap = 3.0;
+  static const _bottomMiddleOverlap = 4.0;
+  static const _middleOverlap = 2.0;
+  static const _middleCrownOverlap = 1.5;
+  static const _minSegmentHeight = 18.0;
 
   TreeComponent({
     required this.worldX,
@@ -130,20 +132,10 @@ class TreeComponent extends PositionComponent {
     }
 
     final paint = Paint()..filterQuality = FilterQuality.medium;
-    final bottomHeight = math.min(
-      treeHeight * 0.28,
-      _scaledHeight(trunkBottom, treeWidth),
-    );
-    final crownHeight = math.min(
-      treeHeight * 0.46,
-      math.max(treeWidth * 0.55, _scaledHeight(crownTop, treeWidth)),
-    );
-    final middleTop = crownHeight;
-    final middleBottom = math.max(middleTop, treeHeight - bottomHeight);
-    final middleHeight = math.max(
-      12.0,
-      math.min(treeWidth * 0.62, _scaledHeight(trunkMiddle, treeWidth)),
-    );
+    final bottomHeight = math.min(treeHeight * 0.32, treeWidth * 0.62);
+    final crownHeight = math.min(treeHeight * 0.30, treeWidth * 0.56);
+    final middleTopLimit = math.max(0.0, crownHeight - _middleCrownOverlap);
+    final middleHeight = math.max(_minSegmentHeight, treeWidth * 0.42);
 
     _drawImage(
       canvas,
@@ -152,41 +144,46 @@ class TreeComponent extends PositionComponent {
       paint,
     );
 
-    var y = middleBottom + _segmentOverlap;
-    while (y > middleTop) {
-      final segmentHeight = math.min(
-        middleHeight,
-        y - middleTop + _segmentOverlap,
-      );
-      y -= segmentHeight;
+    var segmentBottom = treeHeight - bottomHeight + _bottomMiddleOverlap;
+    while (segmentBottom > middleTopLimit) {
+      final segmentTop = math.max(middleTopLimit, segmentBottom - middleHeight);
+      final reachedCrown = segmentTop <= middleTopLimit + 0.001;
       _drawImage(
         canvas,
         trunkMiddle,
-        Rect.fromLTWH(0, y, treeWidth, segmentHeight),
+        Rect.fromLTWH(0, segmentTop, treeWidth, segmentBottom - segmentTop),
         paint,
       );
-      y += _segmentOverlap;
+      if (reachedCrown) {
+        break;
+      }
+      segmentBottom = segmentTop + _middleOverlap;
     }
 
     _drawImage(
       canvas,
       crownTop,
-      Rect.fromLTWH(0, 0, treeWidth, crownHeight + _crownOverlap),
+      Rect.fromLTWH(0, 0, treeWidth, crownHeight),
       paint,
     );
     return true;
   }
 
-  double _scaledHeight(ui.Image image, double width) {
-    return width * image.height / image.width;
+  void _drawImage(Canvas canvas, ui.Image image, Rect dst, Paint paint) {
+    final src = _coverSourceRect(image, dst);
+    canvas.drawImageRect(image, src, dst, paint);
   }
 
-  void _drawImage(Canvas canvas, ui.Image image, Rect dst, Paint paint) {
-    canvas.drawImageRect(
-      image,
-      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-      dst,
-      paint,
-    );
+  Rect _coverSourceRect(ui.Image image, Rect dst) {
+    final sourceWidth = image.width.toDouble();
+    final sourceHeight = image.height.toDouble();
+    final sourceAspect = sourceWidth / sourceHeight;
+    final dstAspect = dst.width / dst.height;
+    if (dstAspect > sourceAspect) {
+      final height = sourceWidth / dstAspect;
+      return Rect.fromLTWH(0, (sourceHeight - height) / 2, sourceWidth, height);
+    }
+    final width = sourceHeight * dstAspect;
+    return Rect.fromLTWH((sourceWidth - width) / 2, 0, width, sourceHeight);
   }
 }

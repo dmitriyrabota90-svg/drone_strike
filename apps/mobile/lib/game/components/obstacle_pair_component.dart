@@ -6,6 +6,9 @@ import 'tree_component.dart';
 class ObstaclePairComponent extends Component {
   ObstaclePairComponent({
     required this.worldX,
+    required this.spacingFromPrevious,
+    required this.gapTopY,
+    required this.gapBottomY,
     required this.treeHeight,
     required this.netHeight,
     required this.gapHeight,
@@ -25,6 +28,9 @@ class ObstaclePairComponent extends Component {
        );
 
   final double worldX;
+  final double spacingFromPrevious;
+  final double gapTopY;
+  final double gapBottomY;
   final double treeHeight;
   final double netHeight;
   final double gapHeight;

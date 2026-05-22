@@ -27,8 +27,14 @@ class DroneComponent extends PositionComponent {
     );
     await add(
       RectangleHitbox(
-        size: Vector2(GameConfig.droneWidth - 16, GameConfig.droneHeight - 14),
-        position: Vector2(8, 7),
+        size: Vector2(
+          GameConfig.droneWidth - GameConfig.droneHitboxInsetX * 2,
+          GameConfig.droneHeight - GameConfig.droneHitboxInsetY * 2,
+        ),
+        position: Vector2(
+          GameConfig.droneHitboxInsetX,
+          GameConfig.droneHitboxInsetY,
+        ),
       ),
     );
   }
@@ -69,6 +75,8 @@ class DroneComponent extends PositionComponent {
       return;
     }
 
+    canvas.save();
+    canvas.scale(size.x / 56.0, size.y / 32.0);
     final armPaint = Paint()..color = const Color(0xFF5AAFD2);
     final bodyPaint = Paint()..color = const Color(0xFF10263A);
     final bodyLightPaint = Paint()..color = const Color(0xFF8BE2FF);
@@ -93,6 +101,7 @@ class DroneComponent extends PositionComponent {
     canvas.drawRect(const Rect.fromLTWH(39, 13, 9, 7), cameraPaint);
     canvas.drawRect(const Rect.fromLTWH(20, 20, 6, 3), redAccentPaint);
     canvas.drawRect(const Rect.fromLTWH(31, 20, 6, 3), blueAccentPaint);
+    canvas.restore();
   }
 
   void _drawRotor(
