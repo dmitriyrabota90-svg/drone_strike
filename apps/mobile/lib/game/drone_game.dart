@@ -127,6 +127,10 @@ class DroneGame extends FlameGame with TapCallbacks {
 
   @override
   void onTapDown(TapDownEvent event) {
+    handleFieldTap();
+  }
+
+  void handleFieldTap() {
     final status = stateNotifier.value.status;
     if (status == DroneMissionStatus.ready) {
       _syncState(status: DroneMissionStatus.running);

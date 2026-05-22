@@ -119,6 +119,23 @@ void main() {
     expect(find.text('Tap to start'), findsOneWidget);
   });
 
+  testWidgets('first game tap starts mission', (tester) async {
+    await pumpDroneStrikeApp(tester);
+
+    await tester.tap(find.text('Level Select'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mission 1'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Tap to start'), findsOneWidget);
+
+    await tester.tapAt(const Offset(400, 300));
+    await tester.pump();
+
+    expect(find.text('Tap to start'), findsNothing);
+  });
+
   testWidgets('pause button opens pause overlay', (tester) async {
     await pumpDroneStrikeApp(tester);
 

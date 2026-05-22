@@ -12,12 +12,11 @@ final audioServiceProvider = Provider<AudioService>((ref) {
 class AudioService {
   AudioService(this._ref);
 
-  static const _menuMusic = 'audio/music/music_menu_loop.ogg';
-  static const _missionMusic = 'audio/music/music_mission_loop.ogg';
-  static const _victoryJingle = 'audio/music/music_victory_jingle.ogg';
-  static const _defeatJingle = 'audio/music/music_defeat_jingle.ogg';
-  static const _finalTensionStinger =
-      'audio/music/music_final_tension_stinger.ogg';
+  static const _menuMusic = 'music/music_menu_loop.ogg';
+  static const _missionMusic = 'music/music_mission_loop.ogg';
+  static const _victoryJingle = 'music/music_victory_jingle.ogg';
+  static const _defeatJingle = 'music/music_defeat_jingle.ogg';
+  static const _finalTensionStinger = 'music/music_final_tension_stinger.ogg';
 
   final Ref _ref;
   String? _currentMusic;

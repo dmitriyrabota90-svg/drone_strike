@@ -1,6 +1,7 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/audio/audio_service.dart';
 import '../../../features/lives/domain/lives_controller.dart';
@@ -26,32 +27,22 @@ class GamePlaceholderScreen extends ConsumerStatefulWidget {
 }
 
 class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
-  late final DroneGame _game;
+  DroneGame? _game;
   late final AudioService _audioService;
+  bool _orientationReady = false;
+  bool _startCheckScheduled = false;
 
   @override
   void initState() {
     super.initState();
     _audioService = ref.read(audioServiceProvider);
-    final levelConfig = LevelConfig.forMission(widget.missionNumber);
-    _game = DroneGame(
-      levelConfig: levelConfig,
-      initialPlayerLevel: _readInitialPlayerLevel(),
-      onGameOver: _handleGameOver,
-      onMissionComplete: _handleMissionComplete,
-      onRestart: _playMissionMusic,
-    );
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      _startIfLivesAvailable();
-    });
+    _enterLandscape();
   }
 
   @override
   void dispose() {
     _audioService.stopMusic();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     super.dispose();
   }
 
@@ -59,29 +50,101 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
   Widget build(BuildContext context) {
     ref.listen(livesControllerProvider, (previous, next) {
       final lives = next.asData?.value;
+      final game = _game;
       if (lives == null) {
         return;
       }
-      _game.updateLives(lives.currentLives);
+      game?.updateLives(lives.currentLives);
       if (!lives.hasLives) {
-        _game.showNoLivesOverlay();
+        game?.showNoLivesOverlay();
       }
     });
 
-    return GameWidget<DroneGame>(
-      key: ValueKey('drone-game-${widget.missionNumber}'),
-      game: _game,
-      initialActiveOverlays: const [DroneGame.hudOverlay],
-      overlayBuilderMap: {
-        DroneGame.hudOverlay: (context, game) => GameHud(game: game),
-        DroneGame.pauseOverlay: (context, game) => PauseOverlay(game: game),
-        DroneGame.gameOverOverlay: (context, game) =>
-            GameOverOverlay(game: game),
-        DroneGame.missionCompleteOverlay: (context, game) =>
-            MissionCompleteOverlay(game: game),
-        DroneGame.noLivesOverlay: (context, game) => const NoLivesOverlay(),
-      },
+    return Scaffold(
+      backgroundColor: const Color(0xFF061426),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final hasValidSize =
+              constraints.maxWidth > 0 && constraints.maxHeight > 0;
+          if (!_orientationReady || !hasValidSize) {
+            return const SizedBox.expand(
+              child: ColoredBox(
+                color: Color(0xFF061426),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            );
+          }
+
+          final game = _ensureGame();
+          _scheduleStartCheck();
+
+          return ColoredBox(
+            color: const Color(0xFF061426),
+            child: Center(
+              child: AspectRatio(
+                aspectRatio: 16 / 9,
+                child: GameWidget<DroneGame>(
+                  key: ValueKey('drone-game-${widget.missionNumber}'),
+                  game: game,
+                  initialActiveOverlays: const [DroneGame.hudOverlay],
+                  overlayBuilderMap: {
+                    DroneGame.hudOverlay: (context, game) =>
+                        GameHud(game: game),
+                    DroneGame.pauseOverlay: (context, game) =>
+                        PauseOverlay(game: game),
+                    DroneGame.gameOverOverlay: (context, game) =>
+                        GameOverOverlay(game: game),
+                    DroneGame.missionCompleteOverlay: (context, game) =>
+                        MissionCompleteOverlay(game: game),
+                    DroneGame.noLivesOverlay: (context, game) =>
+                        const NoLivesOverlay(),
+                  },
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
+  }
+
+  void _enterLandscape() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    _orientationReady = true;
+  }
+
+  DroneGame _ensureGame() {
+    final existing = _game;
+    if (existing != null) {
+      return existing;
+    }
+
+    final levelConfig = LevelConfig.forMission(widget.missionNumber);
+    final created = DroneGame(
+      levelConfig: levelConfig,
+      initialPlayerLevel: _readInitialPlayerLevel(),
+      onGameOver: _handleGameOver,
+      onMissionComplete: _handleMissionComplete,
+      onRestart: _playMissionMusic,
+    );
+    _game = created;
+    return created;
+  }
+
+  void _scheduleStartCheck() {
+    if (_startCheckScheduled) {
+      return;
+    }
+    _startCheckScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _startIfLivesAvailable();
+    });
   }
 
   int _readInitialPlayerLevel() {
@@ -104,10 +167,14 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
   }
 
   Future<void> _startIfLivesAvailable() async {
+    final game = _game;
+    if (game == null) {
+      return;
+    }
     final lives = await ref.read(livesControllerProvider.future);
-    _game.updateLives(lives.currentLives);
+    game.updateLives(lives.currentLives);
     if (!lives.hasLives) {
-      _game.showNoLivesOverlay();
+      game.showNoLivesOverlay();
       return;
     }
     _playMissionMusic();
@@ -117,9 +184,10 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
     _audioService.stopMusic();
     _audioService.playDefeat();
     final lives = await ref.read(livesControllerProvider.notifier).spendLife();
-    _game.updateLives(lives.currentLives);
+    final game = _game;
+    game?.updateLives(lives.currentLives);
     if (!lives.hasLives) {
-      _game.showNoLivesOverlay();
+      game?.showNoLivesOverlay();
     }
   }
 
