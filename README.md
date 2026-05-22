@@ -57,6 +57,11 @@ Mobile scaffold created:
 - Improved Canvas placeholders for drone, trees, nets, and tank
 - First 10 mission balance draft
 - Collision fairness pass
+- Logo asset connected
+- Destroyed city menu background connected
+- Neon menu buttons implemented in Flutter
+- Glass UI panels improved
+- Button reference asset used as visual guide only
 - Server-side lives recovery planned later
 - Full offline sync queue planned later
 

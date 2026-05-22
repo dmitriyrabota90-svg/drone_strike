@@ -6,6 +6,9 @@ import '../../auth/domain/auth_controller.dart';
 import '../data/leaderboard_dto.dart';
 import '../domain/leaderboard_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/glass_panel.dart';
+import '../../../shared/widgets/menu_background.dart';
+import '../../../shared/widgets/neon_menu_button.dart';
 
 class LeaderboardScreen extends ConsumerWidget {
   const LeaderboardScreen({super.key});
@@ -30,59 +33,62 @@ class LeaderboardScreen extends ConsumerWidget {
             ),
         ],
       ),
-      body: !isAuthenticated
-          ? _GuestLeaderboard(l10n: l10n)
-          : leaderboardValue.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stackTrace) => _ErrorState(
-                message: error.toString(),
-                onRetry: () =>
-                    ref.read(leaderboardControllerProvider.notifier).refresh(),
-              ),
-              data: (state) {
-                if (state.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (state.errorMessage != null) {
-                  return _ErrorState(
-                    message: state.errorMessage!,
-                    onRetry: () => ref
-                        .read(leaderboardControllerProvider.notifier)
-                        .refresh(),
-                  );
-                }
-                final leaderboard = state.leaderboard;
-                if (leaderboard == null) {
-                  return _ErrorState(
-                    message: l10n.error,
-                    onRetry: () => ref
-                        .read(leaderboardControllerProvider.notifier)
-                        .refresh(),
-                  );
-                }
-                return RefreshIndicator(
-                  onRefresh: () => ref
+      body: MenuBackground(
+        child: !isAuthenticated
+            ? _GuestLeaderboard(l10n: l10n)
+            : leaderboardValue.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stackTrace) => _ErrorState(
+                  message: error.toString(),
+                  onRetry: () => ref
                       .read(leaderboardControllerProvider.notifier)
                       .refresh(),
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      if (leaderboard.me != null) ...[
-                        _CurrentPlayerCard(
-                          me: leaderboard.me!,
-                          totalCount: leaderboard.totalCount,
-                        ),
-                        const SizedBox(height: 12),
+                ),
+                data: (state) {
+                  if (state.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (state.errorMessage != null) {
+                    return _ErrorState(
+                      message: state.errorMessage!,
+                      onRetry: () => ref
+                          .read(leaderboardControllerProvider.notifier)
+                          .refresh(),
+                    );
+                  }
+                  final leaderboard = state.leaderboard;
+                  if (leaderboard == null) {
+                    return _ErrorState(
+                      message: l10n.error,
+                      onRetry: () => ref
+                          .read(leaderboardControllerProvider.notifier)
+                          .refresh(),
+                    );
+                  }
+                  return RefreshIndicator(
+                    onRefresh: () => ref
+                        .read(leaderboardControllerProvider.notifier)
+                        .refresh(),
+                    child: ListView(
+                      padding: const EdgeInsets.all(16),
+                      children: [
+                        if (leaderboard.me != null) ...[
+                          _CurrentPlayerCard(
+                            me: leaderboard.me!,
+                            totalCount: leaderboard.totalCount,
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        for (final entry in leaderboard.entries) ...[
+                          _LeaderboardEntryTile(entry: entry),
+                          const SizedBox(height: 8),
+                        ],
                       ],
-                      for (final entry in leaderboard.entries) ...[
-                        _LeaderboardEntryTile(entry: entry),
-                        const SizedBox(height: 8),
-                      ],
-                    ],
-                  ),
-                );
-              },
-            ),
+                    ),
+                  );
+                },
+              ),
+      ),
     );
   }
 }
@@ -106,16 +112,17 @@ class _GuestLeaderboard extends StatelessWidget {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
-            ElevatedButton.icon(
+            NeonMenuButton(
+              text: l10n.login,
+              icon: Icons.login,
               onPressed: () => context.go('/login'),
-              icon: const Icon(Icons.login),
-              label: Text(l10n.login),
             ),
             const SizedBox(height: 8),
-            OutlinedButton.icon(
+            NeonMenuButton(
+              text: l10n.register,
+              icon: Icons.person_add,
+              variant: NeonMenuButtonVariant.secondary,
               onPressed: () => context.go('/register'),
-              icon: const Icon(Icons.person_add),
-              label: Text(l10n.register),
             ),
           ],
         ),
@@ -134,23 +141,17 @@ class _CurrentPlayerCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.yourPlace,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text('${l10n.rank}: ${me.rank} / $totalCount'),
-            Text('${l10n.displayName}: ${me.displayName}'),
-            Text('${l10n.playerLevel}: ${me.playerLevel}'),
-            Text('${l10n.totalScore}: ${me.totalScore}'),
-          ],
-        ),
+    return GlassPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.yourPlace, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          Text('${l10n.rank}: ${me.rank} / $totalCount'),
+          Text('${l10n.displayName}: ${me.displayName}'),
+          Text('${l10n.playerLevel}: ${me.playerLevel}'),
+          Text('${l10n.totalScore}: ${me.totalScore}'),
+        ],
       ),
     );
   }
@@ -165,11 +166,12 @@ class _LeaderboardEntryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Card(
-      color: entry.isCurrentUser
-          ? Theme.of(context).colorScheme.primaryContainer
-          : null,
+    return GlassPanel(
+      padding: EdgeInsets.zero,
       child: ListTile(
+        tileColor: entry.isCurrentUser
+            ? const Color(0x553AA7C9)
+            : Colors.transparent,
         leading: CircleAvatar(child: Text('${entry.rank}')),
         title: Text(entry.displayName),
         subtitle: Text('${l10n.playerLevel}: ${entry.playerLevel}'),
@@ -197,10 +199,10 @@ class _ErrorState extends StatelessWidget {
           children: [
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 16),
-            ElevatedButton.icon(
+            NeonMenuButton(
+              text: l10n.refresh,
+              icon: Icons.refresh,
               onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: Text(l10n.refresh),
             ),
           ],
         ),

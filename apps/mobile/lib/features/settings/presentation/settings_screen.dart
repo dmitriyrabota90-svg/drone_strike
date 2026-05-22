@@ -6,6 +6,9 @@ import '../../../core/audio/audio_service.dart';
 import '../../../core/audio/audio_settings_controller.dart';
 import '../../auth/domain/auth_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/glass_panel.dart';
+import '../../../shared/widgets/menu_background.dart';
+import '../../../shared/widgets/neon_menu_button.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -30,58 +33,87 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         title: Text(l10n.settings),
         leading: BackButton(onPressed: () => context.go('/menu')),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.language),
-              title: Text(l10n.language),
-              subtitle: const Text('RU / EN'),
+      body: MenuBackground(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            GlassPanel(
+              padding: EdgeInsets.zero,
+              child: ListTile(
+                leading: const Icon(Icons.language),
+                title: Text(l10n.language),
+                subtitle: const Text('RU / EN'),
+              ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(l10n.sound, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          SwitchListTile(
-            value: audioSettings?.masterSoundEnabled ?? true,
-            onChanged: isAudioLoading
-                ? null
-                : (value) => _setMasterSoundEnabled(value),
-            title: Text(l10n.masterSound),
-            secondary: const Icon(Icons.volume_up),
-          ),
-          SwitchListTile(
-            value: audioSettings?.musicEnabled ?? true,
-            onChanged: isAudioLoading
-                ? null
-                : (value) => _setMusicEnabled(value),
-            title: Text(l10n.music),
-            secondary: const Icon(Icons.music_note),
-          ),
-          SwitchListTile(
-            value: audioSettings?.sfxEnabled ?? true,
-            onChanged: isAudioLoading ? null : (value) => _setSfxEnabled(value),
-            title: Text(l10n.sfx),
-            secondary: const Icon(Icons.surround_sound),
-          ),
-          const SizedBox(height: 12),
-          ElevatedButton.icon(
-            onPressed: () => context.go('/legal'),
-            icon: const Icon(Icons.description),
-            label: Text(l10n.legalDocuments),
-          ),
-          const SizedBox(height: 12),
-          Text(l10n.account, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          OutlinedButton.icon(
-            onPressed: isAuthenticated && !isLoading
-                ? () => _showDeleteAccountDialog(l10n)
-                : null,
-            icon: const Icon(Icons.delete_outline),
-            label: Text(l10n.deleteAccount),
-          ),
-        ],
+            const SizedBox(height: 12),
+            GlassPanel(
+              padding: EdgeInsets.zero,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+                    child: Text(
+                      l10n.sound,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  SwitchListTile(
+                    value: audioSettings?.masterSoundEnabled ?? true,
+                    onChanged: isAudioLoading
+                        ? null
+                        : (value) => _setMasterSoundEnabled(value),
+                    title: Text(l10n.masterSound),
+                    secondary: const Icon(Icons.volume_up),
+                  ),
+                  SwitchListTile(
+                    value: audioSettings?.musicEnabled ?? true,
+                    onChanged: isAudioLoading
+                        ? null
+                        : (value) => _setMusicEnabled(value),
+                    title: Text(l10n.music),
+                    secondary: const Icon(Icons.music_note),
+                  ),
+                  SwitchListTile(
+                    value: audioSettings?.sfxEnabled ?? true,
+                    onChanged: isAudioLoading
+                        ? null
+                        : (value) => _setSfxEnabled(value),
+                    title: Text(l10n.sfx),
+                    secondary: const Icon(Icons.surround_sound),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            NeonMenuButton(
+              text: l10n.legalDocuments,
+              icon: Icons.description,
+              onPressed: () => context.go('/legal'),
+            ),
+            const SizedBox(height: 12),
+            GlassPanel(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    l10n.account,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 10),
+                  NeonMenuButton(
+                    text: l10n.deleteAccount,
+                    icon: Icons.delete_outline,
+                    variant: NeonMenuButtonVariant.danger,
+                    onPressed: isAuthenticated && !isLoading
+                        ? () => _showDeleteAccountDialog(l10n)
+                        : null,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

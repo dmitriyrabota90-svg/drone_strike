@@ -3,9 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/audio/audio_service.dart';
+import '../../../core/assets/app_assets.dart';
+import '../../../l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/glass_panel.dart';
+import '../../../shared/widgets/menu_background.dart';
+import '../../../shared/widgets/neon_menu_button.dart';
 import '../../auth/domain/auth_controller.dart';
 import '../../progress/domain/progress_controller.dart';
-import '../../../l10n/generated/app_localizations.dart';
 
 class MainMenuScreen extends ConsumerStatefulWidget {
   const MainMenuScreen({super.key});
@@ -44,7 +48,7 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
         progressState?.isLoading == true || progressValue.isLoading;
 
     return Scaffold(
-      body: SafeArea(
+      body: MenuBackground(
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
@@ -52,22 +56,34 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
               padding: const EdgeInsets.all(24),
               shrinkWrap: true,
               children: [
-                const Icon(Icons.flight_takeoff, size: 56),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.appTitle,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
+                Image.asset(AppAssets.logo, height: 128, fit: BoxFit.contain),
+                const SizedBox(height: 14),
+                GlassPanel(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        user == null ? Icons.person_outline : Icons.radar,
+                        size: 18,
+                        color: const Color(0xFF70E7FF),
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          user?.displayName ?? l10n.guestMode,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  user?.displayName ?? l10n.guestMode,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
                 if (isProgressLoading)
                   const Padding(
                     padding: EdgeInsets.only(bottom: 12),
@@ -152,11 +168,7 @@ class _MenuButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-        icon: Icon(icon),
-        label: Text(label),
-      ),
+      child: NeonMenuButton(text: label, icon: icon, onPressed: onPressed),
     );
   }
 }

@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/assets/app_assets.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/glass_panel.dart';
+import '../../../shared/widgets/menu_background.dart';
+import '../../../shared/widgets/neon_menu_button.dart';
 import '../domain/auth_controller.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -41,80 +45,95 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         title: Text(l10n.register),
         leading: BackButton(onPressed: () => context.go('/menu')),
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 460),
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(labelText: l10n.email),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(labelText: l10n.password),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _confirmPasswordController,
-                obscureText: true,
-                decoration: InputDecoration(labelText: l10n.confirmPassword),
-              ),
-              const SizedBox(height: 16),
-              CheckboxListTile(
-                value: _termsAccepted,
-                onChanged: (value) =>
-                    setState(() => _termsAccepted = value ?? false),
-                title: Text(l10n.termsAccepted),
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-              CheckboxListTile(
-                value: _personalDataAccepted,
-                onChanged: (value) {
-                  setState(() => _personalDataAccepted = value ?? false);
-                },
-                title: Text(l10n.personalDataAccepted),
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-              CheckboxListTile(
-                value: _ageConfirmed,
-                onChanged: (value) =>
-                    setState(() => _ageConfirmed = value ?? false),
-                title: Text(l10n.age13),
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-              TextButton.icon(
-                onPressed: () => context.go('/legal'),
-                icon: const Icon(Icons.description),
-                label: Text(l10n.legalDocuments),
-              ),
-              if (errorMessage != null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  errorMessage,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+      body: MenuBackground(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 460),
+            child: ListView(
+              padding: const EdgeInsets.all(24),
+              children: [
+                Image.asset(AppAssets.logo, height: 76, fit: BoxFit.contain),
+                const SizedBox(height: 16),
+                GlassPanel(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(labelText: l10n.email),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(labelText: l10n.password),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _confirmPasswordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: l10n.confirmPassword,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      CheckboxListTile(
+                        value: _termsAccepted,
+                        onChanged: (value) =>
+                            setState(() => _termsAccepted = value ?? false),
+                        title: Text(l10n.termsAccepted),
+                        controlAffinity: ListTileControlAffinity.leading,
+                      ),
+                      CheckboxListTile(
+                        value: _personalDataAccepted,
+                        onChanged: (value) {
+                          setState(
+                            () => _personalDataAccepted = value ?? false,
+                          );
+                        },
+                        title: Text(l10n.personalDataAccepted),
+                        controlAffinity: ListTileControlAffinity.leading,
+                      ),
+                      CheckboxListTile(
+                        value: _ageConfirmed,
+                        onChanged: (value) =>
+                            setState(() => _ageConfirmed = value ?? false),
+                        title: Text(l10n.age13),
+                        controlAffinity: ListTileControlAffinity.leading,
+                      ),
+                      TextButton.icon(
+                        onPressed: () => context.go('/legal'),
+                        icon: const Icon(Icons.description),
+                        label: Text(l10n.legalDocuments),
+                      ),
+                      if (errorMessage != null) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          errorMessage,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                      NeonMenuButton(
+                        text: isLoading ? l10n.loading : l10n.register,
+                        icon: Icons.person_add,
+                        onPressed: isLoading ? null : () => _submit(l10n),
+                      ),
+                      const SizedBox(height: 12),
+                      NeonMenuButton(
+                        text: l10n.login,
+                        icon: Icons.login,
+                        variant: NeonMenuButtonVariant.secondary,
+                        onPressed: () => context.go('/login'),
+                      ),
+                    ],
+                  ),
                 ),
               ],
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: isLoading ? null : () => _submit(l10n),
-                child: isLoading
-                    ? const SizedBox.square(
-                        dimension: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(l10n.register),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: () => context.go('/login'),
-                child: Text(l10n.login),
-              ),
-            ],
+            ),
           ),
         ),
       ),

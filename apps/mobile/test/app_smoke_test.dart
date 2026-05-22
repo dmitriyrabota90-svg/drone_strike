@@ -1,4 +1,5 @@
 import 'package:drone_strike/app/drone_strike_app.dart';
+import 'package:drone_strike/core/assets/app_assets.dart';
 import 'package:drone_strike/game/drone_game.dart';
 import 'package:drone_strike/game/level_config.dart';
 import 'package:drone_strike/game/overlays/game_over_overlay.dart';
@@ -32,10 +33,22 @@ Future<void> pumpOverlay(WidgetTester tester, Widget child) async {
 }
 
 void main() {
+  testWidgets('splash renders logo and subtitle', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(const ProviderScope(child: DroneStrikeApp()));
+    await tester.pump();
+
+    expect(find.image(const AssetImage(AppAssets.logo)), findsOneWidget);
+    expect(find.text('FPV mission arcade'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('app starts and main menu appears', (tester) async {
     await pumpDroneStrikeApp(tester);
 
-    expect(find.text('Drone Strike'), findsWidgets);
+    expect(find.image(const AssetImage(AppAssets.logo)), findsOneWidget);
     expect(find.text('Level Select'), findsOneWidget);
     expect(find.text('Profile'), findsOneWidget);
     expect(find.text('Leaderboard'), findsOneWidget);

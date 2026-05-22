@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../auth/domain/auth_controller.dart';
 import '../../progress/domain/progress_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/glass_panel.dart';
+import '../../../shared/widgets/menu_background.dart';
+import '../../../shared/widgets/neon_menu_button.dart';
 import '../domain/profile_controller.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -22,34 +25,36 @@ class ProfileScreen extends ConsumerWidget {
         title: Text(l10n.profile),
         leading: BackButton(onPressed: () => context.go('/menu')),
       ),
-      body: authValue.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => _GuestProfile(l10n: l10n),
-        data: (authState) {
-          if (!authState.isAuthenticated || authState.user == null) {
-            return _GuestProfile(l10n: l10n);
-          }
+      body: MenuBackground(
+        child: authValue.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stackTrace) => _GuestProfile(l10n: l10n),
+          data: (authState) {
+            if (!authState.isAuthenticated || authState.user == null) {
+              return _GuestProfile(l10n: l10n);
+            }
 
-          final user = authState.user!;
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              if (authState.errorMessage != null) ...[
-                Text(
-                  authState.errorMessage!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-                const SizedBox(height: 12),
-              ],
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(18),
+            final user = authState.user!;
+            return ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                if (authState.errorMessage != null) ...[
+                  Text(
+                    authState.errorMessage!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                GlassPanel(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         user.displayName,
-                        style: Theme.of(context).textTheme.headlineSmall,
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(height: 16),
                       _InfoRow(label: l10n.email, value: user.email),
@@ -84,11 +89,8 @@ class ProfileScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(18),
+                const SizedBox(height: 12),
+                GlassPanel(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -108,50 +110,52 @@ class ProfileScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: authState.isLoading
-                    ? null
-                    : () async {
-                        await ref.read(profileControllerProvider).reloadMe();
-                        await ref
-                            .read(progressControllerProvider.notifier)
-                            .refreshProgress();
-                      },
-                icon: const Icon(Icons.refresh),
-                label: Text(l10n.refresh),
-              ),
-              const SizedBox(height: 12),
-              if (!user.nameChangedOnce)
-                OutlinedButton.icon(
+                const SizedBox(height: 16),
+                NeonMenuButton(
+                  text: l10n.refresh,
+                  icon: Icons.refresh,
                   onPressed: authState.isLoading
                       ? null
-                      : () => _showDisplayNameDialog(context, ref, l10n),
-                  icon: const Icon(Icons.edit),
-                  label: Text(l10n.changeDisplayName),
+                      : () async {
+                          await ref.read(profileControllerProvider).reloadMe();
+                          await ref
+                              .read(progressControllerProvider.notifier)
+                              .refreshProgress();
+                        },
                 ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: authState.isLoading
-                    ? null
-                    : () async {
-                        await ref
-                            .read(authControllerProvider.notifier)
-                            .logout();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(l10n.logoutSuccess)),
-                          );
-                          context.go('/menu');
-                        }
-                      },
-                icon: const Icon(Icons.logout),
-                label: Text(l10n.logout),
-              ),
-            ],
-          );
-        },
+                const SizedBox(height: 12),
+                if (!user.nameChangedOnce)
+                  NeonMenuButton(
+                    text: l10n.changeDisplayName,
+                    icon: Icons.edit,
+                    variant: NeonMenuButtonVariant.secondary,
+                    onPressed: authState.isLoading
+                        ? null
+                        : () => _showDisplayNameDialog(context, ref, l10n),
+                  ),
+                const SizedBox(height: 12),
+                NeonMenuButton(
+                  text: l10n.logout,
+                  icon: Icons.logout,
+                  variant: NeonMenuButtonVariant.secondary,
+                  onPressed: authState.isLoading
+                      ? null
+                      : () async {
+                          await ref
+                              .read(authControllerProvider.notifier)
+                              .logout();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(l10n.logoutSuccess)),
+                            );
+                            context.go('/menu');
+                          }
+                        },
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -213,35 +217,33 @@ class _GuestProfile extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.guestMode,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 12),
-                Text(l10n.loginRequired),
-                const SizedBox(height: 12),
-                Text('${l10n.mission} 1-2: ${l10n.available}'),
-              ],
-            ),
+        GlassPanel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.guestMode,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 12),
+              Text(l10n.loginRequired),
+              const SizedBox(height: 12),
+              Text('${l10n.mission} 1-2: ${l10n.available}'),
+            ],
           ),
         ),
         const SizedBox(height: 16),
-        ElevatedButton.icon(
+        NeonMenuButton(
+          text: l10n.login,
+          icon: Icons.login,
           onPressed: () => context.go('/login'),
-          icon: const Icon(Icons.login),
-          label: Text(l10n.login),
         ),
         const SizedBox(height: 12),
-        OutlinedButton.icon(
+        NeonMenuButton(
+          text: l10n.register,
+          icon: Icons.person_add,
+          variant: NeonMenuButtonVariant.secondary,
           onPressed: () => context.go('/register'),
-          icon: const Icon(Icons.person_add),
-          label: Text(l10n.register),
         ),
       ],
     );

@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../auth/domain/auth_controller.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/glass_panel.dart';
+import '../../../shared/widgets/menu_background.dart';
+import '../../../shared/widgets/neon_menu_button.dart';
 import '../data/legal_dto.dart';
 import '../domain/legal_controller.dart';
 
@@ -22,51 +25,58 @@ class LegalDocumentsScreen extends ConsumerWidget {
         title: Text(l10n.legalDocuments),
         leading: BackButton(onPressed: () => context.go('/settings')),
       ),
-      body: legalState.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(l10n.error, style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: 8),
-                Text(error.toString(), textAlign: TextAlign.center),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: () => ref.invalidate(legalControllerProvider),
-                  icon: const Icon(Icons.refresh),
-                  label: Text(l10n.retry),
+      body: MenuBackground(
+        child: legalState.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stackTrace) => Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: GlassPanel(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      l10n.error,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(error.toString(), textAlign: TextAlign.center),
+                    const SizedBox(height: 16),
+                    NeonMenuButton(
+                      text: l10n.retry,
+                      icon: Icons.refresh,
+                      onPressed: () => ref.invalidate(legalControllerProvider),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-        data: (documents) => ListView.separated(
-          padding: const EdgeInsets.all(16),
-          itemBuilder: (context, index) {
-            final document = documents[index];
-            return _LegalDocumentCard(
-              document: document,
-              isAuthenticated: isAuthenticated,
-              onAccept: () async {
-                await ref
-                    .read(legalControllerProvider.notifier)
-                    .acceptDocument(
-                      documentType: document.type,
-                      documentVersion: document.version,
-                    );
-                if (context.mounted) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(l10n.accepted)));
-                }
-              },
-            );
-          },
-          separatorBuilder: (context, index) => const SizedBox(height: 10),
-          itemCount: documents.length,
+          data: (documents) => ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemBuilder: (context, index) {
+              final document = documents[index];
+              return _LegalDocumentCard(
+                document: document,
+                isAuthenticated: isAuthenticated,
+                onAccept: () async {
+                  await ref
+                      .read(legalControllerProvider.notifier)
+                      .acceptDocument(
+                        documentType: document.type,
+                        documentVersion: document.version,
+                      );
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(l10n.accepted)));
+                  }
+                },
+              );
+            },
+            separatorBuilder: (context, index) => const SizedBox(height: 10),
+            itemCount: documents.length,
+          ),
         ),
       ),
     );
@@ -88,31 +98,26 @@ class _LegalDocumentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              document.title,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 6),
-            Text('${l10n.version}: ${document.version}'),
-            const SizedBox(height: 12),
-            Text(document.content),
-            const SizedBox(height: 12),
-            Text('${l10n.operator}: ${document.operatorName}'),
-            Text(document.operatorEmail),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: isAuthenticated ? onAccept : null,
-              icon: const Icon(Icons.check),
-              label: Text(isAuthenticated ? l10n.accept : l10n.loginRequired),
-            ),
-          ],
-        ),
+    return GlassPanel(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(document.title, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 6),
+          Text('${l10n.version}: ${document.version}'),
+          const SizedBox(height: 12),
+          Text(document.content),
+          const SizedBox(height: 12),
+          Text('${l10n.operator}: ${document.operatorName}'),
+          Text(document.operatorEmail),
+          const SizedBox(height: 12),
+          NeonMenuButton(
+            text: isAuthenticated ? l10n.accept : l10n.loginRequired,
+            icon: Icons.check,
+            variant: NeonMenuButtonVariant.secondary,
+            onPressed: isAuthenticated ? onAccept : null,
+          ),
+        ],
       ),
     );
   }

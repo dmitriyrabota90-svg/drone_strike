@@ -172,3 +172,12 @@ Manual flow:
 10. Confirm Mission Complete.
 11. Check pause and resume.
 12. Check no lives behavior.
+
+## 14. Menu Visual Manual Test
+
+1. Confirm Splash shows the Drone Strike logo.
+2. Confirm Main Menu shows the destroyed city background and logo.
+3. Confirm menu buttons are readable and consistently sized.
+4. Confirm Login and Register forms are readable.
+5. Confirm Level Select mission cards remain readable.
+6. Confirm the game screen still opens in landscape and remains playable.

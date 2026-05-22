@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/assets/app_assets.dart';
 import '../../../l10n/generated/app_localizations.dart';
+import '../../../shared/widgets/glass_panel.dart';
+import '../../../shared/widgets/menu_background.dart';
+import '../../../shared/widgets/neon_menu_button.dart';
 import '../domain/auth_controller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -36,47 +40,58 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         title: Text(l10n.login),
         leading: BackButton(onPressed: () => context.go('/menu')),
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            shrinkWrap: true,
-            children: [
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(labelText: l10n.email),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(labelText: l10n.password),
-              ),
-              if (errorMessage != null) ...[
-                const SizedBox(height: 16),
-                Text(
-                  errorMessage,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+      body: MenuBackground(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: ListView(
+              padding: const EdgeInsets.all(24),
+              shrinkWrap: true,
+              children: [
+                Image.asset(AppAssets.logo, height: 86, fit: BoxFit.contain),
+                const SizedBox(height: 18),
+                GlassPanel(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(labelText: l10n.email),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(labelText: l10n.password),
+                      ),
+                      if (errorMessage != null) ...[
+                        const SizedBox(height: 16),
+                        Text(
+                          errorMessage,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 24),
+                      NeonMenuButton(
+                        text: isLoading ? l10n.loading : l10n.login,
+                        icon: Icons.login,
+                        onPressed: isLoading ? null : () => _submit(l10n),
+                      ),
+                      const SizedBox(height: 12),
+                      NeonMenuButton(
+                        text: l10n.register,
+                        icon: Icons.person_add,
+                        variant: NeonMenuButtonVariant.secondary,
+                        onPressed: () => context.go('/register'),
+                      ),
+                    ],
+                  ),
                 ),
               ],
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: isLoading ? null : () => _submit(l10n),
-                child: isLoading
-                    ? const SizedBox.square(
-                        dimension: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(l10n.login),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: () => context.go('/register'),
-                child: Text(l10n.register),
-              ),
-            ],
+            ),
           ),
         ),
       ),
