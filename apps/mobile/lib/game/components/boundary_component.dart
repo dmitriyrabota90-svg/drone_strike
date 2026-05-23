@@ -4,16 +4,24 @@ import 'package:flutter/material.dart';
 enum BoundarySide { top, bottom }
 
 class BoundaryComponent extends PositionComponent {
-  BoundaryComponent({required this.side, required this.thickness});
+  BoundaryComponent({
+    required this.side,
+    required this.thickness,
+    this.topOffset = 0,
+  });
 
   final BoundarySide side;
   final double thickness;
+  final double topOffset;
 
   @override
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
     this.size = Vector2(size.x, thickness);
-    position = Vector2(0, side == BoundarySide.top ? 0 : size.y - thickness);
+    position = Vector2(
+      0,
+      side == BoundarySide.top ? topOffset : size.y - thickness,
+    );
   }
 
   @override

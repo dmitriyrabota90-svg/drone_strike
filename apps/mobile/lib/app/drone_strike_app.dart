@@ -15,7 +15,7 @@ class DroneStrikeApp extends ConsumerWidget {
     final selectedLocale = ref.watch(appLocaleControllerProvider).asData?.value;
 
     return MaterialApp.router(
-      title: 'Drone Strike',
+      title: 'FPV Last Run',
       debugShowCheckedModeBanner: false,
       locale: selectedLocale,
       routerConfig: createAppRouter(),

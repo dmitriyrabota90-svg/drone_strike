@@ -17,10 +17,10 @@ class LivesState {
     );
   }
 
-  static const normalMaxLives = 3;
+  static const normalMaxLives = 5;
   static const premiumMaxLives = 5;
-  static const normalRecovery = Duration(minutes: 5);
-  static const premiumRecovery = Duration(minutes: 4);
+  static const normalRecovery = Duration(seconds: 90);
+  static const premiumRecovery = normalRecovery;
 
   final int currentLives;
   final int maxLives;

@@ -16,8 +16,14 @@ class GameConfig {
   static const droneHitboxInsetX = 12.0;
   static const droneHitboxInsetY = 10.5;
   static const forwardSpeed = 140.0;
+  // Reserved top strip for the Flutter HUD. Gameplay hazards start below it so
+  // ceiling nets and the top death boundary are never hidden by the overlay.
+  static const gameplayTopSafeInset = 64.0;
   static const topBoundaryHeight = 8.0;
   static const bottomBoundaryHeight = 8.0;
+  static const topBoundaryY = gameplayTopSafeInset;
+  static const playableTopY = topBoundaryY + topBoundaryHeight;
+  static const tankGroundSink = 20.0;
   static const missionDistanceMeters = 1000.0;
   static const initialRemainingDistanceMeters = 1000.0;
 }

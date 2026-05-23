@@ -44,7 +44,7 @@ class LevelGenerator {
     required LevelConfig config,
     required Vector2 viewportSize,
   }) {
-    final ceilingY = GameConfig.topBoundaryHeight;
+    final ceilingY = GameConfig.playableTopY;
     final groundY = viewportSize.y - GameConfig.bottomBoundaryHeight;
     final minGapHeight = GameConfig.droneHeight * 2.3;
     final minNetHeight = math.max(42.0, viewportSize.y * 0.10);

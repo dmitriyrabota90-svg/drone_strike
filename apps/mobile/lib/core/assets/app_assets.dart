@@ -47,6 +47,34 @@ class AppAssets {
   static const tankTargetMain =
       'assets/images/game/targets/tank_target_main.png';
 
+  static const achievementBullseye =
+      'assets/images/achievements/achievement_bullseye.png';
+  static const achievementCleanHit =
+      'assets/images/achievements/achievement_clean_hit.png';
+  static const achievementFifthTarget =
+      'assets/images/achievements/achievement_fifth_target.png';
+  static const achievementFirstRun =
+      'assets/images/achievements/achievement_first_run.png';
+  static const achievementMvpCampaign =
+      'assets/images/achievements/achievement_mvp_campaign.png';
+  static const achievementPerfectScore =
+      'assets/images/achievements/achievement_perfect_score.png';
+  static const achievementStableFlight =
+      'assets/images/achievements/achievement_stable_flight.png';
+  static const achievementTrainingComplete =
+      'assets/images/achievements/achievement_training_complete.png';
+
+  static const achievementIconAssets = <String>[
+    achievementBullseye,
+    achievementCleanHit,
+    achievementFifthTarget,
+    achievementFirstRun,
+    achievementMvpCampaign,
+    achievementPerfectScore,
+    achievementStableFlight,
+    achievementTrainingComplete,
+  ];
+
   static const gameImageAssets = <String>[
     gameSkyBaseNight,
     gameCloudsLayer01,

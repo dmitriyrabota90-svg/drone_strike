@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Drone Strike'**
+  /// **'FPV Last Run'**
   String get appTitle;
 
   /// No description provided for @continueGame.
@@ -509,7 +509,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutFiveMinutes.
   ///
   /// In en, this message translates to:
-  /// **'about 5 minutes'**
+  /// **'about 90 seconds'**
   String get aboutFiveMinutes;
 
   /// No description provided for @finalZone.
@@ -895,6 +895,114 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Exit is not implemented on this platform'**
   String get exitUnavailable;
+
+  /// No description provided for @unlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked'**
+  String get unlocked;
+
+  /// No description provided for @achievementUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement unlocked'**
+  String get achievementUnlocked;
+
+  /// No description provided for @achievementFirstRunTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'First Run'**
+  String get achievementFirstRunTitle;
+
+  /// No description provided for @achievementFirstRunDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete mission 1.'**
+  String get achievementFirstRunDescription;
+
+  /// No description provided for @achievementTrainingCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Training Complete'**
+  String get achievementTrainingCompleteTitle;
+
+  /// No description provided for @achievementTrainingCompleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete missions 1 and 2.'**
+  String get achievementTrainingCompleteDescription;
+
+  /// No description provided for @achievementFifthTargetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fifth Target'**
+  String get achievementFifthTargetTitle;
+
+  /// No description provided for @achievementFifthTargetDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock mission 5.'**
+  String get achievementFifthTargetDescription;
+
+  /// No description provided for @achievementMvpCampaignTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'MVP Campaign'**
+  String get achievementMvpCampaignTitle;
+
+  /// No description provided for @achievementMvpCampaignDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 10 missions.'**
+  String get achievementMvpCampaignDescription;
+
+  /// No description provided for @achievementCleanHitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clean Hit'**
+  String get achievementCleanHitTitle;
+
+  /// No description provided for @achievementCleanHitDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn a high tank hit bonus.'**
+  String get achievementCleanHitDescription;
+
+  /// No description provided for @achievementBullseyeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bullseye'**
+  String get achievementBullseyeTitle;
+
+  /// No description provided for @achievementBullseyeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn a perfect tank hit bonus.'**
+  String get achievementBullseyeDescription;
+
+  /// No description provided for @achievementStableFlightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stable Flight'**
+  String get achievementStableFlightTitle;
+
+  /// No description provided for @achievementStableFlightDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn a high flight accuracy bonus.'**
+  String get achievementStableFlightDescription;
+
+  /// No description provided for @achievementPerfectScoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect Score'**
+  String get achievementPerfectScoreTitle;
+
+  /// No description provided for @achievementPerfectScoreDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Earn the maximum mission score.'**
+  String get achievementPerfectScoreDescription;
 }
 
 class _AppLocalizationsDelegate

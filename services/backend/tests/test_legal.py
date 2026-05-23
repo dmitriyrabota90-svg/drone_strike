@@ -53,7 +53,9 @@ def test_get_legal_documents() -> None:
     for document in documents:
         assert document["operator_name"] == OPERATOR_NAME
         assert document["operator_email"] == OPERATOR_EMAIL
-        assert "заглушка" in document["content"].lower()
+        assert "FPV Last Run" in document["content"]
+        assert "URL to be added before publication" in document["content"]
+        assert "placeholder" not in document["content"].lower()
 
 
 def test_legal_accept_requires_auth() -> None:

@@ -17,7 +17,7 @@ class TankComponent extends PositionComponent {
   static const _visualScale = 4.0;
   static const tankWidth = 118.0 * _visualScale;
   static const tankHeight = 46.0 * _visualScale;
-  static const _victoryCircleDiameter = tankHeight * 0.9;
+  static const _victoryCircleDiameter = tankHeight * 0.45;
 
   double worldX;
   ui.Image? _sprite;
@@ -54,7 +54,10 @@ class TankComponent extends PositionComponent {
   }) {
     position = Vector2(
       worldX - worldOffset,
-      viewportHeight - GameConfig.bottomBoundaryHeight - tankHeight,
+      viewportHeight -
+          GameConfig.bottomBoundaryHeight -
+          tankHeight +
+          GameConfig.tankGroundSink,
     );
   }
 
@@ -66,15 +69,6 @@ class TankComponent extends PositionComponent {
   void render(Canvas canvas) {
     final sprite = _sprite;
     if (sprite != null) {
-      final glowPaint = Paint()..color = const Color(0x3389D8FF);
-      final outlinePaint = Paint()
-        ..color = const Color(0x6689D8FF)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
-      final victoryRect = _localVictoryRect;
-
-      canvas.drawOval(victoryRect, glowPaint);
-      canvas.drawOval(victoryRect.deflate(2), outlinePaint);
       canvas.drawImageRect(
         sprite,
         Rect.fromLTWH(0, 0, sprite.width.toDouble(), sprite.height.toDouble()),
@@ -88,15 +82,7 @@ class TankComponent extends PositionComponent {
     final bodyLightPaint = Paint()..color = const Color(0xFF9EB49E);
     final trackPaint = Paint()..color = const Color(0xFF273B35);
     final barrelPaint = Paint()..color = const Color(0xFFC0CDAF);
-    final glowPaint = Paint()..color = const Color(0x3389D8FF);
-    final outlinePaint = Paint()
-      ..color = const Color(0x6689D8FF)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    final victoryRect = _localVictoryRect;
 
-    canvas.drawOval(victoryRect, glowPaint);
-    canvas.drawOval(victoryRect.deflate(2), outlinePaint);
     canvas.drawRect(
       Rect.fromLTWH(8, tankHeight - 17, tankWidth - 16, 14),
       trackPaint,

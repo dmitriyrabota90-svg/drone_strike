@@ -9,7 +9,7 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'Drone Strike';
+  String get appTitle => 'FPV Last Run';
 
   @override
   String get continueGame => 'Продолжить';
@@ -217,7 +217,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get remainingLives => 'Осталось жизней';
 
   @override
-  String get aboutFiveMinutes => 'около 5 минут';
+  String get aboutFiveMinutes => 'около 90 секунд';
 
   @override
   String get finalZone => 'Финальная зона';
@@ -414,4 +414,63 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get exitUnavailable => 'Выход не реализован на этой платформе';
+
+  @override
+  String get unlocked => 'Открыто';
+
+  @override
+  String get achievementUnlocked => 'Достижение открыто';
+
+  @override
+  String get achievementFirstRunTitle => 'Первый вылет';
+
+  @override
+  String get achievementFirstRunDescription => 'Завершить миссию 1.';
+
+  @override
+  String get achievementTrainingCompleteTitle => 'Учебка пройдена';
+
+  @override
+  String get achievementTrainingCompleteDescription =>
+      'Завершить миссии 1 и 2.';
+
+  @override
+  String get achievementFifthTargetTitle => 'Пятая цель';
+
+  @override
+  String get achievementFifthTargetDescription => 'Открыть миссию 5.';
+
+  @override
+  String get achievementMvpCampaignTitle => 'Кампания MVP';
+
+  @override
+  String get achievementMvpCampaignDescription => 'Завершить 10 миссий.';
+
+  @override
+  String get achievementCleanHitTitle => 'Чистое попадание';
+
+  @override
+  String get achievementCleanHitDescription =>
+      'Получить высокий бонус за попадание в танк.';
+
+  @override
+  String get achievementBullseyeTitle => 'В яблочко';
+
+  @override
+  String get achievementBullseyeDescription =>
+      'Получить идеальный бонус за попадание в танк.';
+
+  @override
+  String get achievementStableFlightTitle => 'Ровный полет';
+
+  @override
+  String get achievementStableFlightDescription =>
+      'Получить высокий бонус за точность полета.';
+
+  @override
+  String get achievementPerfectScoreTitle => 'Идеальная оценка';
+
+  @override
+  String get achievementPerfectScoreDescription =>
+      'Получить максимальный результат за миссию.';
 }

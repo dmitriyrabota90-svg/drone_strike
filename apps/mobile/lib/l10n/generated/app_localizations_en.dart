@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Drone Strike';
+  String get appTitle => 'FPV Last Run';
 
   @override
   String get continueGame => 'Continue';
@@ -216,7 +216,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get remainingLives => 'Remaining lives';
 
   @override
-  String get aboutFiveMinutes => 'about 5 minutes';
+  String get aboutFiveMinutes => 'about 90 seconds';
 
   @override
   String get finalZone => 'Final zone';
@@ -412,4 +412,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exitUnavailable => 'Exit is not implemented on this platform';
+
+  @override
+  String get unlocked => 'Unlocked';
+
+  @override
+  String get achievementUnlocked => 'Achievement unlocked';
+
+  @override
+  String get achievementFirstRunTitle => 'First Run';
+
+  @override
+  String get achievementFirstRunDescription => 'Complete mission 1.';
+
+  @override
+  String get achievementTrainingCompleteTitle => 'Training Complete';
+
+  @override
+  String get achievementTrainingCompleteDescription =>
+      'Complete missions 1 and 2.';
+
+  @override
+  String get achievementFifthTargetTitle => 'Fifth Target';
+
+  @override
+  String get achievementFifthTargetDescription => 'Unlock mission 5.';
+
+  @override
+  String get achievementMvpCampaignTitle => 'MVP Campaign';
+
+  @override
+  String get achievementMvpCampaignDescription => 'Complete 10 missions.';
+
+  @override
+  String get achievementCleanHitTitle => 'Clean Hit';
+
+  @override
+  String get achievementCleanHitDescription => 'Earn a high tank hit bonus.';
+
+  @override
+  String get achievementBullseyeTitle => 'Bullseye';
+
+  @override
+  String get achievementBullseyeDescription => 'Earn a perfect tank hit bonus.';
+
+  @override
+  String get achievementStableFlightTitle => 'Stable Flight';
+
+  @override
+  String get achievementStableFlightDescription =>
+      'Earn a high flight accuracy bonus.';
+
+  @override
+  String get achievementPerfectScoreTitle => 'Perfect Score';
+
+  @override
+  String get achievementPerfectScoreDescription =>
+      'Earn the maximum mission score.';
 }

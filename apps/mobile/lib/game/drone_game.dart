@@ -34,7 +34,7 @@ class DroneGame extends FlameGame with TapCallbacks {
   }) : stateNotifier = ValueNotifier(
          DroneGameState(
            missionNumber: levelConfig.missionNumber,
-           lives: 3,
+           lives: 5,
            score: 0,
            playerLevel: initialPlayerLevel,
            remainingDistanceMeters: levelConfig.missionDistanceMeters,
@@ -91,6 +91,7 @@ class DroneGame extends FlameGame with TapCallbacks {
       BoundaryComponent(
         side: BoundarySide.top,
         thickness: levelConfig.topBoundaryHeight,
+        topOffset: GameConfig.topBoundaryY,
       ),
     );
     await add(
@@ -264,7 +265,7 @@ class DroneGame extends FlameGame with TapCallbacks {
     if (_startGraceRemaining > 0) {
       return;
     }
-    if (_drone.position.y <= levelConfig.topBoundaryHeight ||
+    if (_drone.position.y <= GameConfig.playableTopY ||
         _drone.position.y + _drone.size.y >=
             size.y - levelConfig.bottomBoundaryHeight) {
       triggerGameOver(reason: 'boundary');

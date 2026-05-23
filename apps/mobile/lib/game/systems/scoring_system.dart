@@ -54,6 +54,7 @@ class MissionResult {
 
 class ScoringSystem {
   static const baseScore = 100;
+  static const maxScore = baseScore + 50 + 50;
 
   double _accuracyTotal = 0;
   int _accuracySamples = 0;

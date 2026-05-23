@@ -13,6 +13,9 @@ import '../../../game/overlays/mission_complete_overlay.dart';
 import '../../../game/overlays/no_lives_overlay.dart';
 import '../../../game/overlays/pause_overlay.dart';
 import '../../../game/systems/scoring_system.dart';
+import '../../../l10n/generated/app_localizations.dart';
+import '../../achievements/domain/achievement_state.dart';
+import '../../achievements/domain/achievements_controller.dart';
 import '../../auth/domain/auth_controller.dart';
 import '../../progress/domain/progress_controller.dart';
 
@@ -306,6 +309,7 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
         setState(() {
           _missionResult = failedResult;
         });
+        await _unlockAchievementsForMission(failedResult);
         return failedResult;
       }
       final syncedResult = result.copyWith(
@@ -319,6 +323,7 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
       setState(() {
         _missionResult = syncedResult;
       });
+      await _unlockAchievementsForMission(syncedResult);
       return syncedResult;
     }
 
@@ -341,6 +346,56 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
         _missionResult = guestResult;
       });
     }
+    await _unlockAchievementsForMission(guestResult);
     return guestResult;
+  }
+
+  Future<void> _unlockAchievementsForMission(MissionResult result) async {
+    final progress = ref
+        .read(progressControllerProvider)
+        .asData
+        ?.value
+        .progress;
+    final unlocked = await ref
+        .read(achievementsControllerProvider.notifier)
+        .evaluateMissionResult(missionResult: result, progress: progress);
+    if (!mounted || unlocked.isEmpty) {
+      return;
+    }
+    _showAchievementUnlocked(unlocked);
+  }
+
+  void _showAchievementUnlocked(List<UnlockedAchievement> unlocked) {
+    final l10n = AppLocalizations.of(context)!;
+    final first = unlocked.first;
+    final titles = unlocked
+        .map((achievement) => achievement.definition.title(l10n))
+        .join(', ');
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+        content: Row(
+          children: [
+            Image.asset(first.definition.iconPath, width: 36, height: 36),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.achievementUnlocked,
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  Text(titles, maxLines: 2, overflow: TextOverflow.ellipsis),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

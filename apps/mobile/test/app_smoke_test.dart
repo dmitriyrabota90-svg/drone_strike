@@ -1,6 +1,13 @@
+import 'dart:io';
+
 import 'package:drone_strike/app/drone_strike_app.dart';
 import 'package:drone_strike/core/assets/app_assets.dart';
 import 'package:drone_strike/core/localization/app_locale_controller.dart';
+import 'package:drone_strike/features/achievements/data/achievements_repository.dart';
+import 'package:drone_strike/features/achievements/domain/achievement_definition.dart';
+import 'package:drone_strike/features/achievements/domain/achievement_evaluator.dart';
+import 'package:drone_strike/features/lives/domain/lives_state.dart';
+import 'package:drone_strike/features/progress/data/progress_dto.dart';
 import 'package:drone_strike/game/drone_game.dart';
 import 'package:drone_strike/game/game_config.dart';
 import 'package:drone_strike/game/level_config.dart';
@@ -134,7 +141,7 @@ void main() {
     await tester.tap(find.text('Mission 2'));
     await pumpGameScreenReady(tester);
 
-    expect(find.text('Mission: 2'), findsOneWidget);
+    expect(find.byKey(const ValueKey('hud_mission_badge')), findsOneWidget);
   });
 
   testWidgets('leaderboard screen requires login for guest', (tester) async {
@@ -155,8 +162,9 @@ void main() {
     await tester.tap(find.text('Mission 1'));
     await pumpGameScreenReady(tester);
 
-    expect(find.text('Mission: 1'), findsOneWidget);
-    expect(find.text('Lives: 3'), findsOneWidget);
+    expect(find.byKey(const ValueKey('hud_mission_badge')), findsOneWidget);
+    expect(find.byKey(const ValueKey('hud_lives_indicator')), findsOneWidget);
+    expect(find.byKey(const ValueKey('hud_mission_progress')), findsOneWidget);
     expect(find.text('Tap to start'), findsOneWidget);
   });
 
@@ -183,7 +191,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Mission 1'));
     await pumpGameScreenReady(tester);
-    await tester.tap(find.byIcon(Icons.pause));
+    await tester.tap(find.byKey(const ValueKey('hud_pause_button')));
     await tester.pump();
 
     expect(find.text('Pause'), findsOneWidget);
@@ -206,6 +214,40 @@ void main() {
     expect(find.text('Russian'), findsOneWidget);
     expect(find.text('Legal Documents'), findsOneWidget);
     expect(find.text('Account'), findsOneWidget);
+  });
+
+  testWidgets('achievements screen renders MVP achievement list', (
+    tester,
+  ) async {
+    await pumpDroneStrikeApp(tester);
+
+    await tester.ensureVisible(find.text('Achievements'));
+    await tester.tap(find.text('Achievements'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Achievements'), findsWidgets);
+    expect(find.text('First Run'), findsOneWidget);
+    expect(find.text('Training Complete'), findsOneWidget);
+    expect(find.text('Locked'), findsWidgets);
+  });
+
+  testWidgets('achievements screen shows local unlocked achievements', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({
+      'achievements.unlocked': '{"first_run":"2026-01-01T00:00:00.000Z"}',
+    });
+    await tester.pumpWidget(const ProviderScope(child: DroneStrikeApp()));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Achievements'));
+    await tester.tap(find.text('Achievements'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('First Run'), findsOneWidget);
+    expect(find.textContaining('Unlocked: 2026-01-01'), findsOneWidget);
+    expect(find.text('Locked'), findsWidgets);
   });
 
   testWidgets('mission complete overlay renders fake mission result', (
@@ -253,7 +295,7 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'lives.current_lives': 0,
       'lives.next_life_at': DateTime.now()
-          .add(const Duration(minutes: 5))
+          .add(const Duration(seconds: 90))
           .toIso8601String(),
     });
 
@@ -261,6 +303,15 @@ void main() {
 
     expect(find.text('No lives'), findsOneWidget);
     expect(find.textContaining('Next life in'), findsOneWidget);
+  });
+
+  test('lives balance uses five lives and 90 second recovery', () {
+    final full = LivesState.full();
+
+    expect(LivesState.normalMaxLives, 5);
+    expect(LivesState.normalRecovery, const Duration(seconds: 90));
+    expect(full.currentLives, 5);
+    expect(full.maxLives, 5);
   });
 
   test('scoring clamps bonuses to expected ranges', () {
@@ -277,6 +328,95 @@ void main() {
 
     expect(scoring.flightAccuracyBonus, inInclusiveRange(0, 50));
     expect(tankBonus, inInclusiveRange(0, 50));
+  });
+
+  test('achievement definitions include exactly the 8 MVP icons', () {
+    expect(achievementDefinitions, hasLength(8));
+    expect(achievementDefinitions.map((definition) => definition.id).toSet(), {
+      AchievementIds.firstRun,
+      AchievementIds.trainingComplete,
+      AchievementIds.fifthTarget,
+      AchievementIds.mvpCampaign,
+      AchievementIds.cleanHit,
+      AchievementIds.bullseye,
+      AchievementIds.stableFlight,
+      AchievementIds.perfectScore,
+    });
+    expect(
+      achievementDefinitions.map((definition) => definition.iconPath).toSet(),
+      AppAssets.achievementIconAssets.toSet(),
+    );
+    for (final definition in achievementDefinitions) {
+      expect(File(definition.iconPath).existsSync(), isTrue);
+    }
+  });
+
+  test('achievement storage does not duplicate unlock timestamps', () async {
+    SharedPreferences.setMockInitialValues({});
+    final repository = AchievementsRepository();
+    final firstUnlock = DateTime.utc(2026, 1, 1);
+    final secondUnlock = DateTime.utc(2026, 1, 2);
+
+    final first = await repository.unlockAll([
+      AchievementIds.firstRun,
+    ], now: firstUnlock);
+    final second = await repository.unlockAll([
+      AchievementIds.firstRun,
+    ], now: secondUnlock);
+
+    expect(first, hasLength(1));
+    expect(second, hasLength(1));
+    expect(second[AchievementIds.firstRun], firstUnlock);
+  });
+
+  test('achievement evaluator unlocks mission result achievements', () {
+    const result = MissionResult(
+      missionNumber: 1,
+      baseScore: ScoringSystem.baseScore,
+      flightAccuracyBonus: 45,
+      tankHitBonus: 50,
+      totalScore: ScoringSystem.maxScore,
+      isGuest: true,
+      backendSubmitted: false,
+    );
+
+    final unlocked = AchievementEvaluator.evaluate(missionResult: result);
+
+    expect(unlocked, contains(AchievementIds.firstRun));
+    expect(unlocked, contains(AchievementIds.cleanHit));
+    expect(unlocked, contains(AchievementIds.bullseye));
+    expect(unlocked, contains(AchievementIds.stableFlight));
+    expect(unlocked, contains(AchievementIds.perfectScore));
+  });
+
+  test('achievement evaluator unlocks progress achievements', () {
+    final progress = ProgressResponseDto(
+      totalScore: 2000,
+      playerLevel: 5,
+      completedMissionsCount: 10,
+      unlockedMission: 5,
+      missions: [
+        for (var mission = 1; mission <= 10; mission += 1)
+          MissionProgressItemDto(
+            missionNumber: mission,
+            bestScore: mission == 1 ? ScoringSystem.maxScore : 150,
+            bestFlightAccuracyBonus: mission == 2 ? 45 : 25,
+            bestTankHitBonus: mission == 3 ? 50 : 30,
+            completedAt: DateTime.utc(2026, 1, mission),
+          ),
+      ],
+    );
+
+    final unlocked = AchievementEvaluator.evaluate(progress: progress);
+
+    expect(unlocked, contains(AchievementIds.firstRun));
+    expect(unlocked, contains(AchievementIds.trainingComplete));
+    expect(unlocked, contains(AchievementIds.fifthTarget));
+    expect(unlocked, contains(AchievementIds.mvpCampaign));
+    expect(unlocked, contains(AchievementIds.cleanHit));
+    expect(unlocked, contains(AchievementIds.bullseye));
+    expect(unlocked, contains(AchievementIds.stableFlight));
+    expect(unlocked, contains(AchievementIds.perfectScore));
   });
 
   test('game physics uses glide-friendly velocity limits', () {

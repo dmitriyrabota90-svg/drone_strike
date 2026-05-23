@@ -48,7 +48,7 @@ class NetComponent extends PositionComponent {
 
   void updateWorld({required double worldOffset}) {
     size = Vector2(netWidth, netHeight);
-    position = Vector2(worldX - worldOffset, GameConfig.topBoundaryHeight);
+    position = Vector2(worldX - worldOffset, GameConfig.playableTopY);
   }
 
   @override
