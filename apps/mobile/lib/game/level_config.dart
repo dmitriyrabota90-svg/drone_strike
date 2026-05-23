@@ -6,6 +6,7 @@ class LevelConfig {
     required this.missionDurationSeconds,
     required this.finalZoneSeconds,
     required this.obstacleCount,
+    required this.batteryCount,
     required this.gapMultiplier,
     required this.minGapMultiplier,
     required this.maxGapMultiplier,
@@ -25,6 +26,7 @@ class LevelConfig {
       missionDurationSeconds: 60,
       finalZoneSeconds: 2.75,
       obstacleCount: balance.obstacleCount,
+      batteryCount: balance.batteryCount,
       gapMultiplier: balance.maxGapMultiplier,
       minGapMultiplier: balance.minGapMultiplier,
       maxGapMultiplier: balance.maxGapMultiplier,
@@ -40,6 +42,7 @@ class LevelConfig {
   final double missionDurationSeconds;
   final double finalZoneSeconds;
   final int obstacleCount;
+  final int batteryCount;
   final double gapMultiplier;
   final double minGapMultiplier;
   final double maxGapMultiplier;
@@ -72,6 +75,7 @@ class _MissionBalance {
     required this.maxGapMultiplier,
     required this.forwardSpeed,
     required this.obstacleCount,
+    required this.batteryCount,
     required this.minObstacleSpacing,
     required this.maxObstacleSpacing,
     required this.obstacleWidth,
@@ -81,6 +85,7 @@ class _MissionBalance {
   final double maxGapMultiplier;
   final double forwardSpeed;
   final int obstacleCount;
+  final int batteryCount;
   final double minObstacleSpacing;
   final double maxObstacleSpacing;
   final double obstacleWidth;
@@ -95,6 +100,7 @@ class _MissionBalance {
         maxGapMultiplier: 6.2,
         forwardSpeed: 110.0,
         obstacleCount: 8,
+        batteryCount: 3,
         minObstacleSpacing: 320.0,
         maxObstacleSpacing: 520.0,
         obstacleWidth: 70.0,
@@ -104,6 +110,7 @@ class _MissionBalance {
         maxGapMultiplier: 5.8,
         forwardSpeed: 120.0,
         obstacleCount: 10,
+        batteryCount: 4,
         minObstacleSpacing: 300.0,
         maxObstacleSpacing: 500.0,
         obstacleWidth: 72.0,
@@ -113,6 +120,7 @@ class _MissionBalance {
         maxGapMultiplier: 5.4,
         forwardSpeed: 130.0,
         obstacleCount: 12,
+        batteryCount: 5,
         minObstacleSpacing: 280.0,
         maxObstacleSpacing: 470.0,
         obstacleWidth: 74.0,
@@ -122,6 +130,7 @@ class _MissionBalance {
         maxGapMultiplier: 5.0,
         forwardSpeed: 140.0,
         obstacleCount: 14,
+        batteryCount: 6,
         minObstacleSpacing: 260.0,
         maxObstacleSpacing: 450.0,
         obstacleWidth: 74.0,
@@ -131,6 +140,7 @@ class _MissionBalance {
         maxGapMultiplier: 4.6,
         forwardSpeed: 150.0,
         obstacleCount: 16,
+        batteryCount: 6,
         minObstacleSpacing: 240.0,
         maxObstacleSpacing: 430.0,
         obstacleWidth: 76.0,
@@ -140,6 +150,7 @@ class _MissionBalance {
         maxGapMultiplier: 4.2,
         forwardSpeed: 158.0,
         obstacleCount: 18,
+        batteryCount: 7,
         minObstacleSpacing: 230.0,
         maxObstacleSpacing: 410.0,
         obstacleWidth: 76.0,
@@ -149,6 +160,7 @@ class _MissionBalance {
         maxGapMultiplier: 3.9,
         forwardSpeed: 166.0,
         obstacleCount: 20,
+        batteryCount: 7,
         minObstacleSpacing: 220.0,
         maxObstacleSpacing: 390.0,
         obstacleWidth: 76.0,
@@ -158,6 +170,7 @@ class _MissionBalance {
         maxGapMultiplier: 3.6,
         forwardSpeed: 174.0,
         obstacleCount: 22,
+        batteryCount: 8,
         minObstacleSpacing: 210.0,
         maxObstacleSpacing: 370.0,
         obstacleWidth: 78.0,

@@ -69,6 +69,8 @@ flutter:
     - assets/images/game/obstacles/trees/
     - assets/images/game/obstacles/nets/
     - assets/images/game/targets/
+    - assets/images/game/collectibles/
+    - assets/images/game/effects/
     - assets/images/achievements/
 
   # The following line ensures that the Material Icons font is

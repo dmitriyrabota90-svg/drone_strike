@@ -7,8 +7,10 @@ import 'package:flutter/foundation.dart';
 
 import '../core/assets/app_assets.dart';
 import 'components/background_layer_component.dart';
+import 'components/battery_component.dart';
 import 'components/boundary_component.dart';
 import 'components/drone_component.dart';
+import 'components/explosion_component.dart';
 import 'components/obstacle_pair_component.dart';
 import 'components/tank_component.dart';
 import 'game_config.dart';
@@ -36,6 +38,7 @@ class DroneGame extends FlameGame with TapCallbacks {
            missionNumber: levelConfig.missionNumber,
            lives: 5,
            score: 0,
+           batteryBonus: 0,
            playerLevel: initialPlayerLevel,
            remainingDistanceMeters: levelConfig.missionDistanceMeters,
            status: DroneMissionStatus.ready,
@@ -60,9 +63,11 @@ class DroneGame extends FlameGame with TapCallbacks {
   late MissionProgressSystem _progressSystem;
   late ScoringSystem _scoringSystem;
   late List<ObstaclePairComponent> _obstaclePairs;
+  late List<BatteryComponent> _batteries;
   late TankComponent _tank;
   double _worldOffset = 0;
   double _startGraceRemaining = 0;
+  int _missionCompleteSequence = 0;
   bool _isDisposed = false;
 
   @override
@@ -81,10 +86,14 @@ class DroneGame extends FlameGame with TapCallbacks {
       viewportSize: size,
     );
     _obstaclePairs = generatedLevel.obstaclePairs;
+    _batteries = generatedLevel.batteries;
     _tank = generatedLevel.tank;
 
     for (final pair in _obstaclePairs) {
       await add(pair);
+    }
+    for (final battery in _batteries) {
+      await add(battery);
     }
     await add(_tank);
     await add(
@@ -107,6 +116,10 @@ class DroneGame extends FlameGame with TapCallbacks {
   @override
   void update(double dt) {
     final status = stateNotifier.value.status;
+    if (status == DroneMissionStatus.completed) {
+      super.update(dt);
+      return;
+    }
     if (status != DroneMissionStatus.running) {
       return;
     }
@@ -125,6 +138,7 @@ class DroneGame extends FlameGame with TapCallbacks {
       remainingDistanceMeters: _progressSystem.remainingDistanceMeters,
     );
     _recordFlightAccuracy();
+    _checkBatteryCollection();
     _checkBoundaryDeath();
     if (stateNotifier.value.status != DroneMissionStatus.running) {
       return;
@@ -187,12 +201,17 @@ class DroneGame extends FlameGame with TapCallbacks {
       return;
     }
     final currentLives = stateNotifier.value.lives;
+    _drone.isFrozen = false;
     overlays.remove(pauseOverlay);
     overlays.remove(gameOverOverlay);
     overlays.remove(missionCompleteOverlay);
     overlays.remove(noLivesOverlay);
     _progressSystem.reset();
     _scoringSystem = ScoringSystem();
+    _missionCompleteSequence++;
+    for (final battery in _batteries) {
+      battery.reset();
+    }
     _worldOffset = 0;
     _startGraceRemaining = 0;
     _drone.resetTo(_startPosition());
@@ -201,6 +220,7 @@ class DroneGame extends FlameGame with TapCallbacks {
       missionNumber: levelConfig.missionNumber,
       lives: currentLives,
       score: 0,
+      batteryBonus: 0,
       playerLevel: initialPlayerLevel,
       remainingDistanceMeters: levelConfig.missionDistanceMeters,
       status: DroneMissionStatus.ready,
@@ -228,6 +248,7 @@ class DroneGame extends FlameGame with TapCallbacks {
     if (stateNotifier.value.status == DroneMissionStatus.completed) {
       return;
     }
+    _drone.isFrozen = true;
     final localResult = _scoringSystem.buildMissionResult(
       missionNumber: levelConfig.missionNumber,
       tankHitBonus: _scoringSystem.calculateTankHitBonus(
@@ -242,16 +263,30 @@ class DroneGame extends FlameGame with TapCallbacks {
     );
     overlays.remove(pauseOverlay);
     overlays.remove(gameOverOverlay);
-    overlays.add(missionCompleteOverlay);
+    add(ExplosionComponent.tank(center: _tank.visualCenter));
     final sync = onMissionComplete;
-    if (sync == null) {
-      return;
+    if (sync != null) {
+      sync(localResult).catchError((Object error, StackTrace stackTrace) {
+        debugPrint('Mission result sync failed: $error');
+        debugPrint('$stackTrace');
+        return localResult;
+      });
     }
-    sync(localResult).catchError((Object error, StackTrace stackTrace) {
-      debugPrint('Mission result sync failed: $error');
-      debugPrint('$stackTrace');
-      return localResult;
-    });
+    final sequence = ++_missionCompleteSequence;
+    Future<void>.delayed(
+      Duration(
+        milliseconds: (GameConfig.tankExplosionDelaySeconds * 1000).round(),
+      ),
+      () {
+        if (_isDisposed || sequence != _missionCompleteSequence) {
+          return;
+        }
+        if (stateNotifier.value.status != DroneMissionStatus.completed) {
+          return;
+        }
+        overlays.add(missionCompleteOverlay);
+      },
+    );
   }
 
   Vector2 _startPosition() {
@@ -280,6 +315,25 @@ class DroneGame extends FlameGame with TapCallbacks {
         triggerGameOver(reason: 'obstacle');
         return;
       }
+    }
+  }
+
+  void _checkBatteryCollection() {
+    final droneRect = _droneRect;
+    for (final battery in _batteries) {
+      if (battery.isCollected || !battery.collisionRect.overlaps(droneRect)) {
+        continue;
+      }
+      if (!_scoringSystem.collectBattery(battery.id)) {
+        continue;
+      }
+      final batteryCenter = battery.centerOffset;
+      battery.collect();
+      add(ExplosionComponent.battery(center: batteryCenter));
+      _syncState(
+        score: _scoringSystem.batteryBonus,
+        batteryBonus: _scoringSystem.batteryBonus,
+      );
     }
   }
 
@@ -337,6 +391,9 @@ class DroneGame extends FlameGame with TapCallbacks {
     for (final pair in _obstaclePairs) {
       pair.updateWorld(worldOffset: _worldOffset, viewportHeight: size.y);
     }
+    for (final battery in _batteries) {
+      battery.updateWorld(worldOffset: _worldOffset);
+    }
     _tank.updateWorld(worldOffset: _worldOffset, viewportHeight: size.y);
   }
 
@@ -351,6 +408,8 @@ class DroneGame extends FlameGame with TapCallbacks {
 
   void _syncState({
     int? lives,
+    int? score,
+    int? batteryBonus,
     double? remainingDistanceMeters,
     DroneMissionStatus? status,
   }) {
@@ -359,6 +418,8 @@ class DroneGame extends FlameGame with TapCallbacks {
     }
     stateNotifier.value = stateNotifier.value.copyWith(
       lives: lives,
+      score: score,
+      batteryBonus: batteryBonus,
       remainingDistanceMeters: remainingDistanceMeters,
       status: status,
     );

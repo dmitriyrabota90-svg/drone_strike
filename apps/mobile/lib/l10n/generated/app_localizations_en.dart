@@ -194,6 +194,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tankHit => 'Tank hit';
 
   @override
+  String get batteryBonus => 'Battery bonus';
+
+  @override
   String get total => 'Total';
 
   @override

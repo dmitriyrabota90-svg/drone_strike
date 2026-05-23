@@ -57,8 +57,8 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
               padding: const EdgeInsets.all(24),
               shrinkWrap: true,
               children: [
-                Image.asset(AppAssets.logo, height: 128, fit: BoxFit.contain),
-                const SizedBox(height: 14),
+                Image.asset(AppAssets.logo, height: 166, fit: BoxFit.contain),
+                const SizedBox(height: 10),
                 GlassPanel(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,

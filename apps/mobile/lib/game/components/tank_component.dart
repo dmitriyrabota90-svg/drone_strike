@@ -48,6 +48,9 @@ class TankComponent extends PositionComponent {
     );
   }
 
+  Offset get visualCenter =>
+      Offset(position.x + tankWidth / 2, position.y + tankHeight * 0.56);
+
   void updateWorld({
     required double worldOffset,
     required double viewportHeight,

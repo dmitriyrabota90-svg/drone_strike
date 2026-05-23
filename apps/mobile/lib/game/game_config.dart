@@ -24,6 +24,10 @@ class GameConfig {
   static const topBoundaryY = gameplayTopSafeInset;
   static const playableTopY = topBoundaryY + topBoundaryHeight;
   static const tankGroundSink = 20.0;
+  static const batteryWidth = 34.0;
+  static const batteryHeight = 22.0;
+  static const batteryCollectRadius = 24.0;
+  static const tankExplosionDelaySeconds = 1.2;
   static const missionDistanceMeters = 1000.0;
   static const initialRemainingDistanceMeters = 1000.0;
 }

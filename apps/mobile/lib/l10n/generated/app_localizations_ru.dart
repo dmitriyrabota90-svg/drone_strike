@@ -195,6 +195,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get tankHit => 'Попадание в танк';
 
   @override
+  String get batteryBonus => 'Бонус батарей';
+
+  @override
   String get total => 'Итого';
 
   @override

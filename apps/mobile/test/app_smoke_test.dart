@@ -265,7 +265,9 @@ void main() {
       baseScore: 100,
       flightAccuracyBonus: 25,
       tankHitBonus: 30,
-      totalScore: 155,
+      batteryBonus: 10,
+      batteriesCollected: 2,
+      totalScore: 165,
       isGuest: true,
       backendSubmitted: false,
     );
@@ -274,11 +276,14 @@ void main() {
 
     expect(find.text('Mission complete'), findsOneWidget);
     expect(find.text('Guest result'), findsOneWidget);
+    expect(find.text('Battery bonus'), findsOneWidget);
     expect(find.text('Total score'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('game over overlay shows remaining lives', (tester) async {
+  testWidgets('game over overlay renders without duplicating lives', (
+    tester,
+  ) async {
     final game = DroneGame(
       levelConfig: LevelConfig.forMission(1),
       initialPlayerLevel: 1,
@@ -288,7 +293,7 @@ void main() {
     await pumpOverlay(tester, GameOverOverlay(game: game));
 
     expect(find.text('Mission failed'), findsOneWidget);
-    expect(find.text('Remaining lives: 2'), findsOneWidget);
+    expect(find.textContaining('Remaining lives'), findsNothing);
   });
 
   testWidgets('no lives overlay renders', (tester) async {
@@ -328,6 +333,28 @@ void main() {
 
     expect(scoring.flightAccuracyBonus, inInclusiveRange(0, 50));
     expect(tankBonus, inInclusiveRange(0, 50));
+  });
+
+  test('battery scoring adds five points and caps at forty', () {
+    final scoring = ScoringSystem();
+
+    expect(scoring.collectBattery(1), isTrue);
+    expect(scoring.collectBattery(1), isFalse);
+    expect(scoring.batteriesCollected, 1);
+    expect(scoring.batteryBonus, 5);
+
+    for (var id = 2; id <= 20; id += 1) {
+      scoring.collectBattery(id);
+    }
+
+    expect(scoring.batteryBonus, ScoringSystem.maxBatteryBonus);
+    final result = scoring.buildMissionResult(
+      missionNumber: 1,
+      tankHitBonus: 30,
+      isGuest: true,
+    );
+    expect(result.batteryBonus, ScoringSystem.maxBatteryBonus);
+    expect(result.totalScore, result.coreScore + result.batteryBonus);
   });
 
   test('achievement definitions include exactly the 8 MVP icons', () {
@@ -373,7 +400,7 @@ void main() {
     const result = MissionResult(
       missionNumber: 1,
       baseScore: ScoringSystem.baseScore,
-      flightAccuracyBonus: 45,
+      flightAccuracyBonus: 50,
       tankHitBonus: 50,
       totalScore: ScoringSystem.maxScore,
       isGuest: true,
@@ -491,10 +518,16 @@ void main() {
     expect(mission7.minObstacleSpacing, 220.0);
     expect(mission7.maxObstacleSpacing, 390.0);
     expect(mission1.obstacleCount, 8);
+    expect(mission1.batteryCount, 3);
     expect(mission3.obstacleCount, 12);
+    expect(mission3.batteryCount, 5);
     expect(mission7.obstacleCount, 20);
+    expect(mission7.batteryCount, 7);
     expect(mission10.obstacleCount, 22);
+    expect(mission10.batteryCount, 8);
     expect(mission13.obstacleCount, 22);
+    expect(mission13.batteryCount, 8);
+    expect(GameConfig.tankExplosionDelaySeconds, 1.2);
   });
 
   test('level generator clamps generated gaps to MVP minimum', () {
@@ -507,12 +540,15 @@ void main() {
 
       if (mission == 1) {
         expect(level.obstaclePairs, hasLength(8));
+        expect(level.batteries, hasLength(3));
       }
       if (mission == 3) {
         expect(level.obstaclePairs, hasLength(12));
+        expect(level.batteries, hasLength(5));
       }
       if (mission == 7) {
         expect(level.obstaclePairs, hasLength(20));
+        expect(level.batteries, hasLength(7));
       }
 
       for (final pair in level.obstaclePairs) {

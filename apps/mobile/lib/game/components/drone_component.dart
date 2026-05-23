@@ -15,6 +15,7 @@ class DroneComponent extends PositionComponent {
     : super(size: Vector2(GameConfig.droneWidth, GameConfig.droneHeight));
 
   double verticalVelocity = 0;
+  bool isFrozen = false;
   ui.Image? _sprite;
 
   @override
@@ -41,6 +42,9 @@ class DroneComponent extends PositionComponent {
 
   @override
   void update(double dt) {
+    if (isFrozen) {
+      return;
+    }
     verticalVelocity += GameConfig.gravity * dt;
     verticalVelocity = verticalVelocity.clamp(
       GameConfig.maxRiseSpeed,
@@ -58,6 +62,7 @@ class DroneComponent extends PositionComponent {
   }
 
   void resetTo(Vector2 startPosition) {
+    isFrozen = false;
     position = startPosition;
     verticalVelocity = 0;
   }

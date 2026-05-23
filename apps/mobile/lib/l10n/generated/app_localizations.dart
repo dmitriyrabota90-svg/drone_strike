@@ -464,6 +464,12 @@ abstract class AppLocalizations {
   /// **'Tank hit'**
   String get tankHit;
 
+  /// No description provided for @batteryBonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery bonus'**
+  String get batteryBonus;
+
   /// No description provided for @total.
   ///
   /// In en, this message translates to:

@@ -61,6 +61,7 @@
   "baseScore": "Base",
   "flightAccuracy": "Flight accuracy",
   "tankHit": "Tank hit",
+  "batteryBonus": "Battery bonus",
   "total": "Total",
   "backendSubmitted": "Saved to profile",
   "guestResult": "Guest result",

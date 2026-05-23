@@ -26,7 +26,7 @@ class AchievementEvaluator {
       if (missionResult.flightAccuracyBonus >= highBonusThreshold) {
         unlocked.add(AchievementIds.stableFlight);
       }
-      if (missionResult.totalScore == ScoringSystem.maxScore) {
+      if (missionResult.coreScore == ScoringSystem.maxScore) {
         unlocked.add(AchievementIds.perfectScore);
       }
     }
@@ -58,7 +58,7 @@ class AchievementEvaluator {
         if (mission.bestFlightAccuracyBonus >= highBonusThreshold) {
           unlocked.add(AchievementIds.stableFlight);
         }
-        if (mission.bestScore == ScoringSystem.maxScore) {
+        if (mission.bestScore >= ScoringSystem.maxScore) {
           unlocked.add(AchievementIds.perfectScore);
         }
       }

@@ -46,6 +46,12 @@ class AppAssets {
 
   static const tankTargetMain =
       'assets/images/game/targets/tank_target_main.png';
+  static const batteryCollectible =
+      'assets/images/game/collectibles/battery_collectible.png';
+  static const tankExplosionBurst =
+      'assets/images/game/effects/tank_explosion_burst.png';
+  static const tankFireSmokeAfterHit =
+      'assets/images/game/effects/tank_fire_smoke_after_hit.png';
 
   static const achievementBullseye =
       'assets/images/achievements/achievement_bullseye.png';
@@ -94,5 +100,8 @@ class AppAssets {
     netMiddle02,
     netBottom02,
     tankTargetMain,
+    batteryCollectible,
+    tankExplosionBurst,
+    tankFireSmokeAfterHit,
   ];
 }

@@ -3,15 +3,21 @@ import 'dart:math' as math;
 import 'package:flame/components.dart';
 import 'package:flutter/foundation.dart';
 
+import '../components/battery_component.dart';
 import '../components/obstacle_pair_component.dart';
 import '../components/tank_component.dart';
 import '../game_config.dart';
 import '../level_config.dart';
 
 class GeneratedLevel {
-  const GeneratedLevel({required this.obstaclePairs, required this.tank});
+  const GeneratedLevel({
+    required this.obstaclePairs,
+    required this.batteries,
+    required this.tank,
+  });
 
   final List<ObstaclePairComponent> obstaclePairs;
+  final List<BatteryComponent> batteries;
   final TankComponent tank;
 }
 
@@ -116,6 +122,11 @@ class LevelGenerator {
           variantSeed: config.missionNumber * 31 + obstacle.index,
         ),
     ];
+    final batteries = _generateBatteries(
+      config: config,
+      obstacles: generated,
+      random: random,
+    );
 
     if (kDebugMode) {
       debugPrint(_formatDebugLog(config, generated));
@@ -123,11 +134,57 @@ class LevelGenerator {
 
     return GeneratedLevel(
       obstaclePairs: pairs,
+      batteries: batteries,
       tank: TankComponent(
         worldX:
             pairs.last.worldX + config.forwardSpeed * config.finalZoneSeconds,
       ),
     );
+  }
+
+  List<BatteryComponent> _generateBatteries({
+    required LevelConfig config,
+    required List<GeneratedObstacleData> obstacles,
+    required math.Random random,
+  }) {
+    if (obstacles.isEmpty || config.batteryCount <= 0) {
+      return const [];
+    }
+
+    final batteries = <BatteryComponent>[];
+    final usedObstacleIndexes = <int>{};
+    for (var index = 0; index < config.batteryCount; index++) {
+      final targetPosition =
+          ((index + 1) * (obstacles.length + 1) / (config.batteryCount + 1))
+              .round() -
+          1;
+      final obstacleIndex = targetPosition.clamp(0, obstacles.length - 1);
+      if (!usedObstacleIndexes.add(obstacleIndex)) {
+        continue;
+      }
+
+      final obstacle = obstacles[obstacleIndex];
+      final gapCenter = (obstacle.gapTopY + obstacle.gapBottomY) / 2;
+      final riskOffset = index.isEven
+          ? 0.0
+          : (random.nextBool() ? -1 : 1) *
+                obstacle.gapHeight *
+                (0.18 + random.nextDouble() * 0.16);
+      final centerY = (gapCenter + riskOffset).clamp(
+        obstacle.gapTopY + GameConfig.batteryHeight,
+        obstacle.gapBottomY - GameConfig.batteryHeight,
+      );
+      final xJitter = (random.nextDouble() - 0.5) * config.obstacleWidth * 0.9;
+      batteries.add(
+        BatteryComponent(
+          id: index,
+          worldX: obstacle.x + config.obstacleWidth / 2 + xJitter,
+          worldCenterY: centerY.toDouble(),
+        ),
+      );
+    }
+
+    return batteries;
   }
 
   double _randomInRange(math.Random random, double min, double max) {

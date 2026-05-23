@@ -61,6 +61,7 @@
   "baseScore": "База",
   "flightAccuracy": "Точность полета",
   "tankHit": "Попадание в танк",
+  "batteryBonus": "Бонус батарей",
   "total": "Итого",
   "backendSubmitted": "Сохранено в профиле",
   "guestResult": "Гостевой результат",
