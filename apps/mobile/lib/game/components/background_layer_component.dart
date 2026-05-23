@@ -82,10 +82,10 @@ class BackgroundLayerComponent extends PositionComponent {
 
     final cityRuins = _cityRuins;
     final roadGround = _roadGround;
-    final roadHeight = math.max(64.0, size.y * 0.18);
+    final roadHeight = math.max(32.0, size.y * 0.09);
     final roadY = size.y - roadHeight;
-    final cityHeight = math.max(150.0, size.y * 0.42);
-    final cityY = math.max(size.y * 0.54, roadY - cityHeight * 0.62);
+    final cityHeight = math.max(300.0, size.y * 0.84);
+    final cityY = math.max(size.y * 0.46, roadY - cityHeight * 0.46);
     if (cityRuins == null || roadGround == null) {
       canvas.drawRect(
         Rect.fromLTWH(0, cityY, size.x, size.y - cityY),
