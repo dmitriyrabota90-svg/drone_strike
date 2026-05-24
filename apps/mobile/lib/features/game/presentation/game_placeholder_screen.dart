@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../../core/audio/audio_service.dart';
 import '../../../features/lives/domain/lives_controller.dart';
 import '../../../game/drone_game.dart';
+import '../../../game/game_state.dart';
 import '../../../game/level_config.dart';
 import '../../../game/overlays/game_hud.dart';
 import '../../../game/overlays/game_over_overlay.dart';
@@ -77,6 +78,11 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
       game?.updateLives(lives.currentLives);
       if (!lives.hasLives) {
         game?.showNoLivesOverlay();
+        return;
+      }
+      game?.hideNoLivesOverlay();
+      if (game?.stateNotifier.value.status == DroneMissionStatus.ready) {
+        _playMissionMusic();
       }
     });
 

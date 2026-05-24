@@ -1,6 +1,6 @@
 param(
     [string]$DeviceId = "emulator-5554",
-    [string]$PackageName = "com.example.drone_strike",
+    [string]$PackageName = "com.anpilov.dronestrike",
     [string]$ApkPath = "C:\Mobile Game Drone Strike\apps\mobile\build\app\outputs\flutter-apk\app-debug.apk",
     [switch]$CleanUserInstall,
     [switch]$TrimCaches,
@@ -22,7 +22,7 @@ Usage:
 
 Options:
   -DeviceId <id>       Target adb device id. Default: emulator-5554
-  -PackageName <name>  Android package name. Default: com.example.drone_strike
+  -PackageName <name>  Android package name. Default: com.anpilov.dronestrike
   -ApkPath <path>      Debug APK path.
   -CleanUserInstall   Try safe package uninstall variants before install.
   -TrimCaches         Run pm trim-caches 999G before install.

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -33,7 +32,7 @@ class NetComponent extends PositionComponent {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    unawaited(_loadSprites());
+    await _loadSprites();
     await add(RectangleHitbox());
   }
 

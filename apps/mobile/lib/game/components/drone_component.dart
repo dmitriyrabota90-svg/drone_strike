@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -21,11 +20,7 @@ class DroneComponent extends PositionComponent {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    unawaited(
-      GameImageCache.load(AppAssets.gameDroneFpvMain).then((image) {
-        _sprite = image;
-      }),
-    );
+    _sprite = await GameImageCache.load(AppAssets.gameDroneFpvMain);
     await add(
       RectangleHitbox(
         size: Vector2(

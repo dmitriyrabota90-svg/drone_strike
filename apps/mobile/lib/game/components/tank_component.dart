@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -25,11 +24,7 @@ class TankComponent extends PositionComponent {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    unawaited(
-      GameImageCache.load(AppAssets.tankTargetMain).then((image) {
-        _sprite = image;
-      }),
-    );
+    _sprite = await GameImageCache.load(AppAssets.tankTargetMain);
     await add(
       RectangleHitbox(
         size: Vector2(_localVictoryRect.width, _localVictoryRect.height),

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -68,18 +67,10 @@ class ExplosionComponent extends PositionComponent {
     final burstPath = burstAssetPath;
     final smokePath = smokeAssetPath;
     if (burstPath != null) {
-      unawaited(
-        GameImageCache.load(burstPath).then((image) {
-          _burstSprite = image;
-        }),
-      );
+      _burstSprite = await GameImageCache.load(burstPath);
     }
     if (smokePath != null) {
-      unawaited(
-        GameImageCache.load(smokePath).then((image) {
-          _smokeSprite = image;
-        }),
-      );
+      _smokeSprite = await GameImageCache.load(smokePath);
     }
   }
 

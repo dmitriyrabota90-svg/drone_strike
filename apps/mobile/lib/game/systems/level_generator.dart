@@ -26,6 +26,7 @@ class GeneratedObstacleData {
     required this.index,
     required this.x,
     required this.spacingFromPrevious,
+    required this.gapBand,
     required this.gapTopY,
     required this.gapBottomY,
     required this.gapHeight,
@@ -36,6 +37,7 @@ class GeneratedObstacleData {
   final int index;
   final double x;
   final double spacingFromPrevious;
+  final GeneratedGapBand gapBand;
   final double gapTopY;
   final double gapBottomY;
   final double gapHeight;
@@ -55,9 +57,18 @@ class LevelGenerator {
     final minGapHeight = GameConfig.droneHeight * 2.3;
     final minNetHeight = math.max(42.0, viewportSize.y * 0.10);
     final minTreeHeight = math.max(70.0, viewportSize.y * 0.15);
+    final availablePlayHeight = groundY - ceilingY;
     final maxPlayableGapHeight = math.max(
       minGapHeight,
-      groundY - ceilingY - minNetHeight - minTreeHeight,
+      availablePlayHeight - minNetHeight - minTreeHeight,
+    );
+    final verticalVarietyReserve = math.max(
+      GameConfig.droneHeight * 1.5,
+      viewportSize.y * 0.18,
+    );
+    final maxVariedGapHeight = math.max(
+      minGapHeight,
+      maxPlayableGapHeight - verticalVarietyReserve,
     );
     final firstObstacleX = viewportSize.x + (config.isTutorial ? 300.0 : 250.0);
     final random = math.Random(config.missionNumber * 7919 + 97);
@@ -76,20 +87,23 @@ class LevelGenerator {
         currentX += spacingFromPrevious;
       }
 
-      final gapMultiplier = _randomInRange(
-        random,
-        config.minGapMultiplier,
-        config.maxGapMultiplier,
+      final gapBand = _gapBandFor(index, config.missionNumber);
+      final gapHeight = _generateGapHeight(
+        random: random,
+        band: gapBand,
+        config: config,
+        minGapHeight: minGapHeight,
+        maxPlayableGapHeight: maxPlayableGapHeight,
+        maxVariedGapHeight: maxVariedGapHeight,
       );
-      final gapHeight = math
-          .max(GameConfig.droneHeight * gapMultiplier, minGapHeight)
-          .clamp(minGapHeight, maxPlayableGapHeight)
-          .toDouble();
       final minGapTopY = ceilingY + minNetHeight;
       final maxGapTopY = groundY - minTreeHeight - gapHeight;
-      final gapTopY = maxGapTopY <= minGapTopY
-          ? minGapTopY
-          : _randomInRange(random, minGapTopY, maxGapTopY);
+      final gapTopY = _generateGapTopY(
+        random: random,
+        band: gapBand,
+        minGapTopY: minGapTopY,
+        maxGapTopY: maxGapTopY,
+      );
       final gapBottomY = gapTopY + gapHeight;
       final treeHeight = groundY - gapBottomY;
       final netHeight = gapTopY - ceilingY;
@@ -99,6 +113,7 @@ class LevelGenerator {
           index: index,
           x: currentX,
           spacingFromPrevious: spacingFromPrevious,
+          gapBand: gapBand,
           gapTopY: gapTopY,
           gapBottomY: gapBottomY,
           gapHeight: gapHeight,
@@ -191,6 +206,70 @@ class LevelGenerator {
     return min + (max - min) * random.nextDouble();
   }
 
+  GeneratedGapBand _gapBandFor(int index, int missionNumber) {
+    return switch ((index * 7 + missionNumber * 3) % 20) {
+      0 || 1 || 2 || 3 || 4 || 5 || 6 => GeneratedGapBand.center,
+      7 || 8 || 9 || 10 || 11 || 12 => GeneratedGapBand.high,
+      13 || 14 || 15 || 16 || 17 || 18 => GeneratedGapBand.low,
+      _ => GeneratedGapBand.varied,
+    };
+  }
+
+  double _generateGapHeight({
+    required math.Random random,
+    required GeneratedGapBand band,
+    required LevelConfig config,
+    required double minGapHeight,
+    required double maxPlayableGapHeight,
+    required double maxVariedGapHeight,
+  }) {
+    final configMinGapHeight = math.max(
+      GameConfig.droneHeight * config.minGapMultiplier,
+      minGapHeight,
+    );
+    final configMaxGapHeight = math.max(
+      configMinGapHeight,
+      GameConfig.droneHeight * config.maxGapMultiplier,
+    );
+    final absoluteMax = math.min(configMaxGapHeight, maxPlayableGapHeight);
+    final variedMax = math.min(configMaxGapHeight, maxVariedGapHeight);
+    final upper = switch (band) {
+      GeneratedGapBand.center => absoluteMax,
+      _ => variedMax,
+    };
+    final lower = switch (band) {
+      GeneratedGapBand.center => math.min(configMinGapHeight, upper),
+      _ => minGapHeight,
+    };
+
+    if (upper <= lower) {
+      return lower.clamp(minGapHeight, maxPlayableGapHeight).toDouble();
+    }
+    return _randomInRange(random, lower, upper)
+        .clamp(minGapHeight, maxPlayableGapHeight)
+        .toDouble();
+  }
+
+  double _generateGapTopY({
+    required math.Random random,
+    required GeneratedGapBand band,
+    required double minGapTopY,
+    required double maxGapTopY,
+  }) {
+    if (maxGapTopY <= minGapTopY) {
+      return minGapTopY;
+    }
+
+    final span = maxGapTopY - minGapTopY;
+    final t = switch (band) {
+      GeneratedGapBand.high => _randomInRange(random, 0.0, 0.28),
+      GeneratedGapBand.center => _randomInRange(random, 0.38, 0.62),
+      GeneratedGapBand.low => _randomInRange(random, 0.72, 1.0),
+      GeneratedGapBand.varied => random.nextDouble(),
+    };
+    return minGapTopY + span * t;
+  }
+
   String _formatDebugLog(
     LevelConfig config,
     List<GeneratedObstacleData> obstacles,
@@ -207,6 +286,7 @@ class LevelGenerator {
     for (final obstacle in obstacles) {
       buffer.writeln(
         '  obstacle=${obstacle.index} '
+        'band=${obstacle.gapBand.name} '
         'x=${obstacle.x.toStringAsFixed(1)} '
         'spacing=${obstacle.spacingFromPrevious.toStringAsFixed(1)} '
         'gapTop=${obstacle.gapTopY.toStringAsFixed(1)} '
@@ -219,3 +299,5 @@ class LevelGenerator {
     return buffer.toString().trimRight();
   }
 }
+
+enum GeneratedGapBand { high, center, low, varied }

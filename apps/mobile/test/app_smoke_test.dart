@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:drone_strike/app/drone_strike_app.dart';
 import 'package:drone_strike/core/assets/app_assets.dart';
@@ -6,6 +7,8 @@ import 'package:drone_strike/core/localization/app_locale_controller.dart';
 import 'package:drone_strike/features/achievements/data/achievements_repository.dart';
 import 'package:drone_strike/features/achievements/domain/achievement_definition.dart';
 import 'package:drone_strike/features/achievements/domain/achievement_evaluator.dart';
+import 'package:drone_strike/features/lives/data/lives_repository.dart';
+import 'package:drone_strike/features/lives/domain/lives_controller.dart';
 import 'package:drone_strike/features/lives/domain/lives_state.dart';
 import 'package:drone_strike/features/progress/data/progress_dto.dart';
 import 'package:drone_strike/game/drone_game.dart';
@@ -44,8 +47,11 @@ Future<void> pumpOverlay(WidgetTester tester, Widget child) async {
 }
 
 Future<void> pumpGameScreenReady(WidgetTester tester) async {
-  for (var i = 0; i < 5; i += 1) {
+  for (var i = 0; i < 100; i += 1) {
     await tester.pump(const Duration(milliseconds: 50));
+    if (find.byKey(const ValueKey('hud_mission_badge')).evaluate().isNotEmpty) {
+      return;
+    }
   }
 }
 
@@ -138,7 +144,10 @@ void main() {
     expect(find.text('Registration required'), findsOneWidget);
     expect(find.text('Mission: 3'), findsNothing);
 
-    await tester.tap(find.text('Mission 2'));
+    await tester.pump(const Duration(seconds: 4));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Mission 2'));
+    await tester.tap(find.text('Mission 2').hitTestable());
     await pumpGameScreenReady(tester);
 
     expect(find.byKey(const ValueKey('hud_mission_badge')), findsOneWidget);
@@ -179,7 +188,7 @@ void main() {
     expect(find.text('Tap to start'), findsOneWidget);
 
     await tester.tapAt(const Offset(400, 300));
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 60));
 
     expect(find.text('Tap to start'), findsNothing);
   });
@@ -308,6 +317,77 @@ void main() {
 
     expect(find.text('No lives'), findsOneWidget);
     expect(find.textContaining('Next life in'), findsOneWidget);
+  });
+
+  testWidgets('no lives overlay closes when a life recovers', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final repository = _FakeLivesRepository(
+      const LivesState(
+        currentLives: 1,
+        maxLives: 5,
+        nextLifeAt: null,
+        recoverySecondsRemaining: 0,
+        isPremium: false,
+      ),
+    );
+    final container = ProviderContainer(
+      overrides: [livesRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const DroneStrikeApp(),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Level Select'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mission 1'));
+    await pumpGameScreenReady(tester);
+
+    repository.state = const LivesState(
+      currentLives: 0,
+      maxLives: 5,
+      nextLifeAt: null,
+      recoverySecondsRemaining: 90,
+      isPremium: false,
+    );
+    await container.read(livesControllerProvider.notifier).recover();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('No lives'), findsOneWidget);
+    expect(find.textContaining('Next life in'), findsOneWidget);
+
+    repository.state = const LivesState(
+      currentLives: 1,
+      maxLives: 5,
+      nextLifeAt: null,
+      recoverySecondsRemaining: 0,
+      isPremium: false,
+    );
+    await container.read(livesControllerProvider.notifier).recover();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('No lives'), findsNothing);
+    expect(find.text('Tap to start'), findsOneWidget);
+  });
+
+  test('spending a life keeps ninety second recovery', () async {
+    SharedPreferences.setMockInitialValues({});
+    final repository = LivesRepository();
+    final now = DateTime.utc(2026, 1, 1, 12);
+
+    final next = await repository.spendLife(now: now);
+
+    expect(next.currentLives, 4);
+    expect(next.nextLifeAt, now.add(const Duration(seconds: 90)));
+    expect(next.recoverySecondsRemaining, 90);
   });
 
   test('lives balance uses five lives and 90 second recovery', () {
@@ -571,10 +651,33 @@ void main() {
           .skip(1)
           .map((pair) => pair.spacingFromPrevious.round())
           .toSet();
+      final gapCenters = level.obstaclePairs
+          .map((pair) => (pair.gapTopY + pair.gapBottomY) / 2)
+          .toList();
+      final heightDifferences = level.obstaclePairs
+          .map((pair) => (pair.treeHeight - pair.netHeight).abs())
+          .toList();
       expect(roundedGaps.length, greaterThan(1));
       expect(roundedTrees.length, greaterThan(1));
       expect(roundedNets.length, greaterThan(1));
       expect(roundedSpacings.length, greaterThan(1));
+      expect(
+        gapCenters.reduce(math.max) - gapCenters.reduce(math.min),
+        greaterThan(GameConfig.droneHeight * 1.2),
+      );
+      expect(
+        heightDifferences
+            .where((difference) => difference > GameConfig.droneHeight * 0.75)
+            .length,
+        greaterThanOrEqualTo(level.obstaclePairs.length ~/ 3),
+      );
+      for (final pair in level.obstaclePairs) {
+        expect(pair.gapTopY, greaterThanOrEqualTo(GameConfig.playableTopY));
+        expect(
+          pair.gapBottomY,
+          lessThanOrEqualTo(450 - GameConfig.bottomBoundaryHeight),
+        );
+      }
     }
 
     final mission1Level = generator.generate(
@@ -598,4 +701,34 @@ double _averageSpacing(GeneratedLevel level) {
       .map((pair) => pair.spacingFromPrevious)
       .toList();
   return spacings.reduce((value, element) => value + element) / spacings.length;
+}
+
+class _FakeLivesRepository extends LivesRepository {
+  _FakeLivesRepository(this.state);
+
+  LivesState state;
+
+  @override
+  Future<LivesState> load({DateTime? now}) async => state;
+
+  @override
+  Future<LivesState> recoverLivesIfNeeded({DateTime? now}) async => state;
+
+  @override
+  Future<LivesState> spendLife({DateTime? now}) async {
+    if (!state.hasLives) {
+      return state;
+    }
+    state = state.copyWith(
+      currentLives: state.currentLives - 1,
+      nextLifeAt: (now ?? DateTime.now()).add(state.recoveryDuration),
+      recoverySecondsRemaining: state.recoveryDuration.inSeconds,
+    );
+    return state;
+  }
+
+  @override
+  Future<void> save(LivesState state) async {
+    this.state = state;
+  }
 }

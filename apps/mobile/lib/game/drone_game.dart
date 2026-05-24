@@ -73,7 +73,7 @@ class DroneGame extends FlameGame with TapCallbacks {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    unawaited(GameImageCache.precache(AppAssets.gameImageAssets));
+    await GameImageCache.precache(AppAssets.gameImageAssets);
 
     _progressSystem = MissionProgressSystem(
       missionDistanceMeters: levelConfig.missionDistanceMeters,
@@ -121,6 +121,7 @@ class DroneGame extends FlameGame with TapCallbacks {
       return;
     }
     if (status != DroneMissionStatus.running) {
+      super.update(0);
       return;
     }
 
@@ -362,6 +363,16 @@ class DroneGame extends FlameGame with TapCallbacks {
     overlays.remove(gameOverOverlay);
     overlays.remove(pauseOverlay);
     overlays.add(noLivesOverlay);
+  }
+
+  void hideNoLivesOverlay() {
+    if (_isDisposed) {
+      return;
+    }
+    overlays.remove(noLivesOverlay);
+    if (stateNotifier.value.status == DroneMissionStatus.gameOver) {
+      overlays.add(gameOverOverlay);
+    }
   }
 
   void _recordFlightAccuracy() {
