@@ -17,6 +17,7 @@ The old technical name may still appear in package names, database names, Docker
 - `apps/mobile` - Flutter mobile app.
 - `apps/mobile/lib/game` - Flame gameplay, mission systems, components, scoring, and level generation.
 - `apps/mobile/lib/features` - App features such as auth, profile, settings, leaderboard, achievements, and menus.
+- `apps/site` - Official Next.js website for the game, legal pages, and support.
 - `services/backend` - FastAPI backend, Alembic migrations, tests, and local database compose file.
 - `docs/legal` - Legal documents and policy drafts.
 - `docs/qa` - QA checklists and release testing notes.
