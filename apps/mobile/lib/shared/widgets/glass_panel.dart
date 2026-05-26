@@ -23,7 +23,10 @@ class GlassPanel extends StatelessWidget {
       ),
       child: Padding(
         padding: padding ?? const EdgeInsets.all(16),
-        child: child,
+        child: Material(
+          type: MaterialType.transparency,
+          child: child,
+        ),
       ),
     );
   }
