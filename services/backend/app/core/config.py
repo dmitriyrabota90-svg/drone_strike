@@ -23,6 +23,22 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    @property
+    def is_production(self) -> bool:
+        return self.app_env.lower() == "production"
+
+    @property
+    def docs_url(self) -> str | None:
+        return None if self.is_production else "/docs"
+
+    @property
+    def redoc_url(self) -> str | None:
+        return None if self.is_production else "/redoc"
+
+    @property
+    def openapi_url(self) -> str | None:
+        return None if self.is_production else "/openapi.json"
+
 
 @lru_cache
 def get_settings() -> Settings:

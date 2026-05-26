@@ -9,7 +9,12 @@ from app.api.routes.progress import router as progress_router
 from app.core.config import settings
 
 
-app = FastAPI(title=settings.app_name)
+app = FastAPI(
+    title=settings.app_name,
+    docs_url=settings.docs_url,
+    redoc_url=settings.redoc_url,
+    openapi_url=settings.openapi_url,
+)
 
 app.include_router(health_router)
 app.include_router(health_router, prefix=settings.api_v1_prefix)
