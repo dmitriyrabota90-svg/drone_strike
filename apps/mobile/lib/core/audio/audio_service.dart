@@ -28,7 +28,9 @@ class AudioService {
   String? _currentMusic;
   String? _requestedMusic;
   Future<void> _musicQueue = Future<void>.value();
+  Future<void> _oneShotQueue = Future<void>.value();
   Future<bool>? _initializeFuture;
+  dynamic _activeOneShot;
   final Map<String, DateTime> _lastLogByKey = <String, DateTime>{};
 
   Future<void> playMenuMusic() => _playMusicLoop(_menuMusic);
@@ -57,6 +59,14 @@ class AudioService {
   Future<void> playDefeat() => _playOneShot(_defeatJingle);
 
   Future<void> playFinalTension() => _playOneShot(_finalTensionStinger);
+
+  Future<void> stopOneShot() {
+    if (_isWidgetTestBinding) {
+      _activeOneShot = null;
+      return Future<void>.value();
+    }
+    return _enqueueOneShotOperation(() => _stopActiveOneShot('oneshot.stop'));
+  }
 
   Future<void> handleSettingsChanged(AudioSettingsState settings) {
     if (!settings.masterSoundEnabled || !settings.musicEnabled) {
@@ -134,34 +144,62 @@ class AudioService {
     });
   }
 
-  Future<void> _playOneShot(String asset) async {
+  Future<void> _playOneShot(String asset) {
     if (_isWidgetTestBinding) {
-      return;
+      return Future<void>.value();
     }
-    final settings = await _readSettings();
-    if (!settings.masterSoundEnabled || !settings.sfxEnabled) {
-      _logAudioEvent(
-        'oneshot.skipped.settings.$asset',
-        'Audio SFX skipped by settings: $asset',
-      );
+    return _enqueueOneShotOperation(() async {
+      final settings = await _readSettings();
+      if (!settings.masterSoundEnabled || !settings.sfxEnabled) {
+        _logAudioEvent(
+          'oneshot.skipped.settings.$asset',
+          'Audio SFX skipped by settings: $asset',
+        );
+        return;
+      }
+
+      await _stopActiveOneShot('oneshot.stop.before.$asset');
+      try {
+        await _runAudioOperation(
+          key: 'oneshot.$asset',
+          description: 'Audio one-shot playback failed for $asset',
+          operation: () async {
+            _activeOneShot = await FlameAudio.playLongAudio(asset, volume: 0.8);
+          },
+        );
+      } on Object catch (error, stackTrace) {
+        _logAudioError(
+          key: 'oneshot.$asset',
+          message: 'Audio one-shot playback failed for $asset: $error',
+          stackTrace: stackTrace,
+        );
+      }
+    });
+  }
+
+  Future<void> _stopActiveOneShot(String key) async {
+    final player = _activeOneShot;
+    _activeOneShot = null;
+    if (player == null) {
       return;
     }
 
-    try {
-      await _runAudioOperation(
-        key: 'oneshot.$asset',
-        description: 'Audio one-shot playback failed for $asset',
-        operation: () async {
-          await FlameAudio.playLongAudio(asset, volume: 0.8);
-        },
-      );
-    } on Object catch (error, stackTrace) {
-      _logAudioError(
-        key: 'oneshot.$asset',
-        message: 'Audio one-shot playback failed for $asset: $error',
-        stackTrace: stackTrace,
-      );
-    }
+    await _runAudioOperation(
+      key: key,
+      description: 'Audio one-shot stop failed',
+      operation: () async {
+        await player.stop();
+        await player.dispose();
+      },
+    );
+  }
+
+  Future<void> _enqueueOneShotOperation(Future<void> Function() operation) {
+    final nextOperation = _oneShotQueue.catchError((_) {}).then((_) {
+      return operation();
+    });
+    _oneShotQueue = nextOperation.catchError((_) {});
+    return nextOperation;
   }
 
   Future<AudioSettingsState> _readSettings() async {

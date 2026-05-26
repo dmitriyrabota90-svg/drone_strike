@@ -12,10 +12,11 @@ class ShopScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final sections = [
-      (l10n.lives, Icons.favorite),
-      (l10n.premium, Icons.workspace_premium),
-      (l10n.drones, Icons.flight),
-      (l10n.flightTrails, Icons.auto_awesome),
+      (l10n.lives, Icons.favorite, l10n.comingSoon),
+      (l10n.premium, Icons.workspace_premium, l10n.comingSoon),
+      (l10n.drones, Icons.flight, l10n.comingSoon),
+      (l10n.flightTrails, Icons.auto_awesome, l10n.comingSoon),
+      (l10n.nicknameChange, Icons.badge_outlined, l10n.comingSoon),
     ];
 
     return Scaffold(
@@ -33,7 +34,7 @@ class ShopScreen extends StatelessWidget {
               child: ListTile(
                 leading: Icon(section.$2),
                 title: Text(section.$1),
-                subtitle: Text(l10n.comingSoon),
+                subtitle: Text(section.$3),
               ),
             );
           },

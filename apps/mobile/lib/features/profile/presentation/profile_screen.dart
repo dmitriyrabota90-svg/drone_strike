@@ -10,11 +10,16 @@ import '../../../shared/widgets/menu_background.dart';
 import '../../../shared/widgets/neon_menu_button.dart';
 import '../domain/profile_controller.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final authValue = ref.watch(authControllerProvider);
     final progressValue = ref.watch(progressControllerProvider);
@@ -64,6 +69,21 @@ class ProfileScreen extends ConsumerWidget {
                             ? l10n.emailVerified
                             : l10n.emailNotVerified,
                       ),
+                      if (!user.emailVerified) ...[
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: TextButton.icon(
+                            onPressed: authState.isLoading
+                                ? null
+                                : () => _showInfoSnackBar(
+                                    l10n.emailConfirmationComingSoon,
+                                  ),
+                            icon: const Icon(Icons.mark_email_unread_outlined),
+                            label: Text(l10n.confirmEmail),
+                          ),
+                        ),
+                      ],
                       _InfoRow(
                         label: l10n.totalScore,
                         value:
@@ -131,7 +151,7 @@ class ProfileScreen extends ConsumerWidget {
                     variant: NeonMenuButtonVariant.secondary,
                     onPressed: authState.isLoading
                         ? null
-                        : () => _showDisplayNameDialog(context, ref, l10n),
+                        : () => _showDisplayNameDialog(l10n),
                   ),
                 const SizedBox(height: 12),
                 NeonMenuButton(
@@ -144,12 +164,11 @@ class ProfileScreen extends ConsumerWidget {
                           await ref
                               .read(authControllerProvider.notifier)
                               .logout();
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(l10n.logoutSuccess)),
-                            );
-                            context.go('/menu');
+                          if (!mounted) {
+                            return;
                           }
+                          _showInfoSnackBar(l10n.logoutSuccess);
+                          this.context.go('/menu');
                         },
                 ),
               ],
@@ -160,11 +179,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _showDisplayNameDialog(
-    BuildContext context,
-    WidgetRef ref,
-    AppLocalizations l10n,
-  ) async {
+  Future<void> _showDisplayNameDialog(AppLocalizations l10n) async {
     final controller = TextEditingController();
     final value = await showDialog<String>(
       context: context,
@@ -191,22 +206,38 @@ class ProfileScreen extends ConsumerWidget {
     );
     controller.dispose();
 
+    if (!mounted) {
+      return;
+    }
     if (value == null) {
       return;
     }
-    if (!RegExp(r'^[A-Za-z0-9_]{3,20}$').hasMatch(value)) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.invalidDisplayName)));
-      }
+    if (!RegExp(r'^[A-Za-zА-Яа-яЁё0-9_]{3,20}$').hasMatch(value)) {
+      _showInfoSnackBar(l10n.invalidDisplayName);
       return;
     }
 
-    if (!context.mounted) {
+    await ref.read(profileControllerProvider).updateDisplayName(value);
+    if (!mounted) {
       return;
     }
-    await ref.read(profileControllerProvider).updateDisplayName(value);
+
+    final authState = ref.read(authControllerProvider).asData?.value;
+    final errorMessage = authState?.errorMessage;
+    if (errorMessage != null) {
+      _showInfoSnackBar(errorMessage);
+      return;
+    }
+    _showInfoSnackBar(l10n.displayNameChangeSuccess);
+  }
+
+  void _showInfoSnackBar(String message) {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 

@@ -37,11 +37,17 @@ class NetComponent extends PositionComponent {
   }
 
   Rect get collisionRect {
+    final insetX = netWidth * GameConfig.netHitboxInsetXRatio;
+    final topInset = GameConfig.netHitboxTopInset;
+    final bottomInset = math.min(
+      GameConfig.netHitboxBottomInset,
+      math.max(0, netHeight - topInset),
+    );
     return Rect.fromLTWH(
-      position.x + 2,
-      position.y,
-      netWidth - 4,
-      netHeight - 2,
+      position.x + insetX,
+      position.y + topInset,
+      netWidth - insetX * 2,
+      math.max(0, netHeight - topInset - bottomInset),
     );
   }
 

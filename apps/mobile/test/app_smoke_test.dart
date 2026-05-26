@@ -91,6 +91,7 @@ void main() {
 
     expect(find.text('Email'), findsOneWidget);
     expect(find.text('Password'), findsOneWidget);
+    expect(find.text('Forgot password?'), findsOneWidget);
   });
 
   testWidgets('register screen renders legal checkboxes', (tester) async {
@@ -161,6 +162,18 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Login required to view leaderboard'), findsOneWidget);
+  });
+
+  testWidgets('shop screen shows planned nickname change item', (tester) async {
+    await pumpDroneStrikeApp(tester);
+
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -360));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Shop').hitTestable());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nickname change'), findsOneWidget);
+    expect(find.text('Coming soon'), findsWidgets);
   });
 
   testWidgets('mission 1 opens Flame game screen', (tester) async {
@@ -315,7 +328,7 @@ void main() {
 
     await pumpOverlay(tester, const NoLivesOverlay());
 
-    expect(find.text('No lives'), findsOneWidget);
+    expect(find.text('No lives'), findsNothing);
     expect(find.textContaining('Next life in'), findsOneWidget);
   });
 
@@ -360,7 +373,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('No lives'), findsOneWidget);
+    expect(find.text('No lives'), findsNothing);
     expect(find.textContaining('Next life in'), findsOneWidget);
 
     repository.state = const LivesState(
@@ -407,12 +420,22 @@ void main() {
       gapHeight: 56,
     );
     final tankBonus = scoring.calculateTankHitBonus(
-      droneCenter: const Offset(50, 50),
+      droneRect: const Rect.fromLTWH(45, 45, 10, 10),
       tankRect: const Rect.fromLTWH(0, 0, 100, 100),
     );
 
     expect(scoring.flightAccuracyBonus, inInclusiveRange(0, 50));
-    expect(tankBonus, inInclusiveRange(0, 50));
+    expect(tankBonus, 150);
+  });
+
+  test('tank hit bonus is zero without a successful hit', () {
+    final scoring = ScoringSystem();
+    final tankBonus = scoring.calculateTankHitBonus(
+      droneRect: const Rect.fromLTWH(200, 200, 10, 10),
+      tankRect: const Rect.fromLTWH(0, 0, 100, 100),
+    );
+
+    expect(tankBonus, 0);
   });
 
   test('battery scoring adds five points and caps at forty', () {
@@ -481,7 +504,7 @@ void main() {
       missionNumber: 1,
       baseScore: ScoringSystem.baseScore,
       flightAccuracyBonus: 50,
-      tankHitBonus: 50,
+      tankHitBonus: ScoringSystem.tankHitBonus,
       totalScore: ScoringSystem.maxScore,
       isGuest: true,
       backendSubmitted: false,
@@ -508,7 +531,7 @@ void main() {
             missionNumber: mission,
             bestScore: mission == 1 ? ScoringSystem.maxScore : 150,
             bestFlightAccuracyBonus: mission == 2 ? 45 : 25,
-            bestTankHitBonus: mission == 3 ? 50 : 30,
+            bestTankHitBonus: mission == 3 ? ScoringSystem.tankHitBonus : 30,
             completedAt: DateTime.utc(2026, 1, mission),
           ),
       ],
@@ -574,10 +597,10 @@ void main() {
     final mission10 = LevelConfig.forMission(10);
     final mission13 = LevelConfig.forMission(13);
 
-    expect(mission1.minGapMultiplier, 3.8);
-    expect(mission1.maxGapMultiplier, 6.2);
-    expect(mission2.minGapMultiplier, 3.5);
-    expect(mission2.maxGapMultiplier, 5.8);
+    expect(mission1.minGapMultiplier, 4.1);
+    expect(mission1.maxGapMultiplier, 6.5);
+    expect(mission2.minGapMultiplier, 3.7);
+    expect(mission2.maxGapMultiplier, 6.0);
     expect(mission3.minGapMultiplier, 3.2);
     expect(mission3.maxGapMultiplier, 5.4);
     expect(mission7.minGapMultiplier, 2.4);

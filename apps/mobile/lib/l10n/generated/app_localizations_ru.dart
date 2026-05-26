@@ -123,6 +123,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get confirmPassword => 'Подтвердите пароль';
 
   @override
+  String get forgotPassword => 'Забыли пароль?';
+
+  @override
   String get termsAccepted => 'Я принимаю пользовательское соглашение';
 
   @override
@@ -161,8 +164,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get displayName => 'Имя игрока';
 
   @override
+  String get displayNameChangeSuccess => 'Имя игрока обновлено';
+
+  @override
   String get invalidDisplayName =>
-      'Используйте 3-20 латинских букв, цифр или underscore.';
+      'Используйте 3-20 букв, цифр или underscore.';
 
   @override
   String get nameChangedOnce => 'Бесплатная смена имени';
@@ -271,6 +277,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get emailNotVerified => 'Email не подтвержден';
 
   @override
+  String get confirmEmail => 'Подтвердить email';
+
+  @override
+  String get emailConfirmationComingSoon => 'Подтверждение email скоро';
+
+  @override
   String get notVerified => 'Не подтвержден';
 
   @override
@@ -317,6 +329,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get invalidEmailOrPassword => 'Введите email и пароль.';
+
+  @override
+  String get passwordResetComingSoon => 'Восстановление пароля скоро';
 
   @override
   String get passwordsDoNotMatch => 'Пароли не совпадают.';
@@ -398,6 +413,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get flightTrails => 'Следы полета';
+
+  @override
+  String get nicknameChange => 'Смена никнейма';
 
   @override
   String get deleteAccountPlaceholder =>

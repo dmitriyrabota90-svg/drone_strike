@@ -253,7 +253,7 @@ class DroneGame extends FlameGame with TapCallbacks {
     final localResult = _scoringSystem.buildMissionResult(
       missionNumber: levelConfig.missionNumber,
       tankHitBonus: _scoringSystem.calculateTankHitBonus(
-        droneCenter: _droneRect.center,
+        droneRect: _droneRect,
         tankRect: _tank.collisionRect,
       ),
       isGuest: true,
@@ -309,6 +309,9 @@ class DroneGame extends FlameGame with TapCallbacks {
   }
 
   void _checkObstacleDeath() {
+    if (_startGraceRemaining > 0) {
+      return;
+    }
     final droneRect = _droneRect;
     for (final pair in _obstaclePairs) {
       if (pair.tree.collisionRect.overlaps(droneRect) ||

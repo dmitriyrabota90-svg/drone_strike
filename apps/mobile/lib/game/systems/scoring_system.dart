@@ -62,7 +62,8 @@ class MissionResult {
 
 class ScoringSystem {
   static const baseScore = 100;
-  static const maxScore = baseScore + 50 + 50;
+  static const tankHitBonus = 150;
+  static const maxScore = baseScore + 50 + tankHitBonus;
   static const batteryPoints = 5;
   static const maxBatteryBonus = 40;
   static const maxTotalScoreWithBattery = maxScore + maxBatteryBonus;
@@ -103,17 +104,8 @@ class ScoringSystem {
     return _collectedBatteryIds.add(batteryId);
   }
 
-  int calculateTankHitBonus({
-    required Offset droneCenter,
-    required Rect tankRect,
-  }) {
-    final tankCenter = tankRect.center;
-    final dx = (droneCenter.dx - tankCenter.dx).abs();
-    final dy = (droneCenter.dy - tankCenter.dy).abs();
-    final normalizedX = 1 - dx / math.max(1, tankRect.width / 2);
-    final normalizedY = 1 - dy / math.max(1, tankRect.height / 2);
-    final normalized = ((normalizedX + normalizedY) / 2).clamp(0.0, 1.0);
-    return (normalized * 50).round().clamp(0, 50);
+  int calculateTankHitBonus({required Rect droneRect, required Rect tankRect}) {
+    return tankRect.overlaps(droneRect) ? tankHitBonus : 0;
   }
 
   MissionResult buildMissionResult({
@@ -122,7 +114,10 @@ class ScoringSystem {
     required bool isGuest,
   }) {
     final flightBonus = flightAccuracyBonus;
-    final clampedTankHitBonus = tankHitBonus.clamp(0, 50);
+    final clampedTankHitBonus = tankHitBonus.clamp(
+      0,
+      ScoringSystem.tankHitBonus,
+    );
     final clampedBatteryBonus = batteryBonus.clamp(0, maxBatteryBonus);
     return MissionResult(
       missionNumber: missionNumber,

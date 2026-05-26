@@ -37,9 +37,9 @@ class GameHud extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: 10,
-                  left: 62,
-                  right: 10,
+                  top: 6,
+                  left: 48,
+                  right: 6,
                   child: IgnorePointer(
                     child: _HudPanel(
                       child: Row(
@@ -48,7 +48,7 @@ class GameHud extends StatelessWidget {
                             missionNumber: state.missionNumber,
                             label: l10n.mission,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 5),
                           Expanded(
                             child: _ProgressCluster(
                               progress: progress,
@@ -56,18 +56,18 @@ class GameHud extends StatelessWidget {
                               distanceLabel: l10n.distance,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 5),
                           _LivesIndicator(
                             lives: state.lives,
                             label: l10n.lives,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 5),
                           _StatPill(
                             label: 'SC',
                             value: '${state.score}',
                             accent: const Color(0xFFFF9F2E),
                           ),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 4),
                           _StatPill(
                             label: 'LV',
                             value: '${state.playerLevel}',
@@ -79,8 +79,8 @@ class GameHud extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: 12,
-                  left: 12,
+                  top: 7,
+                  left: 7,
                   child: _PauseButton(
                     tooltip: l10n.pause,
                     onPressed: game.pauseGame,
@@ -121,7 +121,7 @@ class _HudPanel extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         child: child,
       ),
     );
@@ -137,7 +137,7 @@ class _PauseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
-      dimension: 42,
+      dimension: 36,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: const Color(0xE80A1B2D),
@@ -155,6 +155,7 @@ class _PauseButton extends StatelessWidget {
           key: const ValueKey('hud_pause_button'),
           tooltip: tooltip,
           padding: EdgeInsets.zero,
+          iconSize: 22,
           onPressed: onPressed,
           icon: const Icon(Icons.pause_rounded, color: Color(0xFFFFC36B)),
         ),
@@ -175,38 +176,24 @@ class _MissionBadge extends StatelessWidget {
       label: '$label: $missionNumber',
       child: Container(
         key: const ValueKey('hud_mission_badge'),
-        width: 92,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        width: 52,
+        height: 27,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
         decoration: BoxDecoration(
           color: const Color(0xFF102A40),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(color: const Color(0xFF34D8FF), width: 1.2),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'MISSION',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: const Color(0xFF7CE7FF),
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.4,
-                height: 1,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '$missionNumber',
-              maxLines: 1,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                height: 1,
-              ),
-            ),
-          ],
+        child: Text(
+          'M$missionNumber',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            height: 1,
+          ),
         ),
       ),
     );
@@ -248,16 +235,16 @@ class _ProgressCluster extends StatelessWidget {
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   color: const Color(0xFFE8F7FF),
                   fontWeight: FontWeight.w800,
-                  letterSpacing: 0.6,
+                  height: 1,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: SizedBox(
-              height: 7,
+              height: 5,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -306,7 +293,7 @@ class _LivesIndicator extends StatelessWidget {
                 index < visibleLives
                     ? Icons.favorite_rounded
                     : Icons.favorite_border_rounded,
-                size: 16,
+                size: 14,
                 color: index < visibleLives
                     ? const Color(0xFFFF5D73)
                     : const Color(0xFF47657A),
@@ -335,7 +322,7 @@ class _StatPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
       decoration: BoxDecoration(
         color: const Color(0xB80A1B2D),
         borderRadius: BorderRadius.circular(6),
@@ -348,7 +335,7 @@ class _StatPill extends StatelessWidget {
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: const Color(0xFFE8F7FF),
           fontWeight: FontWeight.w900,
-          letterSpacing: 0.8,
+          height: 1,
         ),
       ),
     );

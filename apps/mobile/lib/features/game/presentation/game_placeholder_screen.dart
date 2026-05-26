@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,6 +55,7 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
       return;
     }
     _audioService.stopMusic();
+    _audioService.stopOneShot();
     _game = null;
     _missionResult = null;
     _startCheckScheduled = false;
@@ -63,6 +66,7 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
   @override
   void dispose() {
     _audioService.stopMusic();
+    _audioService.stopOneShot();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     super.dispose();
   }
@@ -215,7 +219,7 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
       initialPlayerLevel: _readInitialPlayerLevel(),
       onGameOver: _handleGameOver,
       onMissionComplete: _handleMissionComplete,
-      onRestart: _playMissionMusic,
+      onRestart: _restartMissionAudio,
     );
     _game = created;
     return created;
@@ -251,6 +255,19 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
 
   void _playMissionMusic() {
     _audioService.playMissionMusic();
+  }
+
+  void _restartMissionAudio() {
+    unawaited(_restartMissionAudioAsync());
+  }
+
+  Future<void> _restartMissionAudioAsync() async {
+    await _audioService.stopOneShot();
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    if (!mounted) {
+      return;
+    }
+    _playMissionMusic();
   }
 
   Future<void> _startIfLivesAvailable() async {

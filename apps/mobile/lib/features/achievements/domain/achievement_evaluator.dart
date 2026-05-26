@@ -20,7 +20,7 @@ class AchievementEvaluator {
       if (missionResult.tankHitBonus >= highBonusThreshold) {
         unlocked.add(AchievementIds.cleanHit);
       }
-      if (missionResult.tankHitBonus == 50) {
+      if (missionResult.tankHitBonus == ScoringSystem.tankHitBonus) {
         unlocked.add(AchievementIds.bullseye);
       }
       if (missionResult.flightAccuracyBonus >= highBonusThreshold) {
@@ -52,7 +52,7 @@ class AchievementEvaluator {
         if (mission.bestTankHitBonus >= highBonusThreshold) {
           unlocked.add(AchievementIds.cleanHit);
         }
-        if (mission.bestTankHitBonus == 50) {
+        if (mission.bestTankHitBonus == ScoringSystem.tankHitBonus) {
           unlocked.add(AchievementIds.bullseye);
         }
         if (mission.bestFlightAccuracyBonus >= highBonusThreshold) {

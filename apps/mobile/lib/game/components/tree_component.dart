@@ -38,11 +38,17 @@ class TreeComponent extends PositionComponent {
   }
 
   Rect get collisionRect {
+    final insetX = treeWidth * GameConfig.treeHitboxInsetXRatio;
+    final topInset = GameConfig.treeHitboxTopInset;
+    final bottomInset = math.min(
+      GameConfig.treeHitboxBottomInset,
+      math.max(0, treeHeight - topInset),
+    );
     return Rect.fromLTWH(
-      position.x + treeWidth * 0.16,
-      position.y + 4,
-      treeWidth * 0.68,
-      treeHeight - 6,
+      position.x + insetX,
+      position.y + topInset,
+      treeWidth - insetX * 2,
+      math.max(0, treeHeight - topInset - bottomInset),
     );
   }
 

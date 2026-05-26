@@ -123,6 +123,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmPassword => 'Confirm password';
 
   @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
   String get termsAccepted => 'I accept the terms of use';
 
   @override
@@ -160,8 +163,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get displayName => 'Display name';
 
   @override
-  String get invalidDisplayName =>
-      'Use 3-20 Latin letters, digits, or underscore.';
+  String get displayNameChangeSuccess => 'Display name updated';
+
+  @override
+  String get invalidDisplayName => 'Use 3-20 letters, digits, or underscore.';
 
   @override
   String get nameChangedOnce => 'Free name change';
@@ -270,6 +275,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emailNotVerified => 'Email not verified';
 
   @override
+  String get confirmEmail => 'Confirm email';
+
+  @override
+  String get emailConfirmationComingSoon => 'Email confirmation coming soon';
+
+  @override
   String get notVerified => 'Not verified';
 
   @override
@@ -316,6 +327,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidEmailOrPassword => 'Enter email and password.';
+
+  @override
+  String get passwordResetComingSoon => 'Password reset coming soon';
 
   @override
   String get passwordsDoNotMatch => 'Passwords do not match.';
@@ -396,6 +410,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get flightTrails => 'Flight Trails';
+
+  @override
+  String get nicknameChange => 'Nickname change';
 
   @override
   String get deleteAccountPlaceholder =>

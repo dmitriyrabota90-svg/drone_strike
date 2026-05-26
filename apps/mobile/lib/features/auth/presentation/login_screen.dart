@@ -65,6 +65,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         obscureText: true,
                         decoration: InputDecoration(labelText: l10n.password),
                       ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: isLoading
+                              ? null
+                              : () => _showInfoSnackBar(
+                                  l10n.passwordResetComingSoon,
+                                ),
+                          child: Text(l10n.forgotPassword),
+                        ),
+                      ),
                       if (errorMessage != null) ...[
                         const SizedBox(height: 16),
                         Text(
@@ -121,5 +132,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       context,
     ).showSnackBar(SnackBar(content: Text(l10n.loginSuccess)));
     context.go('/profile');
+  }
+
+  void _showInfoSnackBar(String message) {
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

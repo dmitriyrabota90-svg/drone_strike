@@ -67,15 +67,23 @@ def test_get_progress_after_registration() -> None:
 def test_complete_mission_1() -> None:
     _, access_token = register_and_get_token()
 
-    response = complete_mission(access_token, 1, 20, 30)
+    response = complete_mission(access_token, 1, 20, 150)
 
     assert response.status_code == 200
     data = response.json()
-    assert data["submitted_score"] == 150
+    assert data["submitted_score"] == 270
     assert data["previous_best_score"] == 0
-    assert data["saved_best_score"] == 150
+    assert data["saved_best_score"] == 270
     assert data["score_improved"] is True
-    assert data["total_score"] == 150
+    assert data["total_score"] == 270
+
+
+def test_tank_hit_bonus_above_150_is_rejected() -> None:
+    _, access_token = register_and_get_token()
+
+    response = complete_mission(access_token, 1, 20, 151)
+
+    assert response.status_code == 422
 
 
 def test_recomplete_mission_with_worse_score_keeps_best() -> None:

@@ -58,7 +58,7 @@ def complete_mission(
     _validate_mission_sequence(db, user_id, request.mission_number)
 
     submitted_score = 100 + request.flight_accuracy_bonus + request.tank_hit_bonus
-    submitted_score = max(100, min(200, submitted_score))
+    submitted_score = max(100, min(300, submitted_score))
 
     mission_progress, previous_best_score, score_improved = (
         progress_repository.upsert_mission_progress(

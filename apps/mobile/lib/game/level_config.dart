@@ -96,8 +96,8 @@ class _MissionBalance {
     // distribution. Gap 2.3 is the MVP floor.
     return switch (missionNumber) {
       1 => const _MissionBalance(
-        minGapMultiplier: 3.8,
-        maxGapMultiplier: 6.2,
+        minGapMultiplier: 4.1,
+        maxGapMultiplier: 6.5,
         forwardSpeed: 110.0,
         obstacleCount: 8,
         batteryCount: 3,
@@ -106,8 +106,8 @@ class _MissionBalance {
         obstacleWidth: 70.0,
       ),
       2 => const _MissionBalance(
-        minGapMultiplier: 3.5,
-        maxGapMultiplier: 5.8,
+        minGapMultiplier: 3.7,
+        maxGapMultiplier: 6.0,
         forwardSpeed: 120.0,
         obstacleCount: 10,
         batteryCount: 4,

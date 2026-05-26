@@ -50,12 +50,6 @@ class _NoLivesOverlayState extends ConsumerState<NoLivesOverlay> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    l10n.noLives,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
                     '${l10n.nextLifeIn}: ${_formatCountdown(seconds, l10n)}',
                     textAlign: TextAlign.center,
                   ),

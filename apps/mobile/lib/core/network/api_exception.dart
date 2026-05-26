@@ -19,7 +19,17 @@ class ApiException implements Exception {
       );
     }
 
-    return const ApiException(message: 'Network error. Check connection.');
+    return ApiException(message: _networkMessage(error.type));
+  }
+
+  static String _networkMessage(DioExceptionType type) {
+    return switch (type) {
+      DioExceptionType.connectionTimeout ||
+      DioExceptionType.receiveTimeout ||
+      DioExceptionType.sendTimeout => 'Connection timed out. Try again.',
+      DioExceptionType.badCertificate => 'Secure connection failed.',
+      _ => 'Network error. Check connection.',
+    };
   }
 
   static String _messageFromBody(Object? body, int? statusCode) {

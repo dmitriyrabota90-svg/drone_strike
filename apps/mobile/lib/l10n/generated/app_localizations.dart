@@ -326,6 +326,12 @@ abstract class AppLocalizations {
   /// **'Confirm password'**
   String get confirmPassword;
 
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
   /// No description provided for @termsAccepted.
   ///
   /// In en, this message translates to:
@@ -398,10 +404,16 @@ abstract class AppLocalizations {
   /// **'Display name'**
   String get displayName;
 
+  /// No description provided for @displayNameChangeSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name updated'**
+  String get displayNameChangeSuccess;
+
   /// No description provided for @invalidDisplayName.
   ///
   /// In en, this message translates to:
-  /// **'Use 3-20 Latin letters, digits, or underscore.'**
+  /// **'Use 3-20 letters, digits, or underscore.'**
   String get invalidDisplayName;
 
   /// No description provided for @nameChangedOnce.
@@ -614,6 +626,18 @@ abstract class AppLocalizations {
   /// **'Email not verified'**
   String get emailNotVerified;
 
+  /// No description provided for @confirmEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm email'**
+  String get confirmEmail;
+
+  /// No description provided for @emailConfirmationComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Email confirmation coming soon'**
+  String get emailConfirmationComingSoon;
+
   /// No description provided for @notVerified.
   ///
   /// In en, this message translates to:
@@ -709,6 +733,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter email and password.'**
   String get invalidEmailOrPassword;
+
+  /// No description provided for @passwordResetComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset coming soon'**
+  String get passwordResetComingSoon;
 
   /// No description provided for @passwordsDoNotMatch.
   ///
@@ -865,6 +895,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Flight Trails'**
   String get flightTrails;
+
+  /// No description provided for @nicknameChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname change'**
+  String get nicknameChange;
 
   /// No description provided for @deleteAccountPlaceholder.
   ///
