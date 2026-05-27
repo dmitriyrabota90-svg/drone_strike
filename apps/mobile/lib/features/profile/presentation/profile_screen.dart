@@ -76,9 +76,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           child: TextButton.icon(
                             onPressed: authState.isLoading
                                 ? null
-                                : () => _showInfoSnackBar(
-                                    l10n.emailConfirmationComingSoon,
-                                  ),
+                                : () => _requestEmailVerification(l10n),
                             icon: const Icon(Icons.mark_email_unread_outlined),
                             label: Text(l10n.confirmEmail),
                           ),
@@ -177,6 +175,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _requestEmailVerification(AppLocalizations l10n) async {
+    await ref.read(profileControllerProvider).requestEmailVerification();
+    if (!mounted) {
+      return;
+    }
+
+    final authState = ref.read(authControllerProvider).asData?.value;
+    final errorMessage = authState?.errorMessage;
+    if (errorMessage != null) {
+      _showInfoSnackBar(errorMessage);
+      return;
+    }
+    _showInfoSnackBar(l10n.emailVerificationSent);
   }
 
   Future<void> _showDisplayNameDialog(AppLocalizations l10n) async {

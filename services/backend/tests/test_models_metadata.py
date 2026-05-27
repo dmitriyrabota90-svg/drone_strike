@@ -1,5 +1,6 @@
 from app.core.database import Base
 from app.models import (
+    AuthToken,
     LeaderboardSeedPlayer,
     LegalAcceptance,
     MissionProgress,
@@ -16,6 +17,7 @@ def test_metadata_contains_initial_tables() -> None:
         "mission_progress",
         "legal_acceptances",
         "refresh_tokens",
+        "auth_tokens",
         "leaderboard_seed_players",
     }
 
@@ -28,6 +30,7 @@ def test_model_classes_are_registered_with_expected_tables() -> None:
     assert MissionProgress.__tablename__ == "mission_progress"
     assert LegalAcceptance.__tablename__ == "legal_acceptances"
     assert RefreshToken.__tablename__ == "refresh_tokens"
+    assert AuthToken.__tablename__ == "auth_tokens"
     assert LeaderboardSeedPlayer.__tablename__ == "leaderboard_seed_players"
 
 
@@ -48,6 +51,7 @@ def test_unique_indexes() -> None:
             "ix_player_profiles_display_name",
         },
         "refresh_tokens": {"ix_refresh_tokens_token_hash"},
+        "auth_tokens": {"ix_auth_tokens_token_hash"},
         "leaderboard_seed_players": {"ix_leaderboard_seed_players_display_name"},
     }
 

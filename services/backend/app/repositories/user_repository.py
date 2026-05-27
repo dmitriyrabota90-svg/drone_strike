@@ -21,6 +21,20 @@ def create_user(db: Session, email: str, password_hash: str) -> User:
     return user
 
 
+def mark_email_verified(db: Session, user: User) -> User:
+    user.email_verified = True
+    db.add(user)
+    db.flush()
+    return user
+
+
+def update_password_hash(db: Session, user: User, password_hash: str) -> User:
+    user.password_hash = password_hash
+    db.add(user)
+    db.flush()
+    return user
+
+
 def delete_user(db: Session, user: User) -> None:
     db.delete(user)
     db.flush()

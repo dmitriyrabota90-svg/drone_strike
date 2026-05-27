@@ -70,9 +70,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         child: TextButton(
                           onPressed: isLoading
                               ? null
-                              : () => _showInfoSnackBar(
-                                  l10n.passwordResetComingSoon,
-                                ),
+                              : () => _showPasswordResetDialog(l10n),
                           child: Text(l10n.forgotPassword),
                         ),
                       ),
@@ -107,6 +105,53 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _showPasswordResetDialog(AppLocalizations l10n) async {
+    final controller = TextEditingController(
+      text: _emailController.text.trim(),
+    );
+    final email = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(l10n.passwordResetTitle),
+          content: TextField(
+            controller: controller,
+            keyboardType: TextInputType.emailAddress,
+            decoration: InputDecoration(labelText: l10n.email),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () =>
+                  Navigator.of(context).pop(controller.text.trim()),
+              child: Text(l10n.send),
+            ),
+          ],
+        );
+      },
+    );
+    controller.dispose();
+
+    if (!mounted || email == null) {
+      return;
+    }
+    if (email.isEmpty || !email.contains('@')) {
+      _showInfoSnackBar(l10n.invalidEmail);
+      return;
+    }
+
+    final error = await ref
+        .read(authControllerProvider.notifier)
+        .requestPasswordReset(email);
+    if (!mounted) {
+      return;
+    }
+    _showInfoSnackBar(error ?? l10n.passwordResetInstructionsSent);
   }
 
   Future<void> _submit(AppLocalizations l10n) async {

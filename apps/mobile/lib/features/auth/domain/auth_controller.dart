@@ -88,6 +88,39 @@ class AuthController extends AsyncNotifier<AuthState> {
     }
   }
 
+  Future<void> requestEmailVerification() async {
+    final current = _currentState;
+    state = AsyncData(current.copyWith(isLoading: true, clearError: true));
+
+    try {
+      await _withRefresh(
+        () => ref.read(authRepositoryProvider).requestEmailVerification(),
+      );
+      state = AsyncData(current.copyWith(isLoading: false, clearError: true));
+    } on Object catch (error) {
+      state = AsyncData(
+        current.copyWith(isLoading: false, errorMessage: _errorMessage(error)),
+      );
+    }
+  }
+
+  Future<String?> requestPasswordReset(String email) async {
+    final current = _currentState;
+    state = AsyncData(current.copyWith(isLoading: true, clearError: true));
+
+    try {
+      await ref.read(authRepositoryProvider).requestPasswordReset(email);
+      state = AsyncData(current.copyWith(isLoading: false, clearError: true));
+      return null;
+    } on Object catch (error) {
+      final message = _errorMessage(error);
+      state = AsyncData(
+        current.copyWith(isLoading: false, errorMessage: message),
+      );
+      return message;
+    }
+  }
+
   Future<void> reloadMe() async {
     final current = _currentState;
     if (!await ref.read(authRepositoryProvider).hasTokens()) {

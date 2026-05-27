@@ -89,9 +89,22 @@ void main() {
     await tester.tap(find.text('Login').first);
     await tester.pumpAndSettle();
 
-    expect(find.text('Email'), findsOneWidget);
+    expect(find.text('Email'), findsWidgets);
     expect(find.text('Password'), findsOneWidget);
     expect(find.text('Forgot password?'), findsOneWidget);
+  });
+
+  testWidgets('forgot password action opens reset dialog', (tester) async {
+    await pumpDroneStrikeApp(tester);
+
+    await tester.tap(find.text('Login').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Forgot password?'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Password reset'), findsOneWidget);
+    expect(find.text('Email'), findsWidgets);
+    expect(find.text('Send'), findsOneWidget);
   });
 
   testWidgets('register screen renders legal checkboxes', (tester) async {

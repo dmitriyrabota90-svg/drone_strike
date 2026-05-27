@@ -722,11 +722,23 @@ abstract class AppLocalizations {
   /// **'Refresh'**
   String get refresh;
 
+  /// No description provided for @send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get send;
+
   /// No description provided for @error.
   ///
   /// In en, this message translates to:
   /// **'Error'**
   String get error;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email.'**
+  String get invalidEmail;
 
   /// No description provided for @invalidEmailOrPassword.
   ///
@@ -734,11 +746,29 @@ abstract class AppLocalizations {
   /// **'Enter email and password.'**
   String get invalidEmailOrPassword;
 
+  /// No description provided for @passwordResetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset'**
+  String get passwordResetTitle;
+
+  /// No description provided for @passwordResetInstructionsSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If the account exists, reset instructions were sent'**
+  String get passwordResetInstructionsSent;
+
   /// No description provided for @passwordResetComingSoon.
   ///
   /// In en, this message translates to:
   /// **'Password reset coming soon'**
   String get passwordResetComingSoon;
+
+  /// No description provided for @emailVerificationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification email sent'**
+  String get emailVerificationSent;
 
   /// No description provided for @passwordsDoNotMatch.
   ///

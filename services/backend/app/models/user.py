@@ -55,3 +55,7 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+    auth_tokens: Mapped[list["AuthToken"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )

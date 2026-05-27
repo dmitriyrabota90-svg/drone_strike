@@ -323,13 +323,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get refresh => 'Refresh';
 
   @override
+  String get send => 'Send';
+
+  @override
   String get error => 'Error';
+
+  @override
+  String get invalidEmail => 'Enter a valid email.';
 
   @override
   String get invalidEmailOrPassword => 'Enter email and password.';
 
   @override
+  String get passwordResetTitle => 'Password reset';
+
+  @override
+  String get passwordResetInstructionsSent =>
+      'If the account exists, reset instructions were sent';
+
+  @override
   String get passwordResetComingSoon => 'Password reset coming soon';
+
+  @override
+  String get emailVerificationSent => 'Verification email sent';
 
   @override
   String get passwordsDoNotMatch => 'Passwords do not match.';

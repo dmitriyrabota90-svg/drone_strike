@@ -20,4 +20,10 @@ class ProfileController {
         .read(authControllerProvider.notifier)
         .updateDisplayName(displayName);
   }
+
+  Future<void> requestEmailVerification() {
+    return _ref
+        .read(authControllerProvider.notifier)
+        .requestEmailVerification();
+  }
 }

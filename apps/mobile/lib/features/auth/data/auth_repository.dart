@@ -44,6 +44,14 @@ class AuthRepository {
     await _clearTokens();
   }
 
+  Future<void> requestEmailVerification() {
+    return _authApi.requestEmailVerification();
+  }
+
+  Future<void> requestPasswordReset(String email) {
+    return _authApi.requestPasswordReset(email);
+  }
+
   Future<bool> tryRefreshAccessToken() async {
     final refreshToken = await _tokenStorage.readRefreshToken();
     if (refreshToken == null || refreshToken.isEmpty) {

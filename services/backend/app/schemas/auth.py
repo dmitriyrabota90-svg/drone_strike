@@ -45,6 +45,23 @@ class DeleteAccountRequest(BaseModel):
     password: str = Field(min_length=8)
 
 
+class EmailVerificationConfirmRequest(BaseModel):
+    token: str = Field(min_length=16)
+
+
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordResetConfirmRequest(BaseModel):
+    token: str = Field(min_length=16)
+    new_password: str = Field(min_length=8)
+
+
+class MessageResponse(BaseModel):
+    message: str
+
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str

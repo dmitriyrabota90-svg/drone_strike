@@ -1,3 +1,4 @@
+from app.models.auth_token import AuthToken
 from app.models.leaderboard_seed_player import LeaderboardSeedPlayer
 from app.models.legal_acceptance import LegalAcceptance
 from app.models.mission_progress import MissionProgress
@@ -7,6 +8,7 @@ from app.models.user import User
 
 __all__ = [
     "LeaderboardSeedPlayer",
+    "AuthToken",
     "LegalAcceptance",
     "MissionProgress",
     "PlayerProfile",

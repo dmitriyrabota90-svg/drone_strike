@@ -72,4 +72,23 @@ class AuthApi {
       throw ApiException.fromDioException(error);
     }
   }
+
+  Future<void> requestEmailVerification() async {
+    try {
+      await _apiClient.dio.post('/api/v1/auth/email/verification/request');
+    } on DioException catch (error) {
+      throw ApiException.fromDioException(error);
+    }
+  }
+
+  Future<void> requestPasswordReset(String email) async {
+    try {
+      await _apiClient.dio.post(
+        '/api/v1/auth/password-reset/request',
+        data: PasswordResetRequestDto(email: email).toJson(),
+      );
+    } on DioException catch (error) {
+      throw ApiException.fromDioException(error);
+    }
+  }
 }

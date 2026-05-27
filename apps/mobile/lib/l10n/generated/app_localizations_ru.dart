@@ -325,13 +325,29 @@ class AppLocalizationsRu extends AppLocalizations {
   String get refresh => 'Обновить';
 
   @override
+  String get send => 'Отправить';
+
+  @override
   String get error => 'Ошибка';
+
+  @override
+  String get invalidEmail => 'Введите корректный email.';
 
   @override
   String get invalidEmailOrPassword => 'Введите email и пароль.';
 
   @override
+  String get passwordResetTitle => 'Восстановление пароля';
+
+  @override
+  String get passwordResetInstructionsSent =>
+      'Если аккаунт существует, инструкция отправлена на email';
+
+  @override
   String get passwordResetComingSoon => 'Восстановление пароля скоро';
+
+  @override
+  String get emailVerificationSent => 'Письмо для подтверждения отправлено';
 
   @override
   String get passwordsDoNotMatch => 'Пароли не совпадают.';

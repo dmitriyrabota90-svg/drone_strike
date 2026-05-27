@@ -47,6 +47,14 @@ class DeleteAccountRequestDto {
   Map<String, dynamic> toJson() => {'password': password};
 }
 
+class PasswordResetRequestDto {
+  const PasswordResetRequestDto({required this.email});
+
+  final String email;
+
+  Map<String, dynamic> toJson() => {'email': email};
+}
+
 class TokenResponseDto {
   const TokenResponseDto({
     required this.accessToken,
