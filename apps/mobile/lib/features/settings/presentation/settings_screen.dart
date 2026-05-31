@@ -225,10 +225,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       return;
     }
 
-    // TODO: Clear local game progress after local saves are implemented.
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.deleteAccountSuccess)));
     context.go('/menu');
   }
 }

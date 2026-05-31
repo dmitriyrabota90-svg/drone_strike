@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../l10n/generated/app_localizations.dart';
+import '../mission_rules.dart';
 import '../systems/scoring_system.dart';
 
 class MissionCompleteOverlay extends StatelessWidget {
@@ -133,16 +134,11 @@ class _MissionCompleteContent extends StatelessWidget {
           children: [
             _ArcadeActionButton(
               onPressed: () {
-                if (missionNumber >= 10) {
+                if (missionNumber >= MissionRules.maxMissionNumber) {
                   context.go('/levels');
                   return;
                 }
                 if (result.isGuest && nextMission >= 3) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(l10n.registrationRequiredAfterMission),
-                    ),
-                  );
                   context.go('/register');
                   return;
                 }

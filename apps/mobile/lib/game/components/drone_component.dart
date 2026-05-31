@@ -10,9 +10,10 @@ import '../game_config.dart';
 import '../game_image_cache.dart';
 
 class DroneComponent extends PositionComponent {
-  DroneComponent()
+  DroneComponent({required this.physics})
     : super(size: Vector2(GameConfig.droneWidth, GameConfig.droneHeight));
 
+  final DronePhysicsProfile physics;
   double verticalVelocity = 0;
   bool isFrozen = false;
   ui.Image? _sprite;
@@ -40,20 +41,20 @@ class DroneComponent extends PositionComponent {
     if (isFrozen) {
       return;
     }
-    verticalVelocity += GameConfig.gravity * dt;
+    verticalVelocity += physics.gravity * dt;
     verticalVelocity = verticalVelocity.clamp(
-      GameConfig.maxRiseSpeed,
-      GameConfig.maxFallSpeed,
+      physics.maxRiseSpeed,
+      physics.maxFallSpeed,
     );
     position.y += verticalVelocity * dt;
   }
 
   void boost() {
-    verticalVelocity = GameConfig.tapImpulse;
+    verticalVelocity = physics.tapImpulse;
   }
 
   void startBoost() {
-    verticalVelocity = GameConfig.startTapImpulse;
+    verticalVelocity = physics.startTapImpulse;
   }
 
   void resetTo(Vector2 startPosition) {

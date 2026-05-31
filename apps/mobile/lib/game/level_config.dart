@@ -64,6 +64,8 @@ class LevelConfig {
 
   double get droneHeight => GameConfig.droneHeight;
 
+  DronePhysicsProfile get physics => GameConfig.physicsForMission(missionNumber);
+
   double get topBoundaryHeight => GameConfig.topBoundaryHeight;
 
   double get bottomBoundaryHeight => GameConfig.bottomBoundaryHeight;
@@ -91,84 +93,86 @@ class _MissionBalance {
   final double obstacleWidth;
 
   static _MissionBalance forMission(int missionNumber) {
-    // Focused gameplay tuning: obstacle count and spacing ranges are explicit
-    // so later missions become visibly denser without relying on old long-zone
-    // distribution. Gap 2.3 is the MVP floor.
+    // Long campaign tuning: speed grows slowly for the first 20-30 missions
+    // and then tapers toward a high-level cap. Density, gaps and obstacle
+    // variety carry difficulty so level 8 is still readable while level 150
+    // can feel meaningfully faster.
+    final forwardSpeed = _forwardSpeedForMission(missionNumber);
     return switch (missionNumber) {
-      1 => const _MissionBalance(
+      1 => _MissionBalance(
         minGapMultiplier: 4.1,
         maxGapMultiplier: 6.5,
-        forwardSpeed: 110.0,
+        forwardSpeed: forwardSpeed,
         obstacleCount: 8,
         batteryCount: 3,
         minObstacleSpacing: 320.0,
         maxObstacleSpacing: 520.0,
         obstacleWidth: 70.0,
       ),
-      2 => const _MissionBalance(
+      2 => _MissionBalance(
         minGapMultiplier: 3.7,
         maxGapMultiplier: 6.0,
-        forwardSpeed: 120.0,
+        forwardSpeed: forwardSpeed,
         obstacleCount: 10,
         batteryCount: 4,
         minObstacleSpacing: 300.0,
         maxObstacleSpacing: 500.0,
         obstacleWidth: 72.0,
       ),
-      3 => const _MissionBalance(
+      3 => _MissionBalance(
         minGapMultiplier: 3.2,
         maxGapMultiplier: 5.4,
-        forwardSpeed: 130.0,
+        forwardSpeed: forwardSpeed,
         obstacleCount: 12,
         batteryCount: 5,
         minObstacleSpacing: 280.0,
         maxObstacleSpacing: 470.0,
         obstacleWidth: 74.0,
       ),
-      4 => const _MissionBalance(
+      4 => _MissionBalance(
         minGapMultiplier: 3.0,
         maxGapMultiplier: 5.0,
-        forwardSpeed: 140.0,
+        forwardSpeed: forwardSpeed,
         obstacleCount: 14,
         batteryCount: 6,
         minObstacleSpacing: 260.0,
         maxObstacleSpacing: 450.0,
         obstacleWidth: 74.0,
       ),
-      5 => const _MissionBalance(
+      5 => _MissionBalance(
         minGapMultiplier: 2.8,
         maxGapMultiplier: 4.6,
-        forwardSpeed: 150.0,
+        forwardSpeed: forwardSpeed,
         obstacleCount: 16,
         batteryCount: 6,
         minObstacleSpacing: 240.0,
         maxObstacleSpacing: 430.0,
         obstacleWidth: 76.0,
       ),
-      6 => const _MissionBalance(
+      6 => _MissionBalance(
         minGapMultiplier: 2.6,
         maxGapMultiplier: 4.2,
-        forwardSpeed: 158.0,
+        forwardSpeed: forwardSpeed,
         obstacleCount: 18,
         batteryCount: 7,
         minObstacleSpacing: 230.0,
         maxObstacleSpacing: 410.0,
         obstacleWidth: 76.0,
       ),
-      7 => const _MissionBalance(
+      7 => _MissionBalance(
         minGapMultiplier: 2.4,
         maxGapMultiplier: 3.9,
-        forwardSpeed: 166.0,
+        forwardSpeed: forwardSpeed,
         obstacleCount: 20,
         batteryCount: 7,
         minObstacleSpacing: 220.0,
         maxObstacleSpacing: 390.0,
         obstacleWidth: 76.0,
       ),
-      _ => const _MissionBalance(
+      _ => _MissionBalance(
         minGapMultiplier: 2.3,
         maxGapMultiplier: 3.6,
-        forwardSpeed: 174.0,
+        forwardSpeed: forwardSpeed,
         obstacleCount: 22,
         batteryCount: 8,
         minObstacleSpacing: 210.0,
@@ -176,5 +180,23 @@ class _MissionBalance {
         obstacleWidth: 78.0,
       ),
     };
+  }
+
+  static double _forwardSpeedForMission(int missionNumber) {
+    if (missionNumber <= 1) {
+      return 108.0;
+    }
+    if (missionNumber <= 10) {
+      return 108.0 + (missionNumber - 1) * 4.2;
+    }
+    if (missionNumber <= 30) {
+      return 145.8 + (missionNumber - 10) * 1.7;
+    }
+    if (missionNumber <= 80) {
+      return 179.8 + (missionNumber - 30) * 0.62;
+    }
+    return (210.8 + (missionNumber - 80) * 0.26)
+        .clamp(210.8, 232.0)
+        .toDouble();
   }
 }

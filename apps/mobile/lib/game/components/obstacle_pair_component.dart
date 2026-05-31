@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 
 import 'net_component.dart';
 import 'tree_component.dart';
+import '../obstacle_asset_registry.dart';
 
 class ObstaclePairComponent extends Component {
   ObstaclePairComponent({
@@ -13,17 +14,21 @@ class ObstaclePairComponent extends Component {
     required this.netHeight,
     required this.gapHeight,
     required this.width,
+    required this.bottomVariant,
+    required this.topVariant,
     this.variantSeed = 0,
   }) : tree = TreeComponent(
          worldX: worldX,
          treeHeight: treeHeight,
          treeWidth: width,
+         assetVariant: bottomVariant,
          variantSeed: variantSeed,
        ),
        net = NetComponent(
          worldX: worldX,
          netHeight: netHeight,
          netWidth: width,
+         assetVariant: topVariant,
          variantSeed: variantSeed,
        );
 
@@ -35,6 +40,8 @@ class ObstaclePairComponent extends Component {
   final double netHeight;
   final double gapHeight;
   final double width;
+  final ObstacleAssetVariant bottomVariant;
+  final ObstacleAssetVariant topVariant;
   final int variantSeed;
   final TreeComponent tree;
   final NetComponent net;

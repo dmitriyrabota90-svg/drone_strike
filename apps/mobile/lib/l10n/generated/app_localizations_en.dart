@@ -15,6 +15,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continueGame => 'Continue';
 
   @override
+  String get play => 'Play';
+
+  @override
   String get levelSelect => 'Level Select';
 
   @override
@@ -40,6 +43,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get register => 'Register';
+
+  @override
+  String get registerAction => 'Register';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account?';
 
   @override
   String get back => 'Back';
@@ -428,7 +437,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get flightTrails => 'Flight Trails';
 
   @override
-  String get nicknameChange => 'Nickname change';
+  String get nicknameChange => 'Change nickname';
+
+  @override
+  String get nicknameChangeDescription =>
+      'Change the name shown in profile and leaderboard';
 
   @override
   String get deleteAccountPlaceholder =>

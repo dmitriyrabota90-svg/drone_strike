@@ -26,6 +26,13 @@ class AppTheme {
         backgroundColor: _background,
         foregroundColor: Colors.white,
         centerTitle: true,
+        toolbarHeight: 40,
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w800,
+        ),
+        iconTheme: IconThemeData(size: 20, color: Colors.white),
       ),
       cardTheme: CardThemeData(
         color: _surface,

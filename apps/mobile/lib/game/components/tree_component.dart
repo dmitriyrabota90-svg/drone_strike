@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../../core/assets/app_assets.dart';
 import '../game_config.dart';
 import '../game_image_cache.dart';
+import '../obstacle_asset_registry.dart';
 
 class TreeComponent extends PositionComponent {
   static const _bottomMiddleOverlap = 4.0;
@@ -19,16 +20,19 @@ class TreeComponent extends PositionComponent {
     required this.worldX,
     required this.treeHeight,
     required this.treeWidth,
+    this.assetVariant = ObstacleAssetRegistry.bottomModularTree,
     this.variantSeed = 0,
   });
 
   double worldX;
   double treeHeight;
   double treeWidth;
+  final ObstacleAssetVariant assetVariant;
   final int variantSeed;
   ui.Image? _trunkBottom;
   ui.Image? _trunkMiddle;
   ui.Image? _crownTop;
+  ui.Image? _wholeImage;
 
   @override
   Future<void> onLoad() async {
@@ -38,17 +42,19 @@ class TreeComponent extends PositionComponent {
   }
 
   Rect get collisionRect {
-    final insetX = treeWidth * GameConfig.treeHitboxInsetXRatio;
-    final topInset = GameConfig.treeHitboxTopInset;
+    final visualRect =
+        _wholeVisualRect ?? Rect.fromLTWH(0, 0, treeWidth, treeHeight);
+    final insetX = visualRect.width * assetVariant.hitboxInsetXRatio;
+    final topInset = assetVariant.hitboxTopInset;
     final bottomInset = math.min(
-      GameConfig.treeHitboxBottomInset,
-      math.max(0, treeHeight - topInset),
+      assetVariant.hitboxBottomInset,
+      math.max(0, visualRect.height - topInset),
     );
     return Rect.fromLTWH(
-      position.x + insetX,
-      position.y + topInset,
-      treeWidth - insetX * 2,
-      math.max(0, treeHeight - topInset - bottomInset),
+      position.x + visualRect.left + insetX,
+      position.y + visualRect.top + topInset,
+      math.max(0, visualRect.width - insetX * 2),
+      math.max(0, visualRect.height - topInset - bottomInset),
     );
   }
 
@@ -65,6 +71,9 @@ class TreeComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
+    if (_renderWholeObstacle(canvas)) {
+      return;
+    }
     if (_renderSpriteTree(canvas)) {
       return;
     }
@@ -123,9 +132,38 @@ class TreeComponent extends PositionComponent {
   }
 
   Future<void> _loadSprites() async {
+    if (!assetVariant.isModular) {
+      _wholeImage = await GameImageCache.load(assetVariant.assetPath!);
+      return;
+    }
     _trunkBottom = await GameImageCache.load(AppAssets.treeTrunkBottom);
     _trunkMiddle = await GameImageCache.load(AppAssets.treeTrunkMiddle);
     _crownTop = await GameImageCache.load(_crownAsset);
+  }
+
+  bool _renderWholeObstacle(Canvas canvas) {
+    final image = _wholeImage;
+    if (image == null) {
+      return false;
+    }
+
+    final bounds = Rect.fromLTWH(0, 0, treeWidth, treeHeight);
+    final dst = assetVariant.fitMode == ObstacleFitMode.cover
+        ? bounds
+        : _containRect(image, bounds, alignToBottom: true);
+    _drawImage(canvas, image, dst, Paint()..filterQuality = FilterQuality.high);
+    return true;
+  }
+
+  Rect? get _wholeVisualRect {
+    final image = _wholeImage;
+    if (image == null || assetVariant.isModular) {
+      return null;
+    }
+    final bounds = Rect.fromLTWH(0, 0, treeWidth, treeHeight);
+    return assetVariant.fitMode == ObstacleFitMode.cover
+        ? bounds
+        : _containRect(image, bounds, alignToBottom: true);
   }
 
   bool _renderSpriteTree(Canvas canvas) {
@@ -190,5 +228,24 @@ class TreeComponent extends PositionComponent {
     }
     final width = sourceHeight * dstAspect;
     return Rect.fromLTWH((sourceWidth - width) / 2, 0, width, sourceHeight);
+  }
+
+  Rect _containRect(
+    ui.Image image,
+    Rect bounds, {
+    required bool alignToBottom,
+  }) {
+    final scale = math.min(
+      bounds.width / image.width,
+      bounds.height / image.height,
+    );
+    final width = image.width * scale;
+    final height = image.height * scale;
+    return Rect.fromLTWH(
+      bounds.left + (bounds.width - width) / 2,
+      alignToBottom ? bounds.bottom - height : bounds.top,
+      width,
+      height,
+    );
   }
 }

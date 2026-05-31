@@ -66,11 +66,6 @@ class LegalDocumentsScreen extends ConsumerWidget {
                         documentType: document.type,
                         documentVersion: document.version,
                       );
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text(l10n.accepted)));
-                  }
                 },
               );
             },

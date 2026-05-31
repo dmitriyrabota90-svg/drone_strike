@@ -12,7 +12,7 @@ from app.schemas.progress import (
     ProgressResponse,
 )
 
-MAX_MISSION_NUMBER = 10
+MAX_MISSION_NUMBER = 20
 
 
 def calculate_player_level(total_score: int) -> int:

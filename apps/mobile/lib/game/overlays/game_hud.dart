@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../drone_game.dart';
 import '../game_state.dart';
+import '../mission_rules.dart';
 
 class GameHud extends StatelessWidget {
   const GameHud({required this.game, super.key});
@@ -18,7 +19,7 @@ class GameHud extends StatelessWidget {
         child: ValueListenableBuilder<DroneGameState>(
           valueListenable: game.stateNotifier,
           builder: (context, state, child) {
-            final missionDistance = game.levelConfig.missionDistanceMeters;
+            final missionDistance = game.missionDistanceMeters;
             final remaining = state.remainingDistanceMeters.clamp(
               0.0,
               missionDistance,
@@ -38,7 +39,7 @@ class GameHud extends StatelessWidget {
                 ),
                 Positioned(
                   top: 6,
-                  left: 48,
+                  left: 46,
                   right: 6,
                   child: IgnorePointer(
                     child: _HudPanel(
@@ -60,10 +61,13 @@ class GameHud extends StatelessWidget {
                           _LivesIndicator(
                             lives: state.lives,
                             label: l10n.lives,
+                            unlimited: MissionRules.isFreeMission(
+                              state.missionNumber,
+                            ),
                           ),
                           const SizedBox(width: 5),
                           _StatPill(
-                            label: 'SC',
+                            label: 'PTS',
                             value: '${state.score}',
                             accent: const Color(0xFFFF9F2E),
                           ),
@@ -79,8 +83,8 @@ class GameHud extends StatelessWidget {
                   ),
                 ),
                 Positioned(
-                  top: 7,
-                  left: 7,
+                  top: 6,
+                  left: 6,
                   child: _PauseButton(
                     tooltip: l10n.pause,
                     onPressed: game.pauseGame,
@@ -108,15 +112,17 @@ class _HudPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0xD9061426),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xAA78E8FF), width: 1.2),
+        gradient: const LinearGradient(
+          colors: [Color(0xE0051424), Color(0xCC0B2033)],
+        ),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: const Color(0xCC6EF4FF), width: 1),
         boxShadow: const [
-          BoxShadow(color: Color(0x6600D7FF), blurRadius: 18, spreadRadius: -8),
+          BoxShadow(color: Color(0x7700D7FF), blurRadius: 15, spreadRadius: -8),
           BoxShadow(
-            color: Color(0x88000000),
+            color: Color(0x77FF3355),
             blurRadius: 12,
-            offset: Offset(0, 4),
+            spreadRadius: -9,
           ),
         ],
       ),
@@ -137,15 +143,15 @@ class _PauseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox.square(
-      dimension: 36,
+      dimension: 34,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: const Color(0xE80A1B2D),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFFF9F2E), width: 1.4),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: const Color(0xFFFF5D73), width: 1.2),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x88FF7A1A),
+              color: Color(0x88FF3355),
               blurRadius: 14,
               spreadRadius: -5,
             ),
@@ -155,9 +161,9 @@ class _PauseButton extends StatelessWidget {
           key: const ValueKey('hud_pause_button'),
           tooltip: tooltip,
           padding: EdgeInsets.zero,
-          iconSize: 22,
+          iconSize: 21,
           onPressed: onPressed,
-          icon: const Icon(Icons.pause_rounded, color: Color(0xFFFFC36B)),
+          icon: const Icon(Icons.pause_rounded, color: Color(0xFFFF8DA0)),
         ),
       ),
     );
@@ -176,14 +182,14 @@ class _MissionBadge extends StatelessWidget {
       label: '$label: $missionNumber',
       child: Container(
         key: const ValueKey('hud_mission_badge'),
-        width: 52,
+        width: 54,
         height: 27,
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
         decoration: BoxDecoration(
           color: const Color(0xFF102A40),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: const Color(0xFF34D8FF), width: 1.2),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(color: const Color(0xFF34D8FF), width: 1),
         ),
         child: Text(
           'M$missionNumber',
@@ -224,12 +230,12 @@ class _ProgressCluster extends StatelessWidget {
             children: [
               const Icon(
                 Icons.speed_rounded,
-                color: Color(0xFF7CE7FF),
+                  color: Color(0xFF34D8FF),
                 size: 14,
               ),
               const SizedBox(width: 4),
               Text(
-                '${remainingMeters}m',
+                '${(progress * 100).floor()}% · ${remainingMeters}m',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -242,13 +248,23 @@ class _ProgressCluster extends StatelessWidget {
           ),
           const SizedBox(height: 3),
           ClipRRect(
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: BorderRadius.circular(2),
             child: SizedBox(
-              height: 5,
+              height: 6,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   const ColoredBox(color: Color(0xFF081421)),
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: const Color(0x6645F0FF),
+                          width: 0.8,
+                        ),
+                      ),
+                    ),
+                  ),
                   FractionallySizedBox(
                     alignment: Alignment.centerLeft,
                     widthFactor: progress,
@@ -271,38 +287,67 @@ class _ProgressCluster extends StatelessWidget {
 }
 
 class _LivesIndicator extends StatelessWidget {
-  const _LivesIndicator({required this.lives, required this.label});
+  const _LivesIndicator({
+    required this.lives,
+    required this.label,
+    required this.unlimited,
+  });
 
   final int lives;
   final String label;
+  final bool unlimited;
 
   @override
   Widget build(BuildContext context) {
     final visibleLives = lives.clamp(0, 5).toInt();
 
     return Semantics(
-      label: '$label: $lives',
-      child: Row(
+      label: unlimited ? '$label: unlimited' : '$label: $lives',
+      child: Container(
         key: const ValueKey('hud_lives_indicator'),
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var index = 0; index < 5; index++)
-            Padding(
-              padding: EdgeInsets.only(left: index == 0 ? 0 : 2),
-              child: Icon(
-                index < visibleLives
-                    ? Icons.favorite_rounded
-                    : Icons.favorite_border_rounded,
-                size: 14,
-                color: index < visibleLives
-                    ? const Color(0xFFFF5D73)
-                    : const Color(0xFF47657A),
-                shadows: index < visibleLives
-                    ? const [Shadow(color: Color(0x99FF3355), blurRadius: 8)]
-                    : null,
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        decoration: unlimited
+            ? BoxDecoration(
+                color: const Color(0xB80A1B2D),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: const Color(0xFFFF5D73)),
+              )
+            : null,
+        child: unlimited
+            ? Text(
+                '∞',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: const Color(0xFFFF8DA0),
+                  fontWeight: FontWeight.w900,
+                  height: 1,
+                  shadows: const [
+                    Shadow(color: Color(0x99FF3355), blurRadius: 8),
+                  ],
+                ),
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var index = 0; index < 5; index++)
+                    Padding(
+                      padding: EdgeInsets.only(left: index == 0 ? 0 : 2),
+                      child: Icon(
+                        index < visibleLives
+                            ? Icons.favorite_rounded
+                            : Icons.favorite_border_rounded,
+                        size: 14,
+                        color: index < visibleLives
+                            ? const Color(0xFFFF5D73)
+                            : const Color(0xFF47657A),
+                        shadows: index < visibleLives
+                            ? const [
+                                Shadow(color: Color(0x99FF3355), blurRadius: 8),
+                              ]
+                            : null,
+                      ),
+                    ),
+                ],
               ),
-            ),
-        ],
       ),
     );
   }

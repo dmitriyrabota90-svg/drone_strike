@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/storage/local_storage.dart';
+import '../../../game/mission_rules.dart';
 import 'progress_dto.dart';
 
 class GuestProgressRepository {
@@ -37,7 +38,9 @@ class GuestProgressRepository {
       totalScore: totalScore,
       playerLevel: 1,
       completedMissionsCount: completed.length,
-      unlockedMission: 2,
+      unlockedMission: completed.contains(1)
+          ? MissionRules.maxGuestMission
+          : 1,
       missions: missions,
     );
   }
@@ -48,7 +51,7 @@ class GuestProgressRepository {
     required int flightAccuracyBonus,
     required int tankHitBonus,
   }) async {
-    if (missionNumber < 1 || missionNumber > 2) {
+    if (missionNumber < 1 || missionNumber > MissionRules.maxGuestMission) {
       return loadProgress();
     }
 
@@ -80,7 +83,10 @@ class GuestProgressRepository {
         .split(',')
         .map(int.tryParse)
         .whereType<int>()
-        .where((mission) => mission >= 1 && mission <= 2)
+        .where(
+          (mission) =>
+              mission >= 1 && mission <= MissionRules.maxGuestMission,
+        )
         .toSet();
   }
 

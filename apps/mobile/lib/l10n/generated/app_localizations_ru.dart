@@ -15,6 +15,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get continueGame => 'Продолжить';
 
   @override
+  String get play => 'Играть';
+
+  @override
   String get levelSelect => 'Выбор уровня';
 
   @override
@@ -40,6 +43,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get register => 'Регистрация';
+
+  @override
+  String get registerAction => 'Зарегистрироваться';
+
+  @override
+  String get alreadyHaveAccount => 'Уже есть аккаунт?';
 
   @override
   String get back => 'Назад';
@@ -431,7 +440,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get flightTrails => 'Следы полета';
 
   @override
-  String get nicknameChange => 'Смена никнейма';
+  String get nicknameChange => 'Сменить никнейм';
+
+  @override
+  String get nicknameChangeDescription =>
+      'Измени имя, которое видно в профиле и таблице лидеров';
 
   @override
   String get deleteAccountPlaceholder =>

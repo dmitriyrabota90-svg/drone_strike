@@ -7,11 +7,16 @@ import 'package:flutter/material.dart';
 import '../../core/assets/app_assets.dart';
 import '../game_config.dart';
 import '../game_image_cache.dart';
+import '../game_visual_theme.dart';
 
 class BackgroundLayerComponent extends PositionComponent {
-  BackgroundLayerComponent({this.forwardSpeed = GameConfig.forwardSpeed});
+  BackgroundLayerComponent({
+    this.forwardSpeed = GameConfig.forwardSpeed,
+    this.visualTheme = GameVisualTheme.night,
+  });
 
   final double forwardSpeed;
+  final GameVisualTheme visualTheme;
   double _scroll = 0;
   ui.Image? _sky;
   ui.Image? _clouds01;
@@ -26,11 +31,27 @@ class BackgroundLayerComponent extends PositionComponent {
   }
 
   Future<void> _loadSprites() async {
-    _sky = await GameImageCache.load(AppAssets.gameSkyBaseNight);
-    _clouds01 = await GameImageCache.load(AppAssets.gameCloudsLayer01);
-    _clouds02 = await GameImageCache.load(AppAssets.gameCloudsLayer02);
-    _cityRuins = await GameImageCache.load(AppAssets.gameCityRuinsLayer);
-    _roadGround = await GameImageCache.load(AppAssets.gameRoadGroundLayer);
+    _sky = await GameImageCache.load(
+      visualTheme.isDay ? AppAssets.gameDaySkyBase : AppAssets.gameSkyBaseNight,
+    );
+    _clouds01 = await GameImageCache.load(
+      visualTheme.isDay
+          ? AppAssets.gameDayCloudsLayer01
+          : AppAssets.gameCloudsLayer01,
+    );
+    _clouds02 = visualTheme.isDay
+        ? await GameImageCache.load(AppAssets.gameDayCloudsLayer01)
+        : await GameImageCache.load(AppAssets.gameCloudsLayer02);
+    _cityRuins = await GameImageCache.load(
+      visualTheme.isDay
+          ? AppAssets.gameDayCityRuinsLayer
+          : AppAssets.gameCityRuinsLayer,
+    );
+    _roadGround = await GameImageCache.load(
+      visualTheme.isDay
+          ? AppAssets.gameDayRoadGroundLayer
+          : AppAssets.gameRoadGroundLayer,
+    );
   }
 
   @override
@@ -81,10 +102,18 @@ class BackgroundLayerComponent extends PositionComponent {
 
     final cityRuins = _cityRuins;
     final roadGround = _roadGround;
-    final roadHeight = math.max(32.0, size.y * 0.09);
-    final roadY = size.y - roadHeight;
-    final cityHeight = math.max(300.0, size.y * 0.84);
-    final cityY = math.max(size.y * 0.46, roadY - cityHeight * 0.46);
+    final roadHeight = visualTheme.isDay
+        ? math.max(58.0, size.y * 0.16)
+        : math.max(32.0, size.y * 0.09);
+    final roadY = visualTheme.isDay
+        ? size.y - roadHeight * 0.92
+        : size.y - roadHeight;
+    final cityHeight = visualTheme.isDay
+        ? math.max(260.0, size.y * 0.64)
+        : math.max(300.0, size.y * 0.84);
+    final cityY = visualTheme.isDay
+        ? (roadY - cityHeight * 0.84).clamp(size.y * 0.18, size.y * 0.36)
+        : math.max(size.y * 0.46, roadY - cityHeight * 0.46);
     if (cityRuins == null || roadGround == null) {
       canvas.drawRect(
         Rect.fromLTWH(0, cityY, size.x, size.y - cityY),
@@ -110,7 +139,13 @@ class BackgroundLayerComponent extends PositionComponent {
       );
     }
 
-    canvas.drawRect(size.toRect(), Paint()..color = const Color(0x33000000));
+    canvas.drawRect(
+      size.toRect(),
+      Paint()
+        ..color = visualTheme.isDay
+            ? const Color(0x18030A12)
+            : const Color(0x33000000),
+    );
   }
 
   void _drawRepeatingLayer(

@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/services.dart';
 
 import '../../../core/audio/audio_service.dart';
 import '../../../features/lives/domain/lives_controller.dart';
 import '../../../game/drone_game.dart';
 import '../../../game/game_state.dart';
 import '../../../game/level_config.dart';
+import '../../../game/mission_rules.dart';
 import '../../../game/overlays/game_hud.dart';
 import '../../../game/overlays/game_over_overlay.dart';
 import '../../../game/overlays/mission_complete_overlay.dart';
@@ -35,7 +35,6 @@ class GamePlaceholderScreen extends ConsumerStatefulWidget {
 class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
   DroneGame? _game;
   late final AudioService _audioService;
-  bool _orientationReady = false;
   bool _gameLayoutReady = false;
   bool _gameLayoutCheckScheduled = false;
   bool _startCheckScheduled = false;
@@ -45,7 +44,6 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
   void initState() {
     super.initState();
     _audioService = ref.read(audioServiceProvider);
-    _enterLandscape();
   }
 
   @override
@@ -67,7 +65,6 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
   void dispose() {
     _audioService.stopMusic();
     _audioService.stopOneShot();
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     super.dispose();
   }
 
@@ -79,7 +76,14 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
       if (lives == null) {
         return;
       }
-      game?.updateLives(lives.currentLives);
+      game?.updateLives(_displayLives(lives.currentLives));
+      if (_isFreeMission) {
+        game?.hideNoLivesOverlay();
+        if (game?.stateNotifier.value.status == DroneMissionStatus.ready) {
+          _playMissionMusic();
+        }
+        return;
+      }
       if (!lives.hasLives) {
         game?.showNoLivesOverlay();
         return;
@@ -96,7 +100,7 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
         builder: (context, constraints) {
           final gameSize = _resolveGameSize(constraints);
           final hasValidGameSize = _hasValidGameSize(gameSize);
-          if (!_orientationReady || !hasValidGameSize) {
+          if (!hasValidGameSize) {
             return const SizedBox.expand(
               child: ColoredBox(
                 color: Color(0xFF061426),
@@ -147,28 +151,6 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
         },
       ),
     );
-  }
-
-  void _enterLandscape() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) {
-          return;
-        }
-        setState(() {
-          _orientationReady = true;
-          _gameLayoutReady = false;
-          _gameLayoutCheckScheduled = false;
-        });
-      });
-    });
   }
 
   Size _resolveGameSize(BoxConstraints constraints) {
@@ -257,6 +239,12 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
     _audioService.playMissionMusic();
   }
 
+  bool get _isFreeMission => MissionRules.isFreeMission(widget.missionNumber);
+
+  int _displayLives(int currentLives) {
+    return _isFreeMission ? 5 : currentLives;
+  }
+
   void _restartMissionAudio() {
     unawaited(_restartMissionAudioAsync());
   }
@@ -279,7 +267,12 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
     if (!mounted || game != _game) {
       return;
     }
-    game.updateLives(lives.currentLives);
+    game.updateLives(_displayLives(lives.currentLives));
+    if (_isFreeMission) {
+      game.hideNoLivesOverlay();
+      _playMissionMusic();
+      return;
+    }
     if (!lives.hasLives) {
       game.showNoLivesOverlay();
       return;
@@ -291,11 +284,19 @@ class _GamePlaceholderScreenState extends ConsumerState<GamePlaceholderScreen> {
     _audioService.stopMusic();
     _audioService.playDefeat();
     final game = _game;
+    if (_isFreeMission) {
+      final lives = await ref.read(livesControllerProvider.future);
+      if (!mounted || game != _game) {
+        return;
+      }
+      game?.updateLives(_displayLives(lives.currentLives));
+      return;
+    }
     final lives = await ref.read(livesControllerProvider.notifier).spendLife();
     if (!mounted || game != _game) {
       return;
     }
-    game?.updateLives(lives.currentLives);
+    game?.updateLives(_displayLives(lives.currentLives));
     if (!lives.hasLives) {
       game?.showNoLivesOverlay();
     }

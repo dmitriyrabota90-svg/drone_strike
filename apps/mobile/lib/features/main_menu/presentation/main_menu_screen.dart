@@ -50,106 +50,57 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
 
     return Scaffold(
       body: MenuBackground(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: ListView(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 720;
+            final identity = _PilotIdentity(
+              displayName: user?.displayName ?? l10n.guestMode,
+              isGuest: user == null,
+            );
+            final actions = _MainActions(
+              l10n: l10n,
+              showContinue: showContinue,
+              isProgressLoading: isProgressLoading,
+              onContinue: () {
+                final unlockedMission = progressState?.unlockedMission ?? 1;
+                if (unlockedMission >= 1 && unlockedMission < 10) {
+                  context.go('/game/$unlockedMission');
+                  return;
+                }
+                context.go('/levels');
+              },
+              onPlay: () => context.go('/levels'),
+              onProfile: () => context.go('/profile'),
+              onSettings: () => context.go('/settings'),
+              onExit: () => _showExitDialog(context, l10n),
+            );
+
+            return SingleChildScrollView(
               padding: const EdgeInsets.all(24),
-              shrinkWrap: true,
-              children: [
-                Image.asset(AppAssets.logo, height: 166, fit: BoxFit.contain),
-                const SizedBox(height: 10),
-                GlassPanel(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        user == null ? Icons.person_outline : Icons.radar,
-                        size: 18,
-                        color: const Color(0xFF70E7FF),
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          user?.displayName ?? l10n.guestMode,
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleMedium,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 920),
+                  child: wide
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(child: identity),
+                            const SizedBox(width: 28),
+                            SizedBox(width: 360, child: actions),
+                          ],
+                        )
+                      : Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            identity,
+                            const SizedBox(height: 18),
+                            actions,
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ),
-                const SizedBox(height: 24),
-                if (isProgressLoading)
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 12),
-                    child: LinearProgressIndicator(),
-                  ),
-                if (showContinue)
-                  _MenuButton(
-                    label: l10n.continueGame,
-                    icon: Icons.play_circle,
-                    onPressed: () {
-                      final unlockedMission =
-                          progressState?.unlockedMission ?? 1;
-                      if (unlockedMission >= 1 && unlockedMission < 10) {
-                        context.go('/game/$unlockedMission');
-                        return;
-                      }
-                      context.go('/levels');
-                    },
-                  ),
-                if (user == null)
-                  _MenuButton(
-                    label: l10n.login,
-                    icon: Icons.login,
-                    onPressed: () => context.go('/login'),
-                  ),
-                _MenuButton(
-                  label: l10n.levelSelect,
-                  icon: Icons.grid_view,
-                  variant: NeonMenuButtonVariant.primary,
-                  onPressed: () => context.go('/levels'),
-                ),
-                _MenuButton(
-                  label: l10n.profile,
-                  icon: Icons.person,
-                  onPressed: () => context.go('/profile'),
-                ),
-                _MenuButton(
-                  label: l10n.achievements,
-                  icon: Icons.military_tech,
-                  onPressed: () => context.go('/achievements'),
-                ),
-                _MenuButton(
-                  label: l10n.leaderboard,
-                  icon: Icons.leaderboard,
-                  onPressed: () => context.go('/leaderboard'),
-                ),
-                _MenuButton(
-                  label: l10n.shop,
-                  icon: Icons.storefront,
-                  onPressed: () => context.go('/shop'),
-                ),
-                _MenuButton(
-                  label: l10n.settings,
-                  icon: Icons.settings,
-                  onPressed: () => context.go('/settings'),
-                ),
-                _MenuButton(
-                  label: l10n.exit,
-                  icon: Icons.logout,
-                  variant: NeonMenuButtonVariant.danger,
-                  onPressed: () => _showExitDialog(context, l10n),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -182,6 +133,112 @@ class _MainMenuScreenState extends ConsumerState<MainMenuScreen> {
     if (shouldExit == true) {
       SystemNavigator.pop();
     }
+  }
+}
+
+class _PilotIdentity extends StatelessWidget {
+  const _PilotIdentity({required this.displayName, required this.isGuest});
+
+  final String displayName;
+  final bool isGuest;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Image.asset(AppAssets.logo, height: 150, fit: BoxFit.contain),
+        const SizedBox(height: 12),
+        GlassPanel(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                isGuest ? Icons.person_outline : Icons.radar,
+                size: 18,
+                color: const Color(0xFF70E7FF),
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  displayName,
+                  textAlign: TextAlign.center,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MainActions extends StatelessWidget {
+  const _MainActions({
+    required this.l10n,
+    required this.showContinue,
+    required this.isProgressLoading,
+    required this.onContinue,
+    required this.onPlay,
+    required this.onProfile,
+    required this.onSettings,
+    required this.onExit,
+  });
+
+  final AppLocalizations l10n;
+  final bool showContinue;
+  final bool isProgressLoading;
+  final VoidCallback onContinue;
+  final VoidCallback onPlay;
+  final VoidCallback onProfile;
+  final VoidCallback onSettings;
+  final VoidCallback onExit;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassPanel(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (isProgressLoading)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 12),
+              child: LinearProgressIndicator(),
+            ),
+          if (showContinue)
+            _MenuButton(
+              label: l10n.continueGame,
+              icon: Icons.play_circle,
+              onPressed: onContinue,
+            ),
+          _MenuButton(
+            label: l10n.play,
+            icon: Icons.play_arrow_rounded,
+            variant: NeonMenuButtonVariant.primary,
+            onPressed: onPlay,
+          ),
+          _MenuButton(
+            label: l10n.profile,
+            icon: Icons.person,
+            onPressed: onProfile,
+          ),
+          _MenuButton(
+            label: l10n.settings,
+            icon: Icons.settings,
+            onPressed: onSettings,
+          ),
+          TextButton.icon(
+            onPressed: onExit,
+            icon: const Icon(Icons.logout),
+            label: Text(l10n.exit),
+          ),
+        ],
+      ),
+    );
   }
 }
 

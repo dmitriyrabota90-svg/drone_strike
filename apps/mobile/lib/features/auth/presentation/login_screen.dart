@@ -20,6 +20,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   String? _validationError;
+  String? _infoMessage;
 
   @override
   void dispose() {
@@ -74,12 +75,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: Text(l10n.forgotPassword),
                         ),
                       ),
-                      if (errorMessage != null) ...[
+                      if (errorMessage != null || _infoMessage != null) ...[
                         const SizedBox(height: 16),
                         Text(
-                          errorMessage,
+                          errorMessage ?? _infoMessage!,
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
+                            color: errorMessage == null
+                                ? const Color(0xFF8EF7FF)
+                                : Theme.of(context).colorScheme.error,
                           ),
                         ),
                       ],
@@ -141,7 +144,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return;
     }
     if (email.isEmpty || !email.contains('@')) {
-      _showInfoSnackBar(l10n.invalidEmail);
+      _showInlineMessage(l10n.invalidEmail);
       return;
     }
 
@@ -151,7 +154,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!mounted) {
       return;
     }
-    _showInfoSnackBar(error ?? l10n.passwordResetInstructionsSent);
+    _showInlineMessage(error ?? l10n.passwordResetInstructionsSent);
   }
 
   Future<void> _submit(AppLocalizations l10n) async {
@@ -159,11 +162,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final password = _passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      setState(() => _validationError = l10n.invalidEmailOrPassword);
+      setState(() {
+        _validationError = l10n.invalidEmailOrPassword;
+        _infoMessage = null;
+      });
       return;
     }
 
-    setState(() => _validationError = null);
+    setState(() {
+      _validationError = null;
+      _infoMessage = null;
+    });
     await ref
         .read(authControllerProvider.notifier)
         .login(email: email, password: password);
@@ -173,18 +182,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.loginSuccess)));
     context.go('/profile');
   }
 
-  void _showInfoSnackBar(String message) {
+  void _showInlineMessage(String message) {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    setState(() {
+      _validationError = null;
+      _infoMessage = message;
+    });
   }
 }

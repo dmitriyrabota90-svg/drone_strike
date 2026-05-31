@@ -7,6 +7,7 @@ import '../../../l10n/generated/app_localizations.dart';
 import '../../../shared/widgets/glass_panel.dart';
 import '../../../shared/widgets/menu_background.dart';
 import '../../../shared/widgets/neon_menu_button.dart';
+import '../../lives/domain/lives_controller.dart';
 import '../domain/auth_controller.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -118,16 +119,18 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       ],
                       const SizedBox(height: 16),
                       NeonMenuButton(
-                        text: isLoading ? l10n.loading : l10n.register,
+                        text: isLoading ? l10n.loading : l10n.registerAction,
                         icon: Icons.person_add,
                         onPressed: isLoading ? null : () => _submit(l10n),
                       ),
-                      const SizedBox(height: 12),
-                      NeonMenuButton(
-                        text: l10n.login,
-                        icon: Icons.login,
-                        variant: NeonMenuButtonVariant.secondary,
-                        onPressed: () => context.go('/login'),
+                      const SizedBox(height: 10),
+                      Center(
+                        child: TextButton(
+                          onPressed: () => context.go('/login'),
+                          child: Text(
+                            '${l10n.alreadyHaveAccount} ${l10n.login}',
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -172,9 +175,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.registerSuccess)));
+    await ref.read(livesControllerProvider.notifier).resetToFull();
+    if (!mounted) {
+      return;
+    }
     context.go('/profile');
   }
 

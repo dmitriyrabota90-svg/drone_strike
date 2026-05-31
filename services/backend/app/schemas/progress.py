@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class MissionCompleteRequest(BaseModel):
-    mission_number: int = Field(ge=1, le=10)
+    mission_number: int = Field(ge=1, le=20)
     flight_accuracy_bonus: int = Field(ge=0, le=50)
     tank_hit_bonus: int = Field(ge=0, le=150)
 

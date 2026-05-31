@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../../core/assets/app_assets.dart';
 import '../game_config.dart';
 import '../game_image_cache.dart';
+import '../obstacle_asset_registry.dart';
 
 class NetComponent extends PositionComponent {
   static const _segmentOverlap = 2.5;
@@ -18,16 +19,19 @@ class NetComponent extends PositionComponent {
     required this.worldX,
     required this.netHeight,
     required this.netWidth,
+    this.assetVariant = ObstacleAssetRegistry.topModularNet,
     this.variantSeed = 0,
   });
 
   double worldX;
   double netHeight;
   double netWidth;
+  final ObstacleAssetVariant assetVariant;
   final int variantSeed;
   ui.Image? _topMount;
   ui.Image? _middle;
   ui.Image? _bottom;
+  ui.Image? _wholeImage;
 
   @override
   Future<void> onLoad() async {
@@ -37,17 +41,19 @@ class NetComponent extends PositionComponent {
   }
 
   Rect get collisionRect {
-    final insetX = netWidth * GameConfig.netHitboxInsetXRatio;
-    final topInset = GameConfig.netHitboxTopInset;
+    final visualRect =
+        _wholeVisualRect ?? Rect.fromLTWH(0, 0, netWidth, netHeight);
+    final insetX = visualRect.width * assetVariant.hitboxInsetXRatio;
+    final topInset = assetVariant.hitboxTopInset;
     final bottomInset = math.min(
-      GameConfig.netHitboxBottomInset,
-      math.max(0, netHeight - topInset),
+      assetVariant.hitboxBottomInset,
+      math.max(0, visualRect.height - topInset),
     );
     return Rect.fromLTWH(
-      position.x + insetX,
-      position.y + topInset,
-      netWidth - insetX * 2,
-      math.max(0, netHeight - topInset - bottomInset),
+      position.x + visualRect.left + insetX,
+      position.y + visualRect.top + topInset,
+      math.max(0, visualRect.width - insetX * 2),
+      math.max(0, visualRect.height - topInset - bottomInset),
     );
   }
 
@@ -58,6 +64,9 @@ class NetComponent extends PositionComponent {
 
   @override
   void render(Canvas canvas) {
+    if (_renderWholeObstacle(canvas)) {
+      return;
+    }
     if (_renderSpriteNet(canvas)) {
       return;
     }
@@ -103,9 +112,38 @@ class NetComponent extends PositionComponent {
   }
 
   Future<void> _loadSprites() async {
+    if (!assetVariant.isModular) {
+      _wholeImage = await GameImageCache.load(assetVariant.assetPath!);
+      return;
+    }
     _topMount = await GameImageCache.load(_topMountAsset);
     _middle = await GameImageCache.load(_middleAsset);
     _bottom = await GameImageCache.load(_bottomAsset);
+  }
+
+  bool _renderWholeObstacle(Canvas canvas) {
+    final image = _wholeImage;
+    if (image == null) {
+      return false;
+    }
+
+    final bounds = Rect.fromLTWH(0, 0, netWidth, netHeight);
+    final dst = assetVariant.fitMode == ObstacleFitMode.cover
+        ? bounds
+        : _containRect(image, bounds, alignToTop: true);
+    _drawImage(canvas, image, dst, Paint()..filterQuality = FilterQuality.high);
+    return true;
+  }
+
+  Rect? get _wholeVisualRect {
+    final image = _wholeImage;
+    if (image == null || assetVariant.isModular) {
+      return null;
+    }
+    final bounds = Rect.fromLTWH(0, 0, netWidth, netHeight);
+    return assetVariant.fitMode == ObstacleFitMode.cover
+        ? bounds
+        : _containRect(image, bounds, alignToTop: true);
   }
 
   bool _renderSpriteNet(Canvas canvas) {
@@ -175,5 +213,20 @@ class NetComponent extends PositionComponent {
     }
     final width = sourceHeight * dstAspect;
     return Rect.fromLTWH((sourceWidth - width) / 2, 0, width, sourceHeight);
+  }
+
+  Rect _containRect(ui.Image image, Rect bounds, {required bool alignToTop}) {
+    final scale = math.min(
+      bounds.width / image.width,
+      bounds.height / image.height,
+    );
+    final width = image.width * scale;
+    final height = image.height * scale;
+    return Rect.fromLTWH(
+      bounds.left + (bounds.width - width) / 2,
+      alignToTop ? bounds.top : bounds.bottom - height,
+      width,
+      height,
+    );
   }
 }

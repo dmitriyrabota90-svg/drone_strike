@@ -140,6 +140,31 @@ def test_unlock_next_mission() -> None:
     assert progress_response.json()["unlocked_mission"] == 2
 
 
+def test_complete_twenty_missions_unlocks_final_mission_only() -> None:
+    _, access_token = register_and_get_token()
+
+    for mission_number in range(1, 21):
+        response = complete_mission(access_token, mission_number, 20, 20)
+        assert response.status_code == 200
+
+    progress_response = client.get(
+        "/api/v1/progress",
+        headers=auth_headers(access_token),
+    )
+
+    assert progress_response.status_code == 200
+    assert progress_response.json()["completed_missions_count"] == 20
+    assert progress_response.json()["unlocked_mission"] == 20
+
+
+def test_mission_21_rejected() -> None:
+    _, access_token = register_and_get_token()
+
+    response = complete_mission(access_token, 21, 20, 20)
+
+    assert response.status_code == 422
+
+
 def test_player_level_update_visible_in_me() -> None:
     email, access_token = register_and_get_token()
 

@@ -18,6 +18,9 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  String? _feedbackMessage;
+  bool _feedbackIsError = false;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -43,6 +46,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                if (_feedbackMessage != null) ...[
+                  GlassPanel(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    child: Text(
+                      _feedbackMessage!,
+                      style: TextStyle(
+                        color: _feedbackIsError
+                            ? Theme.of(context).colorScheme.error
+                            : const Color(0xFF8EF7FF),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 if (authState.errorMessage != null) ...[
                   Text(
                     authState.errorMessage!,
@@ -108,6 +128,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
+                _ProfileNavigationPanel(l10n: l10n),
+                const SizedBox(height: 16),
                 GlassPanel(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,7 +187,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           if (!mounted) {
                             return;
                           }
-                          _showInfoSnackBar(l10n.logoutSuccess);
                           this.context.go('/menu');
                         },
                 ),
@@ -186,10 +207,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final authState = ref.read(authControllerProvider).asData?.value;
     final errorMessage = authState?.errorMessage;
     if (errorMessage != null) {
-      _showInfoSnackBar(errorMessage);
+      _showInlineMessage(errorMessage, isError: true);
       return;
     }
-    _showInfoSnackBar(l10n.emailVerificationSent);
+    _showInlineMessage(l10n.emailVerificationSent);
   }
 
   Future<void> _showDisplayNameDialog(AppLocalizations l10n) async {
@@ -226,7 +247,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       return;
     }
     if (!RegExp(r'^[A-Za-zА-Яа-яЁё0-9_]{3,20}$').hasMatch(value)) {
-      _showInfoSnackBar(l10n.invalidDisplayName);
+      _showInlineMessage(l10n.invalidDisplayName, isError: true);
       return;
     }
 
@@ -238,19 +259,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final authState = ref.read(authControllerProvider).asData?.value;
     final errorMessage = authState?.errorMessage;
     if (errorMessage != null) {
-      _showInfoSnackBar(errorMessage);
+      _showInlineMessage(errorMessage, isError: true);
       return;
     }
-    _showInfoSnackBar(l10n.displayNameChangeSuccess);
+    _showInlineMessage(l10n.displayNameChangeSuccess);
   }
 
-  void _showInfoSnackBar(String message) {
+  void _showInlineMessage(String message, {bool isError = false}) {
     if (!mounted) {
       return;
     }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    setState(() {
+      _feedbackMessage = message;
+      _feedbackIsError = isError;
+    });
   }
 }
 
@@ -275,10 +297,13 @@ class _GuestProfile extends StatelessWidget {
               const SizedBox(height: 12),
               Text(l10n.loginRequired),
               const SizedBox(height: 12),
-              Text('${l10n.mission} 1-2: ${l10n.available}'),
+              Text('${l10n.mission} 1: ${l10n.available}'),
+              Text('${l10n.mission} 2: ${l10n.completePreviousMission}'),
             ],
           ),
         ),
+        const SizedBox(height: 16),
+        _ProfileNavigationPanel(l10n: l10n),
         const SizedBox(height: 16),
         NeonMenuButton(
           text: l10n.login,
@@ -293,6 +318,88 @@ class _GuestProfile extends StatelessWidget {
           onPressed: () => context.go('/register'),
         ),
       ],
+    );
+  }
+}
+
+class _ProfileNavigationPanel extends StatelessWidget {
+  const _ProfileNavigationPanel({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassPanel(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final wide = constraints.maxWidth >= 520;
+          final buttons = [
+            _ProfileNavButton(
+              label: l10n.achievements,
+              icon: Icons.military_tech,
+              route: '/achievements',
+            ),
+            _ProfileNavButton(
+              label: l10n.leaderboard,
+              icon: Icons.leaderboard,
+              route: '/leaderboard',
+            ),
+            _ProfileNavButton(
+              label: l10n.shop,
+              icon: Icons.storefront,
+              route: '/shop',
+            ),
+            _ProfileNavButton(
+              label: l10n.settings,
+              icon: Icons.settings,
+              route: '/settings',
+            ),
+          ];
+
+          if (!wide) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final button in buttons) ...[
+                  button,
+                  if (button != buttons.last) const SizedBox(height: 10),
+                ],
+              ],
+            );
+          }
+
+          return Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              for (final button in buttons)
+                SizedBox(width: (constraints.maxWidth - 10) / 2, child: button),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _ProfileNavButton extends StatelessWidget {
+  const _ProfileNavButton({
+    required this.label,
+    required this.icon,
+    required this.route,
+  });
+
+  final String label;
+  final IconData icon;
+  final String route;
+
+  @override
+  Widget build(BuildContext context) {
+    return NeonMenuButton(
+      text: label,
+      icon: icon,
+      variant: NeonMenuButtonVariant.secondary,
+      onPressed: () => context.go(route),
     );
   }
 }

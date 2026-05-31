@@ -110,6 +110,12 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get continueGame;
 
+  /// No description provided for @play.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get play;
+
   /// No description provided for @levelSelect.
   ///
   /// In en, this message translates to:
@@ -163,6 +169,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Register'**
   String get register;
+
+  /// No description provided for @registerAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get registerAction;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get alreadyHaveAccount;
 
   /// No description provided for @back.
   ///
@@ -929,8 +947,14 @@ abstract class AppLocalizations {
   /// No description provided for @nicknameChange.
   ///
   /// In en, this message translates to:
-  /// **'Nickname change'**
+  /// **'Change nickname'**
   String get nicknameChange;
+
+  /// No description provided for @nicknameChangeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the name shown in profile and leaderboard'**
+  String get nicknameChangeDescription;
 
   /// No description provided for @deleteAccountPlaceholder.
   ///

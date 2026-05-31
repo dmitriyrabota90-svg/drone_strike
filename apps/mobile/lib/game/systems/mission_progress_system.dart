@@ -17,6 +17,13 @@ class MissionProgressSystem {
     return math.max(0, missionDistanceMeters - currentDistanceMeters);
   }
 
+  double get progressRatio {
+    if (missionDistanceMeters <= 0) {
+      return 1;
+    }
+    return (currentDistanceMeters / missionDistanceMeters).clamp(0.0, 1.0);
+  }
+
   void reset() {
     currentDistanceMeters = 0;
   }

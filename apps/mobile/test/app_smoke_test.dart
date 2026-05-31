@@ -11,23 +11,32 @@ import 'package:drone_strike/features/lives/data/lives_repository.dart';
 import 'package:drone_strike/features/lives/domain/lives_controller.dart';
 import 'package:drone_strike/features/lives/domain/lives_state.dart';
 import 'package:drone_strike/features/progress/data/progress_dto.dart';
+import 'package:drone_strike/features/shop/domain/test_entitlements.dart';
 import 'package:drone_strike/game/drone_game.dart';
 import 'package:drone_strike/game/game_config.dart';
+import 'package:drone_strike/game/game_visual_theme.dart';
 import 'package:drone_strike/game/level_config.dart';
+import 'package:drone_strike/game/mission_rules.dart';
+import 'package:drone_strike/game/obstacle_asset_registry.dart';
 import 'package:drone_strike/game/overlays/game_over_overlay.dart';
 import 'package:drone_strike/game/overlays/mission_complete_overlay.dart';
 import 'package:drone_strike/game/overlays/no_lives_overlay.dart';
 import 'package:drone_strike/game/systems/level_generator.dart';
+import 'package:drone_strike/game/systems/mission_progress_system.dart';
 import 'package:drone_strike/game/systems/scoring_system.dart';
 import 'package:drone_strike/l10n/generated/app_localizations.dart';
+import 'package:drone_strike/shared/widgets/neon_menu_button.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<void> pumpDroneStrikeApp(WidgetTester tester) async {
-  SharedPreferences.setMockInitialValues({});
+Future<void> pumpDroneStrikeApp(
+  WidgetTester tester, {
+  Map<String, Object> initialValues = const {},
+}) async {
+  SharedPreferences.setMockInitialValues(initialValues);
   await tester.pumpWidget(const ProviderScope(child: DroneStrikeApp()));
   await tester.pump(const Duration(seconds: 1));
   await tester.pumpAndSettle();
@@ -72,9 +81,10 @@ void main() {
     await pumpDroneStrikeApp(tester);
 
     expect(find.image(const AssetImage(AppAssets.logo)), findsOneWidget);
-    expect(find.text('Level Select'), findsOneWidget);
+    expect(find.text('Play'), findsOneWidget);
     expect(find.text('Profile'), findsOneWidget);
-    expect(find.text('Leaderboard'), findsOneWidget);
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Leaderboard'), findsNothing);
   });
 
   testWidgets('main menu hides Continue for a new guest', (tester) async {
@@ -86,6 +96,8 @@ void main() {
   testWidgets('login screen renders email and password fields', (tester) async {
     await pumpDroneStrikeApp(tester);
 
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Login').first);
     await tester.pumpAndSettle();
 
@@ -97,6 +109,8 @@ void main() {
   testWidgets('forgot password action opens reset dialog', (tester) async {
     await pumpDroneStrikeApp(tester);
 
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Login').first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Forgot password?'));
@@ -110,7 +124,7 @@ void main() {
   testWidgets('register screen renders legal checkboxes', (tester) async {
     await pumpDroneStrikeApp(tester);
 
-    await tester.tap(find.text('Login').first);
+    await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Register').last);
     await tester.pumpAndSettle();
@@ -118,6 +132,8 @@ void main() {
     expect(find.text('I accept the terms of use'), findsOneWidget);
     expect(find.text('I accept personal data processing'), findsOneWidget);
     expect(find.text('I am at least 13 years old'), findsOneWidget);
+    expect(find.widgetWithText(NeonMenuButton, 'Register'), findsOneWidget);
+    expect(find.text('Already have an account? Login'), findsOneWidget);
   });
 
   testWidgets('profile screen renders guest state', (tester) async {
@@ -131,36 +147,41 @@ void main() {
     expect(find.text('Login required'), findsOneWidget);
   });
 
-  testWidgets('level select unlocks missions 1 and 2 for guest', (
+  testWidgets('guest starts with mission 1 open and mission 2 locked', (
     tester,
   ) async {
     await pumpDroneStrikeApp(tester);
 
-    await tester.tap(find.text('Level Select'));
+    await tester.tap(find.text('Play'));
     await tester.pumpAndSettle();
 
     expect(find.text('Mission 1'), findsOneWidget);
     expect(find.text('Mission 2'), findsOneWidget);
     expect(find.text('Mission 3'), findsOneWidget);
-    expect(find.text('Locked'), findsWidgets);
+    expect(find.text('Complete the previous mission first.'), findsOneWidget);
+    expect(find.text('Registration required'), findsWidgets);
   });
 
-  testWidgets('guest can open mission 2 but mission 3 stays locked', (
+  testWidgets('guest can unlock mission 2 but mission 3 stays locked', (
     tester,
   ) async {
-    await pumpDroneStrikeApp(tester);
+    SharedPreferences.setMockInitialValues({
+      'guest_progress.completed_missions': '1',
+    });
+    await tester.pumpWidget(const ProviderScope(child: DroneStrikeApp()));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Level Select'));
+    await tester.tap(find.text('Play'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Mission 3'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Registration required'), findsOneWidget);
+    expect(find.text('Registration required'), findsWidgets);
     expect(find.text('Mission: 3'), findsNothing);
 
     await tester.pump(const Duration(seconds: 4));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Mission 2'));
     await tester.tap(find.text('Mission 2').hitTestable());
     await pumpGameScreenReady(tester);
 
@@ -170,6 +191,8 @@ void main() {
   testWidgets('leaderboard screen requires login for guest', (tester) async {
     await pumpDroneStrikeApp(tester);
 
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Leaderboard'));
     await tester.tap(find.text('Leaderboard'));
     await tester.pumpAndSettle();
@@ -177,36 +200,63 @@ void main() {
     expect(find.text('Login required to view leaderboard'), findsOneWidget);
   });
 
-  testWidgets('shop screen shows planned nickname change item', (tester) async {
+  testWidgets('shop screen opens nickname change action', (tester) async {
     await pumpDroneStrikeApp(tester);
 
-    await tester.drag(find.byType(Scrollable).first, const Offset(0, -360));
+    await tester.tap(find.text('Profile'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Shop').hitTestable());
     await tester.pumpAndSettle();
 
-    expect(find.text('Nickname change'), findsOneWidget);
+    expect(find.text('Change nickname'), findsOneWidget);
     expect(find.text('Coming soon'), findsWidgets);
   });
 
   testWidgets('mission 1 opens Flame game screen', (tester) async {
     await pumpDroneStrikeApp(tester);
 
-    await tester.tap(find.text('Level Select'));
+    await tester.tap(find.text('Play'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Mission 1'));
     await pumpGameScreenReady(tester);
 
     expect(find.byKey(const ValueKey('hud_mission_badge')), findsOneWidget);
     expect(find.byKey(const ValueKey('hud_lives_indicator')), findsOneWidget);
+    expect(find.text('∞'), findsWidgets);
     expect(find.byKey(const ValueKey('hud_mission_progress')), findsOneWidget);
     expect(find.text('Tap to start'), findsOneWidget);
+  });
+
+  testWidgets('free missions can start with zero lives', (tester) async {
+    for (final missionNumber in [1, 2]) {
+      await pumpDroneStrikeApp(
+        tester,
+        initialValues: {
+          'lives.current_lives': 0,
+          'lives.next_life_at': DateTime.now()
+              .add(const Duration(seconds: 90))
+              .toIso8601String(),
+          if (missionNumber == 2) 'guest_progress.completed_missions': '1',
+        },
+      );
+
+      await tester.tap(find.text('Play'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mission $missionNumber'));
+      await pumpGameScreenReady(tester);
+
+      expect(find.text('∞'), findsWidgets);
+      expect(find.textContaining('Next life in'), findsNothing);
+      expect(find.text('Tap to start'), findsOneWidget);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
   });
 
   testWidgets('first game tap starts mission', (tester) async {
     await pumpDroneStrikeApp(tester);
 
-    await tester.tap(find.text('Level Select'));
+    await tester.tap(find.text('Play'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Mission 1'));
     await pumpGameScreenReady(tester);
@@ -222,7 +272,7 @@ void main() {
   testWidgets('pause button opens pause overlay', (tester) async {
     await pumpDroneStrikeApp(tester);
 
-    await tester.tap(find.text('Level Select'));
+    await tester.tap(find.text('Play'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Mission 1'));
     await pumpGameScreenReady(tester);
@@ -238,8 +288,6 @@ void main() {
   ) async {
     await pumpDroneStrikeApp(tester);
 
-    await tester.drag(find.byType(Scrollable).first, const Offset(0, -360));
-    await tester.pumpAndSettle();
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
 
@@ -256,6 +304,8 @@ void main() {
   ) async {
     await pumpDroneStrikeApp(tester);
 
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Achievements'));
     await tester.tap(find.text('Achievements'));
     await tester.pumpAndSettle();
@@ -276,6 +326,8 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await tester.pumpAndSettle();
 
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Achievements'));
     await tester.tap(find.text('Achievements'));
     await tester.pumpAndSettle();
@@ -345,49 +397,22 @@ void main() {
     expect(find.textContaining('Next life in'), findsOneWidget);
   });
 
-  testWidgets('no lives overlay closes when a life recovers', (tester) async {
-    SharedPreferences.setMockInitialValues({});
+  test('lives controller refreshes recovered lives', () async {
     final repository = _FakeLivesRepository(
       const LivesState(
-        currentLives: 1,
+        currentLives: 0,
         maxLives: 5,
         nextLifeAt: null,
-        recoverySecondsRemaining: 0,
+        recoverySecondsRemaining: 90,
         isPremium: false,
       ),
     );
     final container = ProviderContainer(
       overrides: [livesRepositoryProvider.overrideWithValue(repository)],
     );
-    addTearDown(container.dispose);
 
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const DroneStrikeApp(),
-      ),
-    );
-    await tester.pump(const Duration(seconds: 1));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Level Select'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Mission 1'));
-    await pumpGameScreenReady(tester);
-
-    repository.state = const LivesState(
-      currentLives: 0,
-      maxLives: 5,
-      nextLifeAt: null,
-      recoverySecondsRemaining: 90,
-      isPremium: false,
-    );
-    await container.read(livesControllerProvider.notifier).recover();
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-
-    expect(find.text('No lives'), findsNothing);
-    expect(find.textContaining('Next life in'), findsOneWidget);
+    final initial = await container.read(livesControllerProvider.future);
+    expect(initial.currentLives, 0);
 
     repository.state = const LivesState(
       currentLives: 1,
@@ -397,11 +422,10 @@ void main() {
       isPremium: false,
     );
     await container.read(livesControllerProvider.notifier).recover();
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
+    final refreshed = container.read(livesControllerProvider).requireValue;
 
-    expect(find.text('No lives'), findsNothing);
-    expect(find.text('Tap to start'), findsOneWidget);
+    expect(refreshed.currentLives, 1);
+    container.dispose();
   });
 
   test('spending a life keeps ninety second recovery', () async {
@@ -423,6 +447,79 @@ void main() {
     expect(LivesState.normalRecovery, const Duration(seconds: 90));
     expect(full.currentLives, 5);
     expect(full.maxLives, 5);
+  });
+
+  test('registered account setup can reset local lives to full', () async {
+    SharedPreferences.setMockInitialValues({
+      'lives.current_lives': 3,
+      'lives.next_life_at': DateTime.utc(2026, 1, 1, 12, 1).toIso8601String(),
+    });
+    final repository = LivesRepository();
+    await repository.save(LivesState.full());
+
+    final loaded = await repository.load(now: DateTime.utc(2026, 1, 1, 12));
+
+    expect(loaded.currentLives, 5);
+    expect(loaded.nextLifeAt, isNull);
+  });
+
+  test('training missions are free and later missions use lives', () {
+    expect(MissionRules.isFreeMission(1), isTrue);
+    expect(MissionRules.isFreeMission(2), isTrue);
+    expect(MissionRules.maxMissionNumber, 20);
+    expect(MissionRules.usesLives(1), isFalse);
+    expect(MissionRules.usesLives(2), isFalse);
+    expect(MissionRules.usesLives(3), isTrue);
+    expect(
+      MissionRules.isGuestMissionAvailable(
+        missionNumber: 2,
+        unlockedMission: 1,
+      ),
+      isFalse,
+    );
+    expect(
+      MissionRules.isGuestMissionAvailable(
+        missionNumber: 2,
+        unlockedMission: 2,
+      ),
+      isTrue,
+    );
+    expect(
+      MissionRules.isGuestMissionAvailable(
+        missionNumber: 3,
+        unlockedMission: 3,
+      ),
+      isFalse,
+    );
+  });
+
+  test('test shop entitlement is scoped to alpha QA account only', () {
+    expect(
+      TestEntitlements.unlocksShopForEmail('anpilovdmitriy@yandex.ru'),
+      isTrue,
+    );
+    expect(
+      TestEntitlements.unlocksShopForEmail('ANPILOVDMITRIY@YANDEX.RU'),
+      isTrue,
+    );
+    expect(TestEntitlements.unlocksShopForEmail('player@example.com'), isFalse);
+    expect(TestEntitlements.unlocksShopForEmail(null), isFalse);
+  });
+
+  test('new whole-image obstacle variants use forgiving collision insets', () {
+    final streetLight = ObstacleAssetRegistry.bottomVariants.firstWhere(
+      (variant) => variant.id == 'street_light_bottom_01',
+    );
+    final tree = ObstacleAssetRegistry.bottomVariants.firstWhere(
+      (variant) => variant.id == 'tree_bottom_full_leaf_01',
+    );
+    final wire = ObstacleAssetRegistry.topVariants.firstWhere(
+      (variant) => variant.id == 'urban_wire_top_01',
+    );
+
+    expect(streetLight.hitboxInsetXRatio, greaterThanOrEqualTo(0.40));
+    expect(tree.hitboxInsetXRatio, greaterThanOrEqualTo(0.30));
+    expect(wire.hitboxBottomInset, greaterThanOrEqualTo(28));
   });
 
   test('scoring clamps bonuses to expected ranges', () {
@@ -563,13 +660,26 @@ void main() {
   });
 
   test('game physics uses glide-friendly velocity limits', () {
-    expect(GameConfig.gravity, 460.0);
-    expect(GameConfig.tapImpulse, -235.0);
-    expect(GameConfig.startTapImpulse, -135.0);
-    expect(GameConfig.maxRiseSpeed, -285.0);
-    expect(GameConfig.maxFallSpeed, 390.0);
+    final trainingPhysics = GameConfig.physicsForMission(1);
+    final mainPhysics = GameConfig.physicsForMission(10);
+
+    expect(trainingPhysics.gravity, lessThan(GameConfig.gravity));
+    expect(trainingPhysics.tapImpulse, greaterThan(GameConfig.tapImpulse));
+    expect(
+      trainingPhysics.startTapImpulse,
+      greaterThan(GameConfig.startTapImpulse),
+    );
+    expect(trainingPhysics.maxRiseSpeed, greaterThan(GameConfig.maxRiseSpeed));
+    expect(trainingPhysics.maxFallSpeed, lessThan(GameConfig.maxFallSpeed));
+    expect(mainPhysics.gravity, closeTo(GameConfig.gravity, 0.001));
+    expect(mainPhysics.tapImpulse, closeTo(GameConfig.tapImpulse, 0.001));
+    expect(
+      mainPhysics.startTapImpulse,
+      closeTo(GameConfig.startTapImpulse, 0.001),
+    );
     expect(GameConfig.droneWidth, 84.0);
     expect(GameConfig.droneHeight, 48.0);
+    expect(GameConfig.droneStartYRatio, 0.62);
   });
 
   test('locale controller persists ru and en selections', () async {
@@ -609,6 +719,10 @@ void main() {
     final mission7 = LevelConfig.forMission(7);
     final mission10 = LevelConfig.forMission(10);
     final mission13 = LevelConfig.forMission(13);
+    final mission20 = LevelConfig.forMission(20);
+    final mission30 = LevelConfig.forMission(30);
+    final mission80 = LevelConfig.forMission(80);
+    final mission150 = LevelConfig.forMission(150);
 
     expect(mission1.minGapMultiplier, 4.1);
     expect(mission1.maxGapMultiplier, 6.5);
@@ -626,7 +740,15 @@ void main() {
     expect(mission10.finalZoneSeconds, 2.75);
     expect(mission1.forwardSpeed, lessThan(mission2.forwardSpeed));
     expect(mission2.forwardSpeed, lessThan(mission3.forwardSpeed));
+    expect(LevelConfig.forMission(4).forwardSpeed, closeTo(120.6, 0.001));
     expect(mission10.forwardSpeed, greaterThan(mission3.forwardSpeed));
+    expect(mission10.forwardSpeed, lessThan(150.0));
+    expect(mission13.forwardSpeed, greaterThan(mission10.forwardSpeed));
+    expect(mission20.forwardSpeed, greaterThan(mission13.forwardSpeed));
+    expect(mission30.forwardSpeed, greaterThan(mission13.forwardSpeed));
+    expect(mission80.forwardSpeed, greaterThan(mission30.forwardSpeed));
+    expect(mission150.forwardSpeed, greaterThan(mission80.forwardSpeed));
+    expect(mission150.forwardSpeed, lessThanOrEqualTo(232.0));
     expect(mission1.minObstacleSpacing, 320.0);
     expect(mission1.maxObstacleSpacing, 520.0);
     expect(mission3.minObstacleSpacing, 280.0);
@@ -643,7 +765,24 @@ void main() {
     expect(mission10.batteryCount, 8);
     expect(mission13.obstacleCount, 22);
     expect(mission13.batteryCount, 8);
+    expect(mission20.obstacleCount, 22);
+    expect(mission20.batteryCount, 8);
     expect(GameConfig.tankExplosionDelaySeconds, 1.2);
+  });
+
+  test('mission progress advances from start to tank distance', () {
+    final progress = MissionProgressSystem(missionDistanceMeters: 1000);
+
+    expect(progress.progressRatio, 0);
+    expect(progress.remainingDistanceMeters, 1000);
+
+    progress.update(1, 250);
+    expect(progress.progressRatio, closeTo(0.25, 0.001));
+    expect(progress.remainingDistanceMeters, closeTo(750, 0.001));
+
+    progress.update(10, 250);
+    expect(progress.progressRatio, 1);
+    expect(progress.remainingDistanceMeters, 0);
   });
 
   test('level generator clamps generated gaps to MVP minimum', () {
@@ -652,6 +791,7 @@ void main() {
       final level = generator.generate(
         config: LevelConfig.forMission(mission),
         viewportSize: Vector2(800, 450),
+        visualTheme: GameVisualTheme.day,
       );
 
       if (mission == 1) {
@@ -714,15 +854,27 @@ void main() {
           lessThanOrEqualTo(450 - GameConfig.bottomBoundaryHeight),
         );
       }
+      for (final battery in level.batteries) {
+        final previous = level.obstaclePairs.lastWhere(
+          (pair) => pair.worldX < battery.worldX,
+        );
+        final next = level.obstaclePairs.firstWhere(
+          (pair) => pair.worldX > battery.worldX,
+        );
+        expect(battery.worldX, greaterThan(previous.worldX + previous.width));
+        expect(battery.worldX, lessThan(next.worldX));
+      }
     }
 
     final mission1Level = generator.generate(
       config: LevelConfig.forMission(1),
       viewportSize: Vector2(800, 450),
+      visualTheme: GameVisualTheme.night,
     );
     final mission7Level = generator.generate(
       config: LevelConfig.forMission(7),
       viewportSize: Vector2(800, 450),
+      visualTheme: GameVisualTheme.day,
     );
     expect(
       _averageSpacing(mission7Level),

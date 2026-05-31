@@ -16,6 +16,7 @@ import 'components/tank_component.dart';
 import 'game_config.dart';
 import 'game_image_cache.dart';
 import 'game_state.dart';
+import 'game_visual_theme.dart';
 import 'level_config.dart';
 import 'systems/level_generator.dart';
 import 'systems/mission_progress_system.dart';
@@ -60,11 +61,13 @@ class DroneGame extends FlameGame with TapCallbacks {
   final ValueNotifier<DroneGameState> stateNotifier;
 
   late final DroneComponent _drone;
-  late MissionProgressSystem _progressSystem;
+  MissionProgressSystem? _progressSystem;
   late ScoringSystem _scoringSystem;
   late List<ObstaclePairComponent> _obstaclePairs;
   late List<BatteryComponent> _batteries;
   late TankComponent _tank;
+  late final GameVisualTheme _visualTheme;
+  double _missionDistanceMeters = 0;
   double _worldOffset = 0;
   double _startGraceRemaining = 0;
   int _missionCompleteSequence = 0;
@@ -74,20 +77,30 @@ class DroneGame extends FlameGame with TapCallbacks {
   Future<void> onLoad() async {
     await super.onLoad();
     await GameImageCache.precache(AppAssets.gameImageAssets);
+    _visualTheme = GameVisualThemeX.randomForMission(levelConfig.missionNumber);
 
-    _progressSystem = MissionProgressSystem(
-      missionDistanceMeters: levelConfig.missionDistanceMeters,
-    );
     _scoringSystem = ScoringSystem();
-    await add(BackgroundLayerComponent(forwardSpeed: levelConfig.forwardSpeed));
-    _drone = DroneComponent()..position = _startPosition();
+    await add(
+      BackgroundLayerComponent(
+        forwardSpeed: levelConfig.forwardSpeed,
+        visualTheme: _visualTheme,
+      ),
+    );
+    _drone = DroneComponent(physics: levelConfig.physics)
+      ..position = _startPosition();
     final generatedLevel = const LevelGenerator().generate(
       config: levelConfig,
       viewportSize: size,
+      visualTheme: _visualTheme,
     );
     _obstaclePairs = generatedLevel.obstaclePairs;
     _batteries = generatedLevel.batteries;
     _tank = generatedLevel.tank;
+    _missionDistanceMeters = _distanceToTankTarget();
+    _progressSystem = MissionProgressSystem(
+      missionDistanceMeters: _missionDistanceMeters,
+    );
+    _syncState(remainingDistanceMeters: _missionDistanceMeters);
 
     for (final pair in _obstaclePairs) {
       await add(pair);
@@ -132,11 +145,16 @@ class DroneGame extends FlameGame with TapCallbacks {
         double.infinity,
       );
     }
-    _progressSystem.update(dt, levelConfig.forwardSpeed);
-    _worldOffset = _progressSystem.currentDistanceMeters;
+    final progressSystem = _progressSystem;
+    if (progressSystem == null) {
+      super.update(dt);
+      return;
+    }
+    progressSystem.update(dt, levelConfig.forwardSpeed);
+    _worldOffset = progressSystem.currentDistanceMeters;
     _updateWorldComponents();
     _syncState(
-      remainingDistanceMeters: _progressSystem.remainingDistanceMeters,
+      remainingDistanceMeters: progressSystem.remainingDistanceMeters,
     );
     _recordFlightAccuracy();
     _checkBatteryCollection();
@@ -207,7 +225,7 @@ class DroneGame extends FlameGame with TapCallbacks {
     overlays.remove(gameOverOverlay);
     overlays.remove(missionCompleteOverlay);
     overlays.remove(noLivesOverlay);
-    _progressSystem.reset();
+    _progressSystem?.reset();
     _scoringSystem = ScoringSystem();
     _missionCompleteSequence++;
     for (final battery in _batteries) {
@@ -223,7 +241,7 @@ class DroneGame extends FlameGame with TapCallbacks {
       score: 0,
       batteryBonus: 0,
       playerLevel: initialPlayerLevel,
-      remainingDistanceMeters: levelConfig.missionDistanceMeters,
+      remainingDistanceMeters: _missionDistanceMeters,
       status: DroneMissionStatus.ready,
     );
     onRestart?.call();
@@ -295,6 +313,22 @@ class DroneGame extends FlameGame with TapCallbacks {
       size.x * levelConfig.droneStartXRatio,
       size.y * levelConfig.droneStartYRatio - levelConfig.droneHeight / 2,
     );
+  }
+
+  double get missionDistanceMeters {
+    final progressSystem = _progressSystem;
+    return progressSystem?.missionDistanceMeters ??
+        (_missionDistanceMeters > 0
+            ? _missionDistanceMeters
+            : levelConfig.missionDistanceMeters);
+  }
+
+  double _distanceToTankTarget() {
+    final droneCenterX = _drone.position.x + _drone.size.x / 2;
+    final targetCenterX = _tank.worldX + TankComponent.tankWidth / 2;
+    return (targetCenterX - droneCenterX)
+        .clamp(GameConfig.initialRemainingDistanceMeters, double.infinity)
+        .toDouble();
   }
 
   void _checkBoundaryDeath() {

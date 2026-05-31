@@ -7,7 +7,9 @@ import '../components/battery_component.dart';
 import '../components/obstacle_pair_component.dart';
 import '../components/tank_component.dart';
 import '../game_config.dart';
+import '../game_visual_theme.dart';
 import '../level_config.dart';
+import '../obstacle_asset_registry.dart';
 
 class GeneratedLevel {
   const GeneratedLevel({
@@ -51,6 +53,7 @@ class LevelGenerator {
   GeneratedLevel generate({
     required LevelConfig config,
     required Vector2 viewportSize,
+    required GameVisualTheme visualTheme,
   }) {
     final ceilingY = GameConfig.playableTopY;
     final groundY = viewportSize.y - GameConfig.bottomBoundaryHeight;
@@ -134,6 +137,18 @@ class LevelGenerator {
           netHeight: obstacle.netHeight,
           gapHeight: obstacle.gapHeight,
           width: config.obstacleWidth,
+          bottomVariant: ObstacleAssetRegistry.pick(
+            mount: ObstacleMount.bottom,
+            height: obstacle.treeHeight,
+            theme: visualTheme,
+            seed: config.missionNumber * 101 + obstacle.index * 17,
+          ),
+          topVariant: ObstacleAssetRegistry.pick(
+            mount: ObstacleMount.top,
+            height: obstacle.netHeight,
+            theme: visualTheme,
+            seed: config.missionNumber * 131 + obstacle.index * 19,
+          ),
           variantSeed: config.missionNumber * 31 + obstacle.index,
         ),
     ];
@@ -141,6 +156,7 @@ class LevelGenerator {
       config: config,
       obstacles: generated,
       random: random,
+      viewportHeight: viewportSize.y,
     );
 
     if (kDebugMode) {
@@ -161,45 +177,88 @@ class LevelGenerator {
     required LevelConfig config,
     required List<GeneratedObstacleData> obstacles,
     required math.Random random,
+    required double viewportHeight,
   }) {
-    if (obstacles.isEmpty || config.batteryCount <= 0) {
+    if (obstacles.length < 2 || config.batteryCount <= 0) {
       return const [];
     }
 
     final batteries = <BatteryComponent>[];
     final usedObstacleIndexes = <int>{};
+    final ceilingY = GameConfig.playableTopY;
+    final groundY = viewportHeight - GameConfig.bottomBoundaryHeight;
+    final verticalMargin = GameConfig.batteryHeight * 1.1;
     for (var index = 0; index < config.batteryCount; index++) {
       final targetPosition =
-          ((index + 1) * (obstacles.length + 1) / (config.batteryCount + 1))
-              .round() -
+          ((index + 1) * obstacles.length / (config.batteryCount + 1)).round() -
           1;
-      final obstacleIndex = targetPosition.clamp(0, obstacles.length - 1);
+      final obstacleIndex = targetPosition.clamp(0, obstacles.length - 2);
       if (!usedObstacleIndexes.add(obstacleIndex)) {
         continue;
       }
 
-      final obstacle = obstacles[obstacleIndex];
-      final gapCenter = (obstacle.gapTopY + obstacle.gapBottomY) / 2;
-      final riskOffset = index.isEven
-          ? 0.0
-          : (random.nextBool() ? -1 : 1) *
-                obstacle.gapHeight *
-                (0.18 + random.nextDouble() * 0.16);
-      final centerY = (gapCenter + riskOffset).clamp(
-        obstacle.gapTopY + GameConfig.batteryHeight,
-        obstacle.gapBottomY - GameConfig.batteryHeight,
+      final previous = obstacles[obstacleIndex];
+      final next = obstacles[obstacleIndex + 1];
+      final segmentStartX = previous.x + config.obstacleWidth * 1.35;
+      final segmentEndX = next.x - config.obstacleWidth * 0.45;
+      if (segmentEndX <= segmentStartX) {
+        continue;
+      }
+
+      final travelT = 0.42 + random.nextDouble() * 0.18;
+      final safeY = _lerp(
+        (previous.gapTopY + previous.gapBottomY) / 2,
+        (next.gapTopY + next.gapBottomY) / 2,
+        travelT,
       );
-      final xJitter = (random.nextDouble() - 0.5) * config.obstacleWidth * 0.9;
+      final offsetDirection = _batteryOffsetDirection(
+        safeY: safeY,
+        ceilingY: ceilingY,
+        groundY: groundY,
+        index: index,
+        random: random,
+      );
+      final offsetScale = config.isTutorial ? 0.34 : 0.48;
+      final riskOffset = math.max(
+        GameConfig.droneHeight * (config.isTutorial ? 0.85 : 1.1),
+        math.min(previous.gapHeight, next.gapHeight) * offsetScale,
+      );
+      final centerY = (safeY + offsetDirection * riskOffset).clamp(
+        ceilingY + verticalMargin,
+        groundY - verticalMargin,
+      );
+      final xJitter =
+          (random.nextDouble() - 0.5) * math.min(56.0, config.obstacleWidth);
       batteries.add(
         BatteryComponent(
           id: index,
-          worldX: obstacle.x + config.obstacleWidth / 2 + xJitter,
+          worldX: _lerp(segmentStartX, segmentEndX, travelT) + xJitter,
           worldCenterY: centerY.toDouble(),
         ),
       );
     }
 
     return batteries;
+  }
+
+  double _lerp(double a, double b, double t) => a + (b - a) * t;
+
+  double _batteryOffsetDirection({
+    required double safeY,
+    required double ceilingY,
+    required double groundY,
+    required int index,
+    required math.Random random,
+  }) {
+    final upperRoom = safeY - ceilingY;
+    final lowerRoom = groundY - safeY;
+    if (upperRoom < GameConfig.droneHeight * 2.0) {
+      return 1;
+    }
+    if (lowerRoom < GameConfig.droneHeight * 2.0) {
+      return -1;
+    }
+    return (index + (random.nextBool() ? 0 : 1)).isEven ? -1 : 1;
   }
 
   double _randomInRange(math.Random random, double min, double max) {
